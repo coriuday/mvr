@@ -264,5 +264,5 @@ Copyright © 2025 MVR Consultants. All rights reserved.
 ---
 
 <div align="center">
-  <em>Built with ❤️ by the MVR Engineering Team</em>
+  <em>Built with ❤️ by the Team Glory X</em>
 </div>
