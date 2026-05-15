@@ -1,0 +1,3 @@
+# Supabase secrets — NEVER commit
+.env
+supabase-service-role.key
