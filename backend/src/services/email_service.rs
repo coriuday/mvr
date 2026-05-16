@@ -1,154 +1,195 @@
-use reqwest::Client;
-use serde::Serialize;
+use chrono::Datelike;
+use resend_rs::{types::CreateEmailBaseOptions, Resend};
 use crate::utils::errors::{AppError, AppResult};
 
 pub struct EmailService {
     pub api_key: String,
-    pub from_address: String,
-    pub from_name: String,
-    pub client: Client,
-}
-
-#[derive(Serialize)]
-struct ResendEmailRequest<'a> {
-    from: String,
-    to: Vec<&'a str>,
-    subject: &'a str,
-    html: String,
-    reply_to: Option<Vec<&'a str>>,
+    pub admin_email: String,
+    pub admin_email_guntur: String,
+    pub from: String,
 }
 
 impl EmailService {
-    pub fn new(api_key: String, from_address: String, from_name: String) -> Self {
+    pub fn new(api_key: &str, from_address: &str, from_name: &str, admin_email: &str, admin_email_guntur: &str) -> Self {
         Self {
-            api_key,
-            from_address,
-            from_name,
-            client: Client::new(),
+            api_key: api_key.to_string(),
+            admin_email: admin_email.to_string(),
+            admin_email_guntur: admin_email_guntur.to_string(),
+            from: format!("{} <{}>", from_name, from_address),
         }
     }
 
-    /// Send a notification email to the admin when a new lead comes in
+    /// Send admin notification when a new lead is submitted
     pub async fn send_lead_notification(
         &self,
-        admin_email: &str,
         lead_name: &str,
         lead_email: &str,
         lead_phone: Option<&str>,
         lead_message: Option<&str>,
         country_interest: Option<&str>,
     ) -> AppResult<()> {
-        let phone_line = lead_phone.map(|p| format!("<li><strong>Phone:</strong> {}</li>", p)).unwrap_or_default();
-        let country_line = country_interest.map(|c| format!("<li><strong>Country Interest:</strong> {}</li>", c)).unwrap_or_default();
-        let message_line = lead_message.map(|m| format!("<p><strong>Message:</strong><br/>{}</p>", m)).unwrap_or_default();
+        let phone_row = lead_phone
+            .map(|p| format!("<tr><td style='padding:8px 0;color:#6b7280;font-weight:600;width:140px;vertical-align:top;'>Phone</td><td style='padding:8px 0;color:#111827;'>{}</td></tr>", p))
+            .unwrap_or_default();
+        let country_row = country_interest
+            .map(|c| format!("<tr><td style='padding:8px 0;color:#6b7280;font-weight:600;vertical-align:top;'>Country Interest</td><td style='padding:8px 0;color:#111827;'>{}</td></tr>", c))
+            .unwrap_or_default();
+        let message_block = lead_message
+            .filter(|m| !m.trim().is_empty())
+            .map(|m| format!(
+                r#"<div style="background:#f9fafb;border-radius:8px;padding:16px;margin-top:16px;">
+                     <p style="color:#6b7280;font-size:12px;font-weight:600;margin:0 0 8px 0;text-transform:uppercase;letter-spacing:0.05em;">Message</p>
+                     <p style="color:#111827;margin:0;line-height:1.6;">{}</p>
+                   </div>"#, m))
+            .unwrap_or_default();
 
-        let html = format!(r#"
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"></head>
-<body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: #1a2f5e; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
-    <h1 style="color: #c9a84c; margin: 0; font-size: 22px;">🎓 New Lead — MVR Consultants</h1>
-  </div>
-  <div style="border: 1px solid #e5e7eb; border-top: none; padding: 28px; border-radius: 0 0 12px 12px;">
-    <p style="color: #4b5563; margin-bottom: 16px;">A new inquiry was submitted via the website.</p>
-    <ul style="list-style: none; padding: 0; background: #f9fafb; border-radius: 8px; padding: 16px;">
-      <li style="margin-bottom: 10px;"><strong>Name:</strong> {}</li>
-      <li style="margin-bottom: 10px;"><strong>Email:</strong> <a href="mailto:{}">{}</a></li>
+        let html = format!(r#"<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px;">
+  <div style="max-width:580px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+    <div style="background:linear-gradient(135deg,#1a2f5e,#0f1c3d);padding:28px 32px;text-align:center;">
+      <h1 style="color:#c9a84c;margin:0 0 6px 0;font-size:20px;letter-spacing:0.05em;">MVR CONSULTANTS</h1>
+      <p style="color:rgba(255,255,255,0.6);margin:0;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;">Overseas Education · Immigration</p>
+    </div>
+    <div style="padding:28px 32px;">
+      <p style="color:#374151;margin:0 0 4px 0;font-weight:600;">🎓 New Lead Received</p>
+      <p style="color:#6b7280;font-size:14px;margin:0 0 20px 0;">A new inquiry was submitted via the MVR Consultants website.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        <tr><td style="padding:8px 0;color:#6b7280;font-weight:600;width:140px;vertical-align:top;">Full Name</td><td style="padding:8px 0;color:#111827;font-weight:700;">{}</td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280;font-weight:600;vertical-align:top;">Email</td><td style="padding:8px 0;"><a href="mailto:{}" style="color:#c9a84c;font-weight:600;">{}</a></td></tr>
+        {}
+        {}
+      </table>
       {}
-      {}
-    </ul>
-    {}
-    <div style="margin-top: 24px; text-align: center;">
-      <a href="https://mvrconsultants.com/admin/leads" style="background: #1a2f5e; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-        View in Dashboard →
-      </a>
+      <div style="margin-top:28px;text-align:center;">
+        <a href="https://mvrconsultants.com/admin/leads"
+           style="display:inline-block;background:#1a2f5e;color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
+          Open Admin Dashboard →
+        </a>
+      </div>
+    </div>
+    <div style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #f3f4f6;">
+      <p style="color:#9ca3af;font-size:11px;margin:0;">
+        MVR Consultants · Hyderabad: +91 99669 03884 · Guntur: +91 85999 99331
+      </p>
+      <p style="color:#d1d5db;font-size:10px;margin:4px 0 0 0;">Automated lead notification — do not reply to this email</p>
     </div>
   </div>
-  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 16px;">
-    MVR Consultants · Automated Lead Notification
-  </p>
 </body>
-</html>
-        "#,
-        lead_name, lead_email, lead_email, phone_line, country_line, message_line);
+</html>"#,
+            lead_name, lead_email, lead_email, phone_row, country_row, message_block
+        );
 
-        let payload = ResendEmailRequest {
-            from: format!("{} <{}>", self.from_name, self.from_address),
-            to: vec![admin_email],
-            subject: &format!("New Inquiry: {} — MVR Consultants", lead_name),
-            html,
-            reply_to: Some(vec![lead_email]),
-        };
+        let subject = format!("🎓 New Lead: {} — MVR Consultants", lead_name);
+        let resend = Resend::new(&self.api_key);
 
-        let response = self.client
-            .post("https://api.resend.com/emails")
-            .header("Authorization", format!("Bearer {}", self.api_key))
-            .json(&payload)
-            .send()
-            .await
-            .map_err(|e| AppError::InternalServerError(format!("Email send failed: {e}")))?;
+        // Send to Hyderabad office (primary)
+        let email = CreateEmailBaseOptions::new(
+            &self.from,
+            [self.admin_email.as_str()],
+            &subject,
+        )
+        .with_html(&html)
+        .with_reply(lead_email);
 
-        if !response.status().is_success() {
-            let error_body = response.text().await.unwrap_or_default();
-            tracing::error!("Resend API error: {}", error_body);
-            // Don't fail the request if email fails — log and continue
+        if let Err(e) = resend.emails.send(email).await {
+            tracing::error!("Failed to send lead notification to HYD: {}", e);
+            // Soft-fail — don't block lead creation if email fails
+        }
+
+        // Also CC Guntur office if different
+        if self.admin_email_guntur != self.admin_email {
+            let email2 = CreateEmailBaseOptions::new(
+                &self.from,
+                [self.admin_email_guntur.as_str()],
+                &subject,
+            )
+            .with_html(&html)
+            .with_reply(lead_email);
+
+            if let Err(e) = resend.emails.send(email2).await {
+                tracing::error!("Failed to send lead notification to GNT: {}", e);
+            }
         }
 
         Ok(())
     }
 
-    /// Send a confirmation email to the student who submitted the inquiry
+    /// Send an auto-reply confirmation to the student
     pub async fn send_inquiry_confirmation(
         &self,
         student_email: &str,
         student_name: &str,
     ) -> AppResult<()> {
-        let html = format!(r#"
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"></head>
-<body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(135deg, #1a2f5e, #0f1c3d); padding: 32px; border-radius: 12px 12px 0 0; text-align: center;">
-    <h1 style="color: #c9a84c; margin: 0 0 8px 0; font-size: 24px;">MVR Consultants</h1>
-    <p style="color: rgba(255,255,255,0.75); margin: 0; font-size: 14px;">Your Dream. Our Guidance.</p>
-  </div>
-  <div style="border: 1px solid #e5e7eb; border-top: none; padding: 32px; border-radius: 0 0 12px 12px; text-align: center;">
-    <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
-    <h2 style="color: #1a2f5e; margin-bottom: 12px;">Thank You, {}!</h2>
-    <p style="color: #4b5563; line-height: 1.7;">
-      We have received your inquiry and one of our expert counselors will reach out to you within <strong>24 hours</strong>.
-    </p>
-    <p style="color: #4b5563; line-height: 1.7;">
-      In the meantime, explore our <a href="https://mvrconsultants.com/universities" style="color: #c9a84c;">partner universities</a> and <a href="https://mvrconsultants.com/scholarships" style="color: #c9a84c;">available scholarships</a>.
-    </p>
-    <div style="margin-top: 28px;">
-      <a href="https://mvrconsultants.com" style="background: #c9a84c; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+        let html = format!(r#"<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px;">
+  <div style="max-width:580px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+    <div style="background:linear-gradient(135deg,#1a2f5e,#0f1c3d);padding:32px;text-align:center;">
+      <h1 style="color:#c9a84c;margin:0 0 6px 0;font-size:24px;letter-spacing:0.05em;">MVR CONSULTANTS</h1>
+      <p style="color:rgba(255,255,255,0.65);margin:0;font-size:13px;">Overseas Education · Immigration</p>
+    </div>
+    <div style="padding:36px 32px;text-align:center;">
+      <div style="font-size:52px;margin-bottom:16px;">✅</div>
+      <h2 style="color:#1a2f5e;margin:0 0 12px 0;font-size:22px;">Thank You, {}!</h2>
+      <p style="color:#4b5563;line-height:1.75;margin:0 0 12px 0;font-size:15px;">
+        We have received your inquiry. One of our expert counselors will contact you within <strong>24 hours</strong>.
+      </p>
+      <p style="color:#6b7280;font-size:14px;line-height:1.7;margin:0 0 28px 0;">
+        In the meantime, explore our
+        <a href="https://mvrconsultants.com/universities" style="color:#c9a84c;font-weight:600;">partner universities</a>
+        and
+        <a href="https://mvrconsultants.com/scholarships" style="color:#c9a84c;font-weight:600;">available scholarships</a>.
+      </p>
+      <a href="https://mvrconsultants.com"
+         style="display:inline-block;background:#c9a84c;color:white;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
         Visit Our Website
       </a>
     </div>
+    <div style="background:#1a2f5e;padding:20px 32px;">
+      <table style="width:100%;font-size:12px;color:rgba(255,255,255,0.65);">
+        <tr>
+          <td style="padding:4px 0;">📞 Hyderabad</td>
+          <td style="padding:4px 0;text-align:right;"><a href="tel:+919966903884" style="color:#c9a84c;text-decoration:none;">+91 99669 03884</a> · <a href="tel:+918599999331" style="color:#c9a84c;text-decoration:none;">+91 85999 99331</a></td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;">📞 Guntur</td>
+          <td style="padding:4px 0;text-align:right;"><a href="tel:+919966903884" style="color:#c9a84c;text-decoration:none;">+91 99669 03884</a></td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;">✉️ Email</td>
+          <td style="padding:4px 0;text-align:right;"><a href="mailto:mvroverseasconsultancy@gmail.com" style="color:#c9a84c;text-decoration:none;">mvroverseasconsultancy@gmail.com</a></td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;">🌐 Web</td>
+          <td style="padding:4px 0;text-align:right;"><a href="https://mvrconsultants.com" style="color:#c9a84c;text-decoration:none;">www.mvrconsultants.com</a></td>
+        </tr>
+      </table>
+    </div>
+    <div style="padding:12px 32px;text-align:center;background:#f9fafb;border-top:1px solid #f3f4f6;">
+      <p style="color:#d1d5db;font-size:10px;margin:0;">© {} MVR Consultants. Managing Director: Mukkapati Veeranjaneyulu</p>
+    </div>
   </div>
-  <p style="text-align: center; color: #9ca3af; font-size: 12px; margin-top: 16px;">
-    © MVR Consultants · Study Abroad Experts
-  </p>
 </body>
-</html>
-        "#, student_name);
+</html>"#,
+            student_name,
+            chrono::Utc::now().year()
+        );
 
-        let payload = ResendEmailRequest {
-            from: format!("{} <{}>", self.from_name, self.from_address),
-            to: vec![student_email],
-            subject: "We received your inquiry — MVR Consultants",
-            html,
-            reply_to: None,
-        };
+        let resend = Resend::new(&self.api_key);
+        let email = CreateEmailBaseOptions::new(
+            &self.from,
+            [student_email],
+            "We received your inquiry — MVR Consultants",
+        )
+        .with_html(&html);
 
-        let _ = self.client
-            .post("https://api.resend.com/emails")
-            .header("Authorization", format!("Bearer {}", self.api_key))
-            .json(&payload)
-            .send()
-            .await;
+        if let Err(e) = resend.emails.send(email).await {
+            tracing::warn!("Failed to send inquiry confirmation to {}: {}", student_email, e);
+            // Soft-fail
+        }
 
         Ok(())
     }

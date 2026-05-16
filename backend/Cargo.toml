@@ -70,9 +70,9 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"]
 reqwest = { version = "0.12", features = ["json", "multipart"] }
 
 # ---------------------------------------------------------------------------
-# Email — Resend
+# Email — Resend (official Rust SDK v0.25)
 # ---------------------------------------------------------------------------
-# Using reqwest to call Resend REST API directly (no official Rust SDK needed)
+resend-rs = "0.25"
 
 # ---------------------------------------------------------------------------
 # Random / Security

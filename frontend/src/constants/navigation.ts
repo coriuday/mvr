@@ -61,9 +61,26 @@ export const FOOTER_SUPPORT = [
 ];
 
 export const CONTACT_INFO = {
-  phone: "+91 123 456 7890",
-  email: "info@mvrconsultants.com",
-  address: "172, Education Hub, New Delhi, India",
+  // Primary phones (both numbers from visiting cards)
+  phone: "+91 99669 03884",
+  phoneAlt: "+91 85999 99331",
+
+  // Primary email (Hyderabad office)
+  email: "mvrconsultantshyd@gmail.com",
+  emailGuntur: "mvroverseasconsultancy@gmail.com",
+
+  // Website
+  website: "www.mvrconsultants.com",
+
+  // Managing Director
+  md: "Mukkapati Veeranjaneyulu",
+
+  // Hyderabad office
+  address: "H No 15-31-27, Dharma Reddy Colony, Ph 1 MRO Office Lane, KPHB Colony, Hyderabad – 500 072",
+
+  // Guntur office
+  addressGuntur: "D. No: 3-28-41/5, 1st Floor, 4th Line Brundavan Gardens, Y5 Mall Beside Road, Opp. Yaganti Pearls Apartment, Guntur – 522006",
+
   socialMedia: {
     facebook: "https://facebook.com/mvrconsultants",
     instagram: "https://instagram.com/mvrconsultants",
@@ -71,3 +88,4 @@ export const CONTACT_INFO = {
     youtube: "https://youtube.com/mvrconsultants",
   },
 };
+

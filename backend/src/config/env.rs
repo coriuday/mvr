@@ -32,6 +32,8 @@ pub struct Config {
     pub resend_api_key: String,
     pub email_from: String,
     pub email_from_name: String,
+    pub admin_email: String,
+    pub admin_email_guntur: String,
 }
 
 impl Config {
@@ -86,9 +88,13 @@ impl Config {
             resend_api_key: std::env::var("RESEND_API_KEY")
                 .unwrap_or_else(|_| "".to_string()),
             email_from: std::env::var("EMAIL_FROM")
-                .unwrap_or_else(|_| "noreply@mvrconsultants.com".to_string()),
+                .unwrap_or_else(|_| "mvrconsultantshyd@gmail.com".to_string()),
             email_from_name: std::env::var("EMAIL_FROM_NAME")
                 .unwrap_or_else(|_| "MVR Consultants".to_string()),
+            admin_email: std::env::var("ADMIN_EMAIL")
+                .unwrap_or_else(|_| "mvrconsultantshyd@gmail.com".to_string()),
+            admin_email_guntur: std::env::var("ADMIN_EMAIL_GUNTUR")
+                .unwrap_or_else(|_| "mvroverseasconsultancy@gmail.com".to_string()),
         })
     }
 

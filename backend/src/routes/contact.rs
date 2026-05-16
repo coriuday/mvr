@@ -59,16 +59,16 @@ pub async fn send_contact(
     // Send notification email to admin + confirmation to student
     if !state.config.resend_api_key.is_empty() {
         let email_service = EmailService::new(
-            state.config.resend_api_key.clone(),
-            state.config.email_from.clone(),
-            state.config.email_from_name.clone(),
+            &state.config.resend_api_key,
+            &state.config.email_from,
+            &state.config.email_from_name,
+            &state.config.admin_email,
+            &state.config.admin_email_guntur,
         );
 
-        // Admin notification (fire-and-forget)
-        let admin_email = state.config.email_from.clone();
+        // Admin notification to both offices (fire-and-forget)
         let _ = email_service
             .send_lead_notification(
-                &admin_email,
                 &body.name,
                 &body.email,
                 body.phone.as_deref(),

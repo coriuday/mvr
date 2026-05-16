@@ -22,11 +22,44 @@ const COUNTRIES = [
 ];
 
 const CONTACT_CARDS = [
-  { icon: Phone,   title: "Call Us",      lines: ["+91 9876 543 210", "+91 8765 432 109"], sub: "Mon–Sat, 9am–7pm IST",       color: "text-blue-500",   bg: "bg-blue-50"   },
-  { icon: Mail,    title: "Email Us",     lines: ["info@mvrconsultants.com", "admissions@mvrconsultants.com"], sub: "Reply within 4 hours", color: "text-emerald-600", bg: "bg-emerald-50" },
-  { icon: MapPin,  title: "Visit Us",     lines: ["MG Road, Bangalore", "Karnataka 560001, India"],           sub: "Appointments preferred", color: "text-amber-600",  bg: "bg-amber-50"   },
-  { icon: Clock,   title: "Office Hours", lines: ["Mon–Fri: 9am – 7pm", "Saturday: 10am – 5pm"],             sub: "Sunday: Closed",        color: "text-purple-600", bg: "bg-purple-50"  },
+  {
+    icon: Phone,
+    title: "Call Us",
+    lines: ["+91 99669 03884", "+91 85999 99331"],
+    sub: "Mon–Sat, 9am–7pm IST",
+    color: "text-blue-500",
+    bg: "bg-blue-50",
+    href: "tel:+919966903884",
+  },
+  {
+    icon: Mail,
+    title: "Email Us",
+    lines: ["mvrconsultantshyd@gmail.com", "mvroverseasconsultancy@gmail.com"],
+    sub: "Reply within 4 hours",
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    href: "mailto:mvrconsultantshyd@gmail.com",
+  },
+  {
+    icon: MapPin,
+    title: "Hyderabad Office",
+    lines: ["KPHB Colony, Hyderabad", "500 072, Telangana"],
+    sub: "H No 15-31-27, Dharma Reddy Colony",
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    href: "https://maps.google.com/?q=KPHB+Colony+Hyderabad",
+  },
+  {
+    icon: Clock,
+    title: "Office Hours",
+    lines: ["Mon–Fri: 9am – 7pm", "Saturday: 10am – 5pm"],
+    sub: "Sunday: Closed",
+    color: "text-purple-600",
+    bg: "bg-purple-50",
+    href: null,
+  },
 ];
+
 
 const cardVariants: Variants = {
   hidden: {}, visible: { transition: { staggerChildren: 0.1 } },
@@ -259,23 +292,43 @@ export default function ContactPageClient() {
               </div>
 
               <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden">
-                <div className="h-44 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapPin size={32} className="text-[#1a2f5e] mx-auto mb-2" />
-                    <p className="text-[#1a2f5e] font-semibold text-sm">MG Road, Bangalore</p>
-                    <p className="text-gray-500 text-xs">Karnataka 560001, India</p>
+                <div className="bg-gradient-to-br from-[#1a2f5e]/5 to-[#c9a84c]/5 px-6 py-5 border-b border-gray-100">
+                  <h4 className="font-bold text-[#1a2f5e] mb-4 flex items-center gap-2">
+                    <MapPin size={16} className="text-[#c9a84c]" /> Our Offices
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold text-[#c9a84c] uppercase tracking-wider mb-1">🏢 Hyderabad</p>
+                      <p className="text-gray-700 text-sm leading-relaxed">
+                        H No 15-31-27, Dharma Reddy Colony,<br />
+                        Ph 1 MRO Office Lane, KPHB Colony,<br />
+                        Hyderabad – 500 072
+                      </p>
+                      <a href="https://maps.google.com/?q=KPHB+Colony+Hyderabad+500072"
+                        target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[#c9a84c] text-xs font-semibold mt-1.5 hover:underline">
+                        <MapPin size={11} /> Get Directions →
+                      </a>
+                    </div>
+                    <div className="border-t border-gray-100 pt-4">
+                      <p className="text-xs font-semibold text-[#c9a84c] uppercase tracking-wider mb-1">🏢 Guntur</p>
+                      <p className="text-gray-700 text-sm leading-relaxed">
+                        D. No: 3-28-41/5, 1st Floor,<br />
+                        4th Line Brundavan Gardens,<br />
+                        Opp. Yaganti Pearls Apartment, Guntur – 522006
+                      </p>
+                      <a href="https://maps.google.com/?q=Brundavan+Gardens+Guntur+522006"
+                        target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[#c9a84c] text-xs font-semibold mt-1.5 hover:underline">
+                        <MapPin size={11} /> Get Directions →
+                      </a>
+                    </div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h4 className="font-bold text-[#1a2f5e] mb-1">Walk-In Welcome</h4>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    Prefer to meet in person? Visit our office during business hours.
-                    Appointment booking recommended for personalized sessions.
+                <div className="px-6 py-4">
+                  <p className="text-gray-500 text-xs leading-relaxed">
+                    Walk-ins welcome during office hours. Appointment booking recommended for personalized counseling sessions.
                   </p>
-                  <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[#c9a84c] text-sm font-semibold mt-3 hover:underline">
-                    <MapPin size={13} /> Get Directions →
-                  </a>
                 </div>
               </div>
             </motion.div>
