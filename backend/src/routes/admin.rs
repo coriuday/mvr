@@ -1,19 +1,59 @@
 use axum::{extract::State, Json};
 use crate::{
+    repositories::{auth_repository::AuthRepository, lead_repository::LeadRepository},
     routes::AppState,
-    utils::errors::{AppError, AppResult},
+    utils::errors::AppResult,
 };
 
+// ─── GET /api/admin/stats ────────────────────────────────────────────────────
 pub async fn get_stats(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<serde_json::Value>> {
-    // TODO: Phase 2 — return: total_leads, new_leads_today, total_blogs, total_universities
-    Err(AppError::InternalServerError("Not yet implemented".to_string()))
+    let lead_repo = LeadRepository::new(state.db.clone());
+    let auth_repo = AuthRepository::new(state.db.clone());
+
+    // Run queries concurrently
+    let (leads_today, all_leads, staff_count) = tokio::try_join!(
+        lead_repo.count_today(),
+        async { lead_repo.find_all(&crate::models::lead::LeadFilter::default()).await },
+        auth_repo.list_all(),
+    )?;
+
+    let (all_leads_vec, total_leads) = all_leads;
+
+    // Count by status
+    let new_count = all_leads_vec.iter()
+        .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::New))
+        .count();
+    let converted_count = all_leads_vec.iter()
+        .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::Converted))
+        .count();
+
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "data": {
+            "total_leads": total_leads,
+            "new_leads_today": leads_today,
+            "new_leads_total": new_count,
+            "converted_leads": converted_count,
+            "conversion_rate": if total_leads > 0 {
+                format!("{:.1}%", (converted_count as f64 / total_leads as f64) * 100.0)
+            } else { "0%".to_string() },
+            "staff_count": staff_count.len(),
+        }
+    })))
 }
 
+// ─── GET /api/admin/recent-leads ─────────────────────────────────────────────
 pub async fn get_recent_leads(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<serde_json::Value>> {
-    // TODO: Phase 2 — return last 10 leads
-    Err(AppError::InternalServerError("Not yet implemented".to_string()))
+    let repo = LeadRepository::new(state.db.clone());
+    let filter = crate::models::lead::LeadFilter {
+        status: None,
+        page: Some(1),
+        per_page: Some(10),
+    };
+    let (leads, _) = repo.find_all(&filter).await?;
+    Ok(Json(serde_json::json!({ "success": true, "data": leads })))
 }

@@ -59,7 +59,7 @@ pub struct UpdateLeadRequest {
     pub phone: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 pub struct LeadFilter {
     pub status: Option<LeadStatus>,
     pub page: Option<i64>,
