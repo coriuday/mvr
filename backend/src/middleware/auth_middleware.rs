@@ -3,20 +3,21 @@ use axum::{
     middleware::Next,
     response::Response,
 };
+use axum_extra::extract::cookie::CookieJar;
 
 use crate::{
-    config::env::Config,
     utils::{errors::AppError, jwt::verify_access_token},
 };
 
-/// Extracts and validates JWT access token from the Authorization: Bearer header.
+/// Extracts and validates JWT access token from the HttpOnly cookie.
 /// Injects verified `Claims` into request extensions for downstream handlers.
 pub async fn require_auth(
     State(config): State<crate::routes::AppState>,
+    jar: CookieJar,
     mut request: Request,
     next: Next,
 ) -> Result<Response, AppError> {
-    let token = extract_bearer_token(&request)?;
+    let token = extract_access_token(&jar)?;
     let claims = verify_access_token(&token, &config.config)?;
     request.extensions_mut().insert(claims);
     Ok(next.run(request).await)
@@ -25,10 +26,11 @@ pub async fn require_auth(
 /// Requires the user to have the ADMIN role
 pub async fn require_admin(
     State(state): State<crate::routes::AppState>,
+    jar: CookieJar,
     mut request: Request,
     next: Next,
 ) -> Result<Response, AppError> {
-    let token = extract_bearer_token(&request)?;
+    let token = extract_access_token(&jar)?;
     let claims = verify_access_token(&token, &state.config)?;
 
     if claims.role != "ADMIN" {
@@ -44,10 +46,11 @@ pub async fn require_admin(
 /// Requires the user to be ADMIN or COUNSELOR
 pub async fn require_counselor_or_admin(
     State(state): State<crate::routes::AppState>,
+    jar: CookieJar,
     mut request: Request,
     next: Next,
 ) -> Result<Response, AppError> {
-    let token = extract_bearer_token(&request)?;
+    let token = extract_access_token(&jar)?;
     let claims = verify_access_token(&token, &state.config)?;
 
     if claims.role != "ADMIN" && claims.role != "COUNSELOR" {
@@ -60,19 +63,9 @@ pub async fn require_counselor_or_admin(
     Ok(next.run(request).await)
 }
 
-/// Helper: extracts Bearer token from Authorization header
-fn extract_bearer_token(request: &Request) -> Result<String, AppError> {
-    let auth_header = request
-        .headers()
-        .get("Authorization")
-        .and_then(|v| v.to_str().ok())
-        .ok_or_else(|| AppError::Unauthorized("Authorization header missing".to_string()))?;
-
-    if !auth_header.starts_with("Bearer ") {
-        return Err(AppError::Unauthorized(
-            "Authorization header must be Bearer token".to_string(),
-        ));
-    }
-
-    Ok(auth_header.trim_start_matches("Bearer ").to_string())
+/// Helper: extracts access token from CookieJar
+fn extract_access_token(jar: &CookieJar) -> Result<String, AppError> {
+    jar.get("mvr_access_token")
+        .map(|cookie| cookie.value().to_string())
+        .ok_or_else(|| AppError::Unauthorized("Authentication cookie missing".to_string()))
 }

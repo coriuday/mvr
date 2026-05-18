@@ -35,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function LeadsPage() {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -50,14 +50,14 @@ export default function LeadsPage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchLeads = useCallback(async () => {
-    if (!token) return;
+    if (!user) return;
     setLoading(true);
     setError("");
     try {
       const params = new URLSearchParams({ page: String(page), per_page: String(PER_PAGE) });
       if (statusFilter !== "ALL") params.set("status", statusFilter);
       const res = await fetch(`${API}/api/leads?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to load leads");
       const data = await res.json();
@@ -68,17 +68,17 @@ export default function LeadsPage() {
     } finally {
       setLoading(false);
     }
-  }, [token, page, statusFilter, API]);
+  }, [user, page, statusFilter, API]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
   const updateStatus = async (id: string, status: string) => {
-    if (!token) return;
+    if (!user) return;
     setUpdating(true);
     try {
       await fetch(`${API}/api/leads/${id}`, {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({ status }),
       });
       fetchLeads();
@@ -89,10 +89,10 @@ export default function LeadsPage() {
   };
 
   const deleteLead = async (id: string) => {
-    if (!token) return;
+    if (!user) return;
     await fetch(`${API}/api/leads/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
     });
     setDeleteConfirm(null);
     if (selected?.id === id) setSelected(null);
@@ -116,7 +116,7 @@ export default function LeadsPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 rounded-xl border-gray-200 h-10" />
         </div>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v || "ALL"); setPage(1); }}>
           <SelectTrigger className="w-44 rounded-xl border-gray-200 h-10">
             <Filter size={14} className="mr-1.5 text-gray-400" />
             <SelectValue />

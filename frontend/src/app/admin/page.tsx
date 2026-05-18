@@ -33,7 +33,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentLeads, setRecentLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,14 +42,14 @@ export default function AdminDashboard() {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchData = async () => {
-    if (!token) return;
+    if (!user) return;
     setLoading(true);
     setError("");
     try {
-      const headers = { Authorization: `Bearer ${token}` };
+      const opts = { credentials: "include" as RequestCredentials };
       const [statsRes, leadsRes] = await Promise.all([
-        fetch(`${API}/api/admin/stats`, { headers }),
-        fetch(`${API}/api/admin/recent-leads`, { headers }),
+        fetch(`${API}/api/admin/stats`, opts),
+        fetch(`${API}/api/admin/recent-leads`, opts),
       ]);
       if (!statsRes.ok || !leadsRes.ok) throw new Error("Failed to fetch dashboard data");
       const [statsData, leadsData] = await Promise.all([statsRes.json(), leadsRes.json()]);
@@ -62,7 +62,7 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { if (token) fetchData(); }, [token]);
+  useEffect(() => { if (user) fetchData(); }, [user]);
 
   const STAT_CARDS = stats ? [
     { icon: Users,       label: "Total Leads",       value: stats.total_leads,      color: "bg-blue-50 text-blue-600",    border: "border-blue-200" },

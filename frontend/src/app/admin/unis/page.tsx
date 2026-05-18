@@ -19,7 +19,7 @@ interface University {
 const DEFAULT_FORM = { name: "", country: "", ranking: "", website_url: "", description: "", is_featured: false };
 
 export default function AdminUnisPage() {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
   const [unis, setUnis] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -32,12 +32,12 @@ export default function AdminUnisPage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchUnis = useCallback(async () => {
-    if (!token) return;
+    if (!user) return;
     setLoading(true);
     setError("");
     try {
       const res = await fetch(`${API}/api/universities?per_page=100`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch universities");
       const data = await res.json();
@@ -47,7 +47,7 @@ export default function AdminUnisPage() {
     } finally {
       setLoading(false);
     }
-  }, [token, API]);
+  }, [user, API]);
 
   useEffect(() => { fetchUnis(); }, [fetchUnis]);
 
@@ -58,7 +58,7 @@ export default function AdminUnisPage() {
     try {
       const res = await fetch(`${API}/api/universities`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({
           name: form.name,
           country: form.country,
@@ -85,20 +85,20 @@ export default function AdminUnisPage() {
   };
 
   const toggleFeatured = async (id: string, featured: boolean) => {
-    if (!token) return;
+    if (!user) return;
     await fetch(`${API}/api/universities/${id}`, {
       method: "PUT",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" }, credentials: "include",
       body: JSON.stringify({ is_featured: !featured }),
     });
     fetchUnis();
   };
 
   const deleteUni = async (id: string) => {
-    if (!token) return;
+    if (!user) return;
     await fetch(`${API}/api/universities/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
     });
     setDeleteConfirm(null);
     fetchUnis();

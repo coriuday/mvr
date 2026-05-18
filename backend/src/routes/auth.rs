@@ -1,4 +1,5 @@
 use axum::{extract::State, Json};
+use axum_extra::extract::cookie::{Cookie, CookieJar, SameSite};
 use uuid::Uuid;
 use crate::{
     models::user::{AuthTokenResponse, LoginRequest, RegisterRequest},
@@ -12,10 +13,22 @@ use crate::{
     },
 };
 
-/// Request body for token refresh
-#[derive(Debug, serde::Deserialize)]
-pub struct RefreshRequest {
-    pub refresh_token: String,
+fn build_cookie(name: &'static str, value: String, config: &crate::config::env::Config) -> Cookie<'static> {
+    Cookie::build((name, value))
+        .http_only(true)
+        .secure(config.environment == "production" || config.environment == "staging")
+        .same_site(SameSite::Lax)
+        .path("/")
+        .build()
+}
+
+fn build_removal_cookie(name: &'static str, config: &crate::config::env::Config) -> Cookie<'static> {
+    Cookie::build((name, ""))
+        .http_only(true)
+        .secure(config.environment == "production" || config.environment == "staging")
+        .same_site(SameSite::Lax)
+        .path("/")
+        .build()
 }
 
 // ─────────────────────────────────────────────
@@ -57,8 +70,9 @@ pub async fn register(
 // ─────────────────────────────────────────────
 pub async fn login(
     State(state): State<AppState>,
+    jar: CookieJar,
     Json(body): Json<LoginRequest>,
-) -> AppResult<Json<serde_json::Value>> {
+) -> AppResult<(CookieJar, Json<serde_json::Value>)> {
     if body.email.trim().is_empty() || body.password.trim().is_empty() {
         return Err(AppError::BadRequest("Email and password are required".to_string()));
     }
@@ -85,30 +99,40 @@ pub async fn login(
     let access_token = generate_access_token(&user.id, &user.email, &role_str, &state.config)?;
     let refresh_token = generate_refresh_token(&user.id, &state.config)?;
 
+    let access_cookie = build_cookie("mvr_access_token", access_token.clone(), &state.config);
+    let refresh_cookie = build_cookie("mvr_refresh_token", refresh_token.clone(), &state.config);
+
+    let jar = jar.add(access_cookie).add(refresh_cookie);
+
     let response = AuthTokenResponse {
-        access_token,
-        refresh_token,
+        access_token: "".to_string(),
+        refresh_token: "".to_string(),
         token_type: "Bearer".to_string(),
         expires_in: state.config.jwt_expiry_hours * 3600,
         user: user.into(),
     };
 
-    Ok(Json(serde_json::json!({
+    Ok((jar, Json(serde_json::json!({
         "success": true,
         "message": "Login successful",
         "data": response,
-    })))
+    }))))
 }
 
 // ─────────────────────────────────────────────
 // POST /api/auth/logout  (requires auth)
 // ─────────────────────────────────────────────
 pub async fn logout(
-    State(_state): State<AppState>,
-) -> AppResult<Json<MessageResponse>> {
-    // Stateless JWT — client just discards tokens.
+    State(state): State<AppState>,
+    jar: CookieJar,
+) -> AppResult<(CookieJar, Json<MessageResponse>)> {
     // Future: add token to a Redis denylist here.
-    Ok(Json(MessageResponse::new("Logged out successfully")))
+    let access_cookie = build_removal_cookie("mvr_access_token", &state.config);
+    let refresh_cookie = build_removal_cookie("mvr_refresh_token", &state.config);
+
+    let jar = jar.remove(access_cookie).remove(refresh_cookie);
+
+    Ok((jar, Json(MessageResponse::new("Logged out successfully"))))
 }
 
 // ─────────────────────────────────────────────
@@ -116,10 +140,15 @@ pub async fn logout(
 // ─────────────────────────────────────────────
 pub async fn refresh_token(
     State(state): State<AppState>,
-    Json(body): Json<RefreshRequest>,
-) -> AppResult<Json<serde_json::Value>> {
+    jar: CookieJar,
+) -> AppResult<(CookieJar, Json<serde_json::Value>)> {
     // Verify the refresh token
-    let claims = verify_refresh_token(&body.refresh_token, &state.config)?;
+    let refresh_token = jar
+        .get("mvr_refresh_token")
+        .map(|cookie| cookie.value().to_string())
+        .ok_or_else(|| AppError::Unauthorized("Refresh token missing".to_string()))?;
+
+    let claims = verify_refresh_token(&refresh_token, &state.config)?;
 
     let user_id = Uuid::parse_str(&claims.sub)
         .map_err(|_| AppError::Unauthorized("Invalid token subject".to_string()))?;
@@ -132,16 +161,21 @@ pub async fn refresh_token(
     let access_token = generate_access_token(&user.id, &user.email, &role_str, &state.config)?;
     let new_refresh_token = generate_refresh_token(&user.id, &state.config)?;
 
-    Ok(Json(serde_json::json!({
+    let access_cookie = build_cookie("mvr_access_token", access_token.clone(), &state.config);
+    let refresh_cookie = build_cookie("mvr_refresh_token", new_refresh_token.clone(), &state.config);
+
+    let jar = jar.add(access_cookie).add(refresh_cookie);
+
+    Ok((jar, Json(serde_json::json!({
         "success": true,
         "data": {
-            "access_token": access_token,
-            "refresh_token": new_refresh_token,
+            "access_token": "",
+            "refresh_token": "",
             "token_type": "Bearer",
             "expires_in": state.config.jwt_expiry_hours * 3600,
             "user": user,
         }
-    })))
+    }))))
 }
 
 // ─────────────────────────────────────────────

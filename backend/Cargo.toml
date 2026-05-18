@@ -78,6 +78,7 @@ resend-rs = "0.25"
 # Random / Security
 # ---------------------------------------------------------------------------
 rand = "0.8"
+axum-extra = { version = "0.9", features = ["cookie"] }
 
 [profile.release]
 opt-level = 3

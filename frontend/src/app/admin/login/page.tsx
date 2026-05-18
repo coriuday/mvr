@@ -23,6 +23,7 @@ export default function AdminLoginPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(form),
       });
       const data = await res.json();
@@ -30,8 +31,6 @@ export default function AdminLoginPage() {
       if (data.data?.user?.role !== "ADMIN" && data.data?.user?.role !== "Admin") {
         throw new Error("Access denied. Admin role required.");
       }
-      localStorage.setItem("mvr_access_token", data.data.access_token);
-      localStorage.setItem("mvr_refresh_token", data.data.refresh_token);
       localStorage.setItem("mvr_user", JSON.stringify(data.data.user));
       router.replace("/admin");
     } catch (err: unknown) {

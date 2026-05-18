@@ -21,7 +21,7 @@ interface Blog {
 const DEFAULT_FORM = { title: "", slug: "", content: "", excerpt: "", tags: "", published: false };
 
 export default function AdminBlogsPage() {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -34,13 +34,13 @@ export default function AdminBlogsPage() {
   const API = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchBlogs = useCallback(async () => {
-    if (!token) return;
+    if (!user) return;
     setLoading(true);
     setError("");
     try {
       // Admin can see all blogs (published + drafts)
       const res = await fetch(`${API}/api/blogs?per_page=50`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch blog posts");
       const data = await res.json();
@@ -50,7 +50,7 @@ export default function AdminBlogsPage() {
     } finally {
       setLoading(false);
     }
-  }, [token, API]);
+  }, [user, API]);
 
   useEffect(() => { fetchBlogs(); }, [fetchBlogs]);
 
@@ -75,7 +75,7 @@ export default function AdminBlogsPage() {
       };
       const res = await fetch(`${API}/api/blogs`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify(body),
       });
       if (!res.ok) {
@@ -95,20 +95,20 @@ export default function AdminBlogsPage() {
   };
 
   const togglePublish = async (id: string, published: boolean) => {
-    if (!token) return;
+    if (!user) return;
     await fetch(`${API}/api/blogs/${id}`, {
       method: "PUT",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" }, credentials: "include",
       body: JSON.stringify({ published: !published }),
     });
     fetchBlogs();
   };
 
   const deleteBlog = async (id: string) => {
-    if (!token) return;
+    if (!user) return;
     await fetch(`${API}/api/blogs/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      credentials: "include",
     });
     setDeleteConfirm(null);
     fetchBlogs();

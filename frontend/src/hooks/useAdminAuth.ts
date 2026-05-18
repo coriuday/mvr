@@ -2,20 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/services/api";
 
 interface AuthState {
-  token: string | null;
   user: { name: string; email: string; role: string } | null;
 }
 
 export function useAdminAuth(): AuthState & { logout: () => void } {
   const router = useRouter();
-  const [auth, setAuth] = useState<AuthState>({ token: null, user: null });
+  const [auth, setAuth] = useState<AuthState>({ user: null });
 
   useEffect(() => {
-    const token = localStorage.getItem("mvr_access_token");
     const userStr = localStorage.getItem("mvr_user");
-    if (!token || !userStr) {
+    if (!userStr) {
       router.replace("/admin/login");
       return;
     }
@@ -25,17 +24,21 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
         router.replace("/admin/login");
         return;
       }
-      setAuth({ token, user });
+      setAuth({ user });
     } catch {
       router.replace("/admin/login");
     }
   }, [router]);
 
-  const logout = () => {
-    localStorage.removeItem("mvr_access_token");
-    localStorage.removeItem("mvr_refresh_token");
-    localStorage.removeItem("mvr_user");
-    router.replace("/admin/login");
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (e) {
+      console.error("Logout error", e);
+    } finally {
+      localStorage.removeItem("mvr_user");
+      router.replace("/admin/login");
+    }
   };
 
   return { ...auth, logout };

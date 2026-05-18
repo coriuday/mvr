@@ -4,7 +4,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Users, Plus } from "lucide-react";
 
 export default function AdminUsersPage() {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
