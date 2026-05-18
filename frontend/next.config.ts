@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // ---------------------------------------------------------------------------
-  // Standalone output for Docker deployment
-  // ---------------------------------------------------------------------------
-  output: "standalone",
+  // Standalone output for Docker; disabled on Vercel (Vercel manages its own output)
+  ...(process.env.DOCKER_BUILD === "true" ? { output: "standalone" as const } : {}),
 
   // ---------------------------------------------------------------------------
   // React Compiler (Next.js 15)

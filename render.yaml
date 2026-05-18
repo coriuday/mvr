@@ -1,0 +1,70 @@
+# render.yaml — MVR Consultants Backend
+# Deploys the Rust/Axum API as a Docker-based Web Service on Render
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: mvr-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: singapore          # closest to Hyderabad
+    plan: free
+    healthCheckPath: /health
+
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+
+      - key: BACKEND_HOST
+        value: "0.0.0.0"
+
+      # Render injects PORT automatically — no need to set it here
+
+      # ── Database ─────────────────────────────────────────────────────────
+      # Set this in Render dashboard → Environment (keep secret)
+      - key: DATABASE_URL
+        sync: false            # means: set manually in dashboard, not in this file
+
+      # ── JWT ──────────────────────────────────────────────────────────────
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: JWT_EXPIRY_HOURS
+        value: "24"
+      - key: JWT_REFRESH_EXPIRY_DAYS
+        value: "30"
+
+      # ── CORS ─────────────────────────────────────────────────────────────
+      # Update FRONTEND_URL and ALLOWED_ORIGINS once Vercel URL is known
+      - key: FRONTEND_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+      # ── Cloudinary ────────────────────────────────────────────────────────
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: CLOUDINARY_UPLOAD_PRESET
+        sync: false
+
+      # ── Email / Resend ────────────────────────────────────────────────────
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: mvrconsultantshyd@gmail.com
+      - key: EMAIL_FROM_NAME
+        value: "MVR Consultants"
+      - key: ADMIN_EMAIL
+        value: mvrconsultantshyd@gmail.com
+      - key: ADMIN_EMAIL_GUNTUR
+        value: mvroverseasconsultancy@gmail.com
+
+      # ── Logging ───────────────────────────────────────────────────────────
+      - key: RUST_LOG
+        value: info

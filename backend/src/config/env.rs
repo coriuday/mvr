@@ -41,10 +41,11 @@ impl Config {
         Ok(Config {
             // Server
             host: std::env::var("BACKEND_HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
-            port: std::env::var("BACKEND_PORT")
+            port: std::env::var("PORT")
+                .or_else(|_| std::env::var("BACKEND_PORT"))
                 .unwrap_or_else(|_| "8080".to_string())
                 .parse::<u16>()
-                .context("BACKEND_PORT must be a valid port number")?,
+                .context("PORT must be a valid port number")?,
             environment: std::env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()),
 
             // Database
