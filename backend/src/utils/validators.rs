@@ -81,3 +81,49 @@ pub fn validate_slug(slug: &str) -> Result<(), AppError> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_length_valid() {
+        assert!(validate_length("abc", "Field", 2, 5).is_ok());
+        assert!(validate_length("ab", "Field", 2, 5).is_ok()); // min boundary
+        assert!(validate_length("abcde", "Field", 2, 5).is_ok()); // max boundary
+    }
+
+    #[test]
+    fn test_validate_length_below_min() {
+        let result = validate_length("a", "Field", 2, 5);
+        assert!(result.is_err());
+        match result {
+            Err(AppError::BadRequest(msg)) => {
+                assert_eq!(msg, "Field must be at least 2 characters");
+            }
+            _ => panic!("Expected BadRequest error"),
+        }
+    }
+
+    #[test]
+    fn test_validate_length_above_max() {
+        let result = validate_length("abcdef", "Field", 2, 5);
+        assert!(result.is_err());
+        match result {
+            Err(AppError::BadRequest(msg)) => {
+                assert_eq!(msg, "Field must not exceed 5 characters");
+            }
+            _ => panic!("Expected BadRequest error"),
+        }
+    }
+
+    #[test]
+    fn test_validate_length_with_trimming() {
+        // Space should be trimmed, so the length of "   a   " is 1
+        let result = validate_length("   a   ", "Field", 2, 5);
+        assert!(result.is_err()); // Since trimmed length is 1 < 2
+
+        // "  abc  " trims to "abc", length 3
+        assert!(validate_length("  abc  ", "Field", 2, 5).is_ok());
+    }
+}
