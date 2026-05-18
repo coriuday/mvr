@@ -81,3 +81,31 @@ pub fn validate_slug(slug: &str) -> Result<(), AppError> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_slug_valid() {
+        assert!(validate_slug("valid-slug-123").is_ok());
+        assert!(validate_slug("another-valid-slug").is_ok());
+        assert!(validate_slug("slug").is_ok());
+        assert!(validate_slug("12345").is_ok());
+    }
+
+    #[test]
+    fn test_validate_slug_invalid_chars() {
+        assert!(validate_slug("invalid_slug").is_err());
+        assert!(validate_slug("Invalid-Slug").is_err());
+        assert!(validate_slug("invalid slug").is_err());
+        assert!(validate_slug("slug-with-@").is_err());
+    }
+
+    #[test]
+    fn test_validate_slug_hyphen_boundaries() {
+        assert!(validate_slug("-starts-with-hyphen").is_err());
+        assert!(validate_slug("ends-with-hyphen-").is_err());
+        assert!(validate_slug("-both-").is_err());
+    }
+}
