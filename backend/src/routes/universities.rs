@@ -2,7 +2,7 @@ use axum::{extract::{Path, Query, State}, Json};
 use uuid::Uuid;
 use crate::{
     models::university::{CreateUniversityRequest, UniversityFilter},
-    services::university_service::UniversityService,
+    repositories::university_repository::UniversityRepository,
     routes::AppState,
     utils::{errors::AppResult, response::MessageResponse},
 };
@@ -12,8 +12,8 @@ pub async fn get_all_universities(
     State(state): State<AppState>,
     Query(filter): Query<UniversityFilter>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let service = UniversityService::new(state.db.clone());
-    let (unis, total) = service.find_all(&filter).await?;
+    let repo = UniversityRepository::new(state.db.clone());
+    let (unis, total) = repo.find_all(&filter).await?;
     let page = filter.page.unwrap_or(1);
     let per_page = filter.per_page.unwrap_or(20);
     Ok(Json(serde_json::json!({
@@ -29,8 +29,11 @@ pub async fn create_university(
     State(state): State<AppState>,
     Json(body): Json<CreateUniversityRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let service = UniversityService::new(state.db.clone());
-    let uni = service.create(&body).await?;
+    if body.name.trim().is_empty() {
+        return Err(crate::utils::errors::AppError::BadRequest("University name is required".to_string()));
+    }
+    let repo = UniversityRepository::new(state.db.clone());
+    let uni = repo.create(&body).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
@@ -40,11 +43,11 @@ pub async fn update_university(
     Path(id): Path<Uuid>,
     Json(body): Json<serde_json::Value>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let service = UniversityService::new(state.db.clone());
+    let repo = UniversityRepository::new(state.db.clone());
     let featured = body.get("is_featured")
         .and_then(|v| v.as_bool())
         .unwrap_or(false);
-    let uni = service.update_featured(id, featured).await?;
+    let uni = repo.update_featured(id, featured).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
@@ -53,7 +56,7 @@ pub async fn delete_university(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<MessageResponse>> {
-    let service = UniversityService::new(state.db.clone());
-    service.delete(id).await?;
+    let repo = UniversityRepository::new(state.db.clone());
+    repo.delete(id).await?;
     Ok(Json(MessageResponse::new("University deleted successfully")))
 }
