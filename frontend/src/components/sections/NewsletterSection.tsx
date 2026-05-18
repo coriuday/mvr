@@ -12,12 +12,11 @@ export default function NewsletterSection() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
     // Simulate API call — wire to backend in Phase 3
-    await new Promise((r) => setTimeout(r, 1000));
     setDone(true);
     setLoading(false);
     toast.success("You're subscribed! Welcome to MVR Consultants.");
