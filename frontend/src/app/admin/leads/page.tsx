@@ -100,10 +100,11 @@ export default function LeadsPage() {
   };
 
   const totalPages = Math.ceil(total / PER_PAGE);
+  const lowerSearch = search ? search.toLowerCase() : "";
   const filtered = search
     ? leads.filter((l) =>
-        l.name.toLowerCase().includes(search.toLowerCase()) ||
-        l.email.toLowerCase().includes(search.toLowerCase()))
+        l.name.toLowerCase().includes(lowerSearch) ||
+        l.email.toLowerCase().includes(lowerSearch))
     : leads;
 
   return (
