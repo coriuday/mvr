@@ -55,8 +55,8 @@ pub fn create_router(db: PgPool, config: Config) -> Router {
 fn public_routes() -> Router<AppState> {
     Router::new()
         // Auth
-        .route("/api/auth/login", post(auth::login))
-        .route("/api/auth/refresh", post(auth::refresh_token))
+        .route("/api/auth/login", post(crate::handlers::auth_handler::login))
+        .route("/api/auth/refresh", post(crate::handlers::auth_handler::refresh_token))
         // Public blog routes
         .route("/api/blogs", get(blogs::get_all_blogs))
         .route("/api/blogs/{slug}", get(blogs::get_blog_by_slug))
@@ -109,7 +109,7 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/testimonials", post(testimonials::create_testimonial))
         .route("/api/testimonials/{id}", put(testimonials::update_testimonial))
         // User registration (admin creates accounts)
-        .route("/api/auth/register", post(auth::register))
+        .route("/api/auth/register", post(crate::handlers::auth_handler::register))
         .layer(middleware::from_fn_with_state(
             state,
             auth_middleware::require_admin,
