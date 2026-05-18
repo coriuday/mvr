@@ -2,7 +2,7 @@ use axum::{extract::{Path, Query, State}, Json};
 use uuid::Uuid;
 use crate::{
     models::lead::{CreateLeadRequest, LeadFilter, UpdateLeadRequest},
-    repositories::lead_repository::LeadRepository,
+    services::lead_service::LeadService,
     routes::AppState,
     utils::{
         errors::AppResult,
@@ -15,8 +15,8 @@ pub async fn create_lead(
     State(state): State<AppState>,
     Json(body): Json<CreateLeadRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = LeadRepository::new(state.db.clone());
-    let lead = repo.create(&body).await?;
+    let service = LeadService::new(state.db.clone(), &state.config);
+    let lead = service.create_lead(&body).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": lead })))
 }
 
@@ -25,8 +25,8 @@ pub async fn get_all_leads(
     State(state): State<AppState>,
     Query(filter): Query<LeadFilter>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = LeadRepository::new(state.db.clone());
-    let (leads, total) = repo.find_all(&filter).await?;
+    let service = LeadService::new(state.db.clone(), &state.config);
+    let (leads, total) = service.get_all_leads(&filter).await?;
     let page = filter.page.unwrap_or(1);
     let per_page = filter.per_page.unwrap_or(20);
     Ok(Json(serde_json::json!({
@@ -42,8 +42,8 @@ pub async fn get_lead(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = LeadRepository::new(state.db.clone());
-    let lead = repo.find_by_id(id).await?;
+    let service = LeadService::new(state.db.clone(), &state.config);
+    let lead = service.get_lead(id).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": lead })))
 }
 
@@ -53,8 +53,8 @@ pub async fn update_lead(
     Path(id): Path<Uuid>,
     Json(body): Json<UpdateLeadRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = LeadRepository::new(state.db.clone());
-    let lead = repo.update(id, &body).await?;
+    let service = LeadService::new(state.db.clone(), &state.config);
+    let lead = service.update_lead(id, &body).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": lead })))
 }
 
@@ -63,7 +63,7 @@ pub async fn delete_lead(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<MessageResponse>> {
-    let repo = LeadRepository::new(state.db.clone());
-    repo.delete(id).await?;
+    let service = LeadService::new(state.db.clone(), &state.config);
+    service.delete_lead(id).await?;
     Ok(Json(MessageResponse::new("Lead deleted successfully")))
 }
