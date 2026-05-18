@@ -1,15 +1,17 @@
 import { Metadata } from "next";
 import CountryDetailClient from "./CountryDetailClient";
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const title = params.slug.charAt(0).toUpperCase() + params.slug.slice(1);
+type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const title = slug.charAt(0).toUpperCase() + slug.slice(1);
   return {
     title: `Study in ${title} | MVR Consultants`,
     description: `Explore universities, visas, and life in ${title} with MVR Consultants.`,
   };
 }
 
-// Generate static params for the predefined countries
 export function generateStaticParams() {
   return [
     { slug: "usa" },
@@ -21,6 +23,7 @@ export function generateStaticParams() {
   ];
 }
 
-export default function CountryDetailPage({ params }: { params: { slug: string } }) {
-  return <CountryDetailClient slug={params.slug} />;
+export default async function CountryDetailPage({ params }: Props) {
+  const { slug } = await params;
+  return <CountryDetailClient slug={slug} />;
 }
