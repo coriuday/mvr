@@ -116,7 +116,7 @@ export default function LeadsPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 rounded-xl border-gray-200 h-10" />
         </div>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v || ""); setPage(1); }}>
           <SelectTrigger className="w-44 rounded-xl border-gray-200 h-10">
             <Filter size={14} className="mr-1.5 text-gray-400" />
             <SelectValue />

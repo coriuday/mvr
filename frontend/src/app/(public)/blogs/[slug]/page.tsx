@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Tag, BookOpen, Share2 } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 
 // Same mockup data — will be replaced by API call once DB is live
 const MOCK_POSTS: Record<string, {
@@ -186,7 +187,7 @@ export default async function BlogDetailPage({ params }: Props) {
             <article className="lg:col-span-3 prose-sm max-w-none">
               <div
                 className="text-gray-600 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: renderContent(post.content) }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent(post.content)) }}
               />
             </article>
 
