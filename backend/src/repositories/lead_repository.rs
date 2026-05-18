@@ -134,4 +134,22 @@ impl LeadRepository {
         .await
         .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))
     }
+
+    /// Get aggregated stats for leads
+    pub async fn get_lead_stats(&self) -> AppResult<(i64, i64, i64)> {
+        let stats: (i64, i64, i64) = sqlx::query_as(
+            r#"
+            SELECT
+                COALESCE(COUNT(*), 0)::bigint,
+                COALESCE(COUNT(*) FILTER (WHERE status = 'NEW'), 0)::bigint,
+                COALESCE(COUNT(*) FILTER (WHERE status = 'CONVERTED'), 0)::bigint
+            FROM leads
+            "#
+        )
+        .fetch_one(&self.db)
+        .await
+        .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
+
+        Ok(stats)
+    }
 }

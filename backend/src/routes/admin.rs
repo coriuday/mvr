@@ -13,21 +13,13 @@ pub async fn get_stats(
     let auth_repo = AuthRepository::new(state.db.clone());
 
     // Run queries concurrently
-    let (leads_today, all_leads, staff_count) = tokio::try_join!(
+    let (leads_today, lead_stats, staff_count) = tokio::try_join!(
         lead_repo.count_today(),
-        async { lead_repo.find_all(&crate::models::lead::LeadFilter::default()).await },
+        lead_repo.get_lead_stats(),
         auth_repo.list_all(),
     )?;
 
-    let (all_leads_vec, total_leads) = all_leads;
-
-    // Count by status
-    let new_count = all_leads_vec.iter()
-        .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::New))
-        .count();
-    let converted_count = all_leads_vec.iter()
-        .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::Converted))
-        .count();
+    let (total_leads, new_count, converted_count) = lead_stats;
 
     Ok(Json(serde_json::json!({
         "success": true,
