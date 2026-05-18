@@ -1,5 +1,5 @@
-use tower_http::cors::{AllowHeaders, AllowOrigin, CorsLayer};
-use axum::http::{HeaderValue, Method};
+use tower_http::cors::{AllowOrigin, CorsLayer};
+use axum::http::{header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE}, HeaderValue, Method};
 
 /// Builds the CORS layer from allowed origins list.
 pub fn build_cors_layer(allowed_origins: &[String]) -> CorsLayer {
@@ -18,6 +18,6 @@ pub fn build_cors_layer(allowed_origins: &[String]) -> CorsLayer {
             Method::DELETE,
             Method::OPTIONS,
         ])
-        .allow_headers(AllowHeaders::any())
+        .allow_headers(vec![ACCEPT, AUTHORIZATION, CONTENT_TYPE])
         .allow_credentials(true)
 }
