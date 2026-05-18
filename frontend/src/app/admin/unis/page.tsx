@@ -1,246 +1,309 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { Plus, Trash2, Star, RefreshCw, AlertCircle, GraduationCap, X, Check } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
+import { Plus, Edit2, Trash2, Search, MapPin, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface University {
   id: string;
   name: string;
   country: string;
-  ranking?: number;
-  website_url?: string;
+  ranking: number | null;
+  logo_url: string | null;
+  description: string | null;
+  website_url: string | null;
   is_featured: boolean;
+  created_at: string;
 }
 
-const DEFAULT_FORM = { name: "", country: "", ranking: "", website_url: "", description: "", is_featured: false };
-
 export default function AdminUnisPage() {
-  const { token } = useAdminAuth();
   const [unis, setUnis] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState(DEFAULT_FORM);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState("");
-  const API = process.env.NEXT_PUBLIC_API_URL;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUni, setEditingUni] = useState<Partial<University> | null>(null);
 
-  const fetchUnis = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    setError("");
+  // Fetch universities
+  useEffect(() => {
+    fetchUnis();
+  }, []);
+
+  const fetchUnis = async () => {
     try {
-      const res = await fetch(`${API}/api/universities?per_page=100`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch universities");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/universities`);
       const data = await res.json();
-      setUnis(data.data ?? []);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unknown error");
+      if (data.success) {
+        setUnis(data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch universities:", error);
     } finally {
       setLoading(false);
     }
-  }, [token, API]);
+  };
 
-  useEffect(() => { fetchUnis(); }, [fetchUnis]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
-    setSaveError("");
+    if (!editingUni?.name || !editingUni?.country) return;
+
+    const token = localStorage.getItem("admin_token");
+    const isEditing = !!editingUni.id;
+    const url = isEditing
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/universities/${editingUni.id}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/universities`;
+
     try {
-      const res = await fetch(`${API}/api/universities`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      const res = await fetch(url, {
+        method: isEditing ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          name: form.name,
-          country: form.country,
-          ranking: form.ranking ? parseInt(form.ranking) : undefined,
-          website_url: form.website_url || undefined,
-          description: form.description || undefined,
-          is_featured: form.is_featured,
+          name: editingUni.name,
+          country: editingUni.country,
+          ranking: editingUni.ranking ? parseInt(editingUni.ranking.toString()) : null,
+          logo_url: editingUni.logo_url || null,
+          description: editingUni.description || null,
+          website_url: editingUni.website_url || null,
+          is_featured: editingUni.is_featured || false,
         }),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to create university");
+
+      if (res.ok) {
+        setIsModalOpen(false);
+        setEditingUni(null);
+        fetchUnis();
+      } else {
+        const errorData = await res.json();
+        alert(`Error: ${errorData.message}`);
       }
-      setShowForm(false);
-      setForm(DEFAULT_FORM);
-      setSuccessMsg("University added successfully!");
-      setTimeout(() => setSuccessMsg(""), 3000);
-      fetchUnis();
-    } catch (err: unknown) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save");
-    } finally {
-      setSaving(false);
+    } catch (error) {
+      console.error("Failed to save university:", error);
+      alert("Failed to save university");
     }
   };
 
-  const toggleFeatured = async (id: string, featured: boolean) => {
-    if (!token) return;
-    await fetch(`${API}/api/universities/${id}`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ is_featured: !featured }),
-    });
-    fetchUnis();
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this university?")) return;
+
+    const token = localStorage.getItem("admin_token");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/universities/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        fetchUnis();
+      }
+    } catch (error) {
+      console.error("Failed to delete university:", error);
+    }
   };
 
-  const deleteUni = async (id: string) => {
-    if (!token) return;
-    await fetch(`${API}/api/universities/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setDeleteConfirm(null);
-    fetchUnis();
-  };
+  const filteredUnis = unis.filter(u => 
+    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.country.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <button onClick={fetchUnis}
-          className="flex items-center gap-2 text-gray-500 hover:text-[#1a2f5e] text-sm transition-colors">
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh
-        </button>
-        <Button onClick={() => { setShowForm(true); setForm(DEFAULT_FORM); }}
-          className="bg-[#1a2f5e] hover:bg-[#2a4a8e] text-white rounded-xl gap-2">
-          <Plus size={15} /> Add University
+    <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-[#1a2f5e]" style={{ fontFamily: "var(--font-playfair)" }}>
+            Universities
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">Manage partner universities and institutions.</p>
+        </div>
+        <Button 
+          className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white"
+          onClick={() => { setEditingUni({ is_featured: false }); setIsModalOpen(true); }}
+        >
+          <Plus size={16} className="mr-2" /> Add University
         </Button>
       </div>
 
-      {successMsg && (
-        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-4 py-3 text-sm">
-          <Check size={15} /> {successMsg}
+      {/* Toolbar */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between mb-6">
+        <div className="relative max-w-sm w-full">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Input 
+            placeholder="Search by name or country..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 rounded-lg h-9"
+          />
         </div>
-      )}
-      {error && (
-        <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 rounded-xl px-4 py-3 text-sm">
-          <AlertCircle size={15} /> {error}
+        <div className="text-sm text-gray-500">
+          Total: <strong>{unis.length}</strong>
         </div>
-      )}
-
-      {showForm && (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-            <h3 className="font-bold text-[#1a2f5e]">Add Partner University</h3>
-            <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
-          </div>
-          <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="uni-name" className="text-sm font-medium text-gray-700">University Name *</Label>
-                <Input id="uni-name" placeholder="e.g. University of Toronto" value={form.name}
-                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required
-                  className="rounded-xl h-11 border-gray-200" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="uni-country" className="text-sm font-medium text-gray-700">Country *</Label>
-                <Input id="uni-country" placeholder="e.g. Canada" value={form.country}
-                  onChange={(e) => setForm((p) => ({ ...p, country: e.target.value }))} required
-                  className="rounded-xl h-11 border-gray-200" />
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="uni-ranking" className="text-sm font-medium text-gray-700">QS World Ranking</Label>
-                <Input id="uni-ranking" type="number" placeholder="e.g. 21" value={form.ranking}
-                  onChange={(e) => setForm((p) => ({ ...p, ranking: e.target.value }))}
-                  className="rounded-xl h-11 border-gray-200" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="uni-website" className="text-sm font-medium text-gray-700">Website URL</Label>
-                <Input id="uni-website" type="url" placeholder="https://www.university.edu" value={form.website_url}
-                  onChange={(e) => setForm((p) => ({ ...p, website_url: e.target.value }))}
-                  className="rounded-xl h-11 border-gray-200" />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div onClick={() => setForm((p) => ({ ...p, is_featured: !p.is_featured }))}
-                  className={`w-11 h-6 rounded-full transition-colors relative ${form.is_featured ? "bg-[#c9a84c]" : "bg-gray-300"}`}>
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.is_featured ? "translate-x-6" : "translate-x-1"}`} />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Feature on homepage</span>
-              </label>
-            </div>
-            {saveError && <p className="text-red-500 text-sm bg-red-50 rounded-xl px-4 py-3">{saveError}</p>}
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={saving}
-                className="bg-[#1a2f5e] hover:bg-[#2a4a8e] text-white rounded-xl px-8 disabled:opacity-60">
-                {saving ? "Adding…" : "Add University"}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="rounded-xl border-gray-200">
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-          <GraduationCap size={16} className="text-[#c9a84c]" />
-          <span className="font-semibold text-[#1a2f5e] text-sm">{unis.length} Universit{unis.length !== 1 ? "ies" : "y"}</span>
-        </div>
-        {loading ? (
-          <div className="flex justify-center items-center h-48">
-            <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : unis.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-center">
-            <GraduationCap size={32} className="text-gray-200 mb-2" />
-            <p className="text-gray-400 text-sm">No universities yet. Add your first partner!</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-50">
-            {unis.map((uni) => (
-              <div key={uni.id} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50/50 transition-colors">
-                <div className="w-10 h-10 bg-[#1a2f5e]/8 rounded-xl flex items-center justify-center shrink-0">
-                  <GraduationCap size={18} className="text-[#1a2f5e]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-[#1a2f5e] truncate">{uni.name}</p>
-                  <p className="text-gray-400 text-xs">{uni.country}{uni.ranking ? ` · QS #${uni.ranking}` : ""}</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {uni.is_featured && (
-                    <span className="bg-[#c9a84c]/15 text-[#a07a2e] text-xs font-semibold px-2.5 py-1 rounded-full">
-                      ★ Featured
-                    </span>
-                  )}
-                  <button onClick={() => toggleFeatured(uni.id, uni.is_featured)}
-                    title={uni.is_featured ? "Remove from featured" : "Add to featured"}
-                    className={`p-2 rounded-lg transition-colors ${uni.is_featured ? "text-[#c9a84c] bg-[#c9a84c]/10" : "text-gray-400 hover:text-[#c9a84c] hover:bg-[#c9a84c]/10"}`}>
-                    <Star size={15} />
-                  </button>
-                  {deleteConfirm === uni.id ? (
-                    <div className="flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-lg border border-red-200">
-                      <span className="text-red-600 text-xs">Delete?</span>
-                      <button onClick={() => deleteUni(uni.id)} className="text-red-600 font-bold text-xs">Yes</button>
-                      <span className="text-red-300">|</span>
-                      <button onClick={() => setDeleteConfirm(null)} className="text-gray-500 text-xs">No</button>
-                    </div>
-                  ) : (
-                    <button onClick={() => setDeleteConfirm(uni.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                      <Trash2 size={15} />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+              <tr>
+                <th className="px-6 py-4 font-semibold">University</th>
+                <th className="px-6 py-4 font-semibold">Location</th>
+                <th className="px-6 py-4 font-semibold">Ranking</th>
+                <th className="px-6 py-4 font-semibold">Featured</th>
+                <th className="px-6 py-4 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500">Loading universities...</td>
+                </tr>
+              ) : filteredUnis.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-10 text-center text-gray-500">No universities found.</td>
+                </tr>
+              ) : (
+                filteredUnis.map((uni) => (
+                  <tr key={uni.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <p className="font-semibold text-[#1a2f5e]">{uni.name}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <MapPin size={14} className="text-gray-400" />
+                        {uni.country}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {uni.ranking ? (
+                        <div className="flex items-center gap-1.5 text-amber-600 font-medium bg-amber-50 px-2.5 py-1 rounded-md w-fit">
+                          <Trophy size={13} /> #{uni.ranking}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      {uni.is_featured ? (
+                        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-semibold">Yes</span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                          onClick={() => { setEditingUni(uni); setIsModalOpen(true); }}
+                        >
+                          <Edit2 size={14} />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:bg-red-50"
+                          onClick={() => handleDelete(uni.id)}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Editor Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-[#1a2f5e]">
+              {editingUni?.id ? "Edit University" : "Add University"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleSave} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label>University Name *</Label>
+              <Input 
+                value={editingUni?.name || ""} 
+                onChange={e => setEditingUni({...editingUni, name: e.target.value})}
+                placeholder="e.g. University of Oxford"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Country *</Label>
+                <Input 
+                  value={editingUni?.country || ""} 
+                  onChange={e => setEditingUni({...editingUni, country: e.target.value})}
+                  placeholder="e.g. United Kingdom"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Ranking</Label>
+                <Input 
+                  type="number"
+                  value={editingUni?.ranking || ""} 
+                  onChange={e => setEditingUni({...editingUni, ranking: e.target.value ? parseInt(e.target.value) : null})}
+                  placeholder="e.g. 3"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Website URL</Label>
+                <Input 
+                  value={editingUni?.website_url || ""} 
+                  onChange={e => setEditingUni({...editingUni, website_url: e.target.value})}
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Logo URL</Label>
+                <Input 
+                  value={editingUni?.logo_url || ""} 
+                  onChange={e => setEditingUni({...editingUni, logo_url: e.target.value})}
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Short Description</Label>
+              <Textarea 
+                value={editingUni?.description || ""} 
+                onChange={e => setEditingUni({...editingUni, description: e.target.value})}
+                placeholder="A brief overview of the university..."
+                rows={3}
+              />
+            </div>
+
+            <div className="flex items-center gap-2 mt-4">
+              <input 
+                type="checkbox" 
+                id="is_featured"
+                checked={editingUni?.is_featured || false}
+                onChange={e => setEditingUni({...editingUni, is_featured: e.target.checked})}
+                className="rounded border-gray-300 text-[#c9a84c] focus:ring-[#c9a84c]"
+              />
+              <Label htmlFor="is_featured" className="cursor-pointer">Mark as Featured University</Label>
+            </div>
+
+            <DialogFooter className="mt-8">
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+              <Button type="submit" className="bg-[#1a2f5e] hover:bg-[#2a4a8e] text-white">Save University</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

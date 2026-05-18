@@ -112,12 +112,18 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = MOCK_POSTS[slug];
-  if (!post) return { title: "Post Not Found | MVR Consultants" };
-  return {
-    title: `${post.title} | MVR Consultants Blog`,
-    description: post.excerpt,
-  };
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`);
+    const data = await res.json();
+    if (data.success && data.data) {
+      return {
+        title: `${data.data.title} | MVR Consultants Blog`,
+        description: data.data.excerpt || data.data.title,
+      };
+    }
+  } catch (err) {}
+  
+  return { title: "Blog | MVR Consultants" };
 }
 
 // Simple markdown-to-html renderer (minimal, no dependencies)
@@ -146,8 +152,36 @@ function renderContent(content: string) {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
-  const post = MOCK_POSTS[slug];
-  if (!post) notFound();
+  let post = null;
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, { next: { revalidate: 60 } });
+    const data = await res.json();
+    if (data.success && data.data) {
+      post = data.data;
+    }
+  } catch (error) {
+    console.error("Failed to fetch blog post:", error);
+  }
+
+  // Fallback to mock data if API is down or post not found
+  if (!post) {
+    const mockPost = MOCK_POSTS[slug];
+    if (mockPost) {
+      post = {
+        ...mockPost,
+        created_at: mockPost.date,
+        tags: mockPost.tags,
+      };
+    } else {
+      notFound();
+    }
+  }
+
+  // Handle missing fields from backend
+  const category = post.category || "Country Guide";
+  const tags = post.tags || [];
+  const readTime = post.readTime || "5 min read";
 
   return (
     <>
@@ -158,18 +192,18 @@ export default async function BlogDetailPage({ params }: Props) {
           <Link href="/blogs" className="inline-flex items-center gap-2 text-white/50 hover:text-white text-sm mb-8 transition-colors">
             <ArrowLeft size={15} /> Back to Blog
           </Link>
-          <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-5 ${CAT_COLORS[post.category] ?? "bg-gray-100 text-gray-600"}`}>
-            {post.category}
+          <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-5 ${CAT_COLORS[category] ?? "bg-gray-100 text-gray-600"}`}>
+            {category}
           </span>
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-6 leading-tight" style={{ fontFamily: "var(--font-playfair)" }}>
             {post.title}
           </h1>
           <div className="flex flex-wrap items-center gap-5 text-white/50 text-sm">
-            <span className="flex items-center gap-1.5"><Clock size={13} />{post.readTime}</span>
-            <span>{new Date(post.date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span>
-            <span>By MVR Consultants Editorial Team</span>
+            <span className="flex items-center gap-1.5"><Clock size={13} />{readTime}</span>
+            <span>{new Date(post.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span>
+            <span>By {post.author_name || "MVR Consultants Editorial Team"}</span>
             <div className="flex gap-2 ml-auto">
-              {post.tags.map((t) => (
+              {tags.map((t: string) => (
                 <span key={t} className="bg-white/10 text-white/70 px-2.5 py-1 rounded-full text-xs flex items-center gap-1">
                   <Tag size={9} />{t}
                 </span>
@@ -209,7 +243,7 @@ export default async function BlogDetailPage({ params }: Props) {
               <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100">
                 <p className="font-semibold text-[#1a2f5e] mb-3 text-sm">Tags</p>
                 <div className="flex flex-wrap gap-2">
-                  {post.tags.map((t) => (
+                  {tags.map((t: string) => (
                     <span key={t} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-full">
                       {t}
                     </span>

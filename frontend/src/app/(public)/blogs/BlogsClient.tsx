@@ -4,14 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { BookOpen, Clock, Tag, ArrowRight } from "lucide-react";
 
-const MOCK_POSTS = [
-  { slug: "how-to-get-uk-student-visa",        title: "How to Get a UK Student Visa in 2025 — Complete Guide",                          excerpt: "Everything you need to know about the UK Student visa application process, from CAS numbers to biometrics and timelines.",                                  category: "Visa Guide",    readTime: "8 min read",  date: "2025-04-15", tags: ["UK", "Visa"],       featured: true  },
-  { slug: "top-scholarships-indian-students",   title: "Top 10 Scholarships for Indian Students Studying Abroad in 2025",               excerpt: "A curated list of the best fully-funded and partial scholarships available to Indian students across USA, UK, Canada, and Europe.",                        category: "Scholarships",  readTime: "6 min read",  date: "2025-04-10", tags: ["Funding", "India"], featured: true  },
-  { slug: "canada-pr-through-study",            title: "Canada PR Through Study: PGWP and Express Entry Explained",                      excerpt: "How studying in Canada can be your first step toward permanent residency. We break down PGWP, CRS scores, and Express Entry pathways.",                    category: "Immigration",   readTime: "10 min read", date: "2025-04-05", tags: ["Canada", "PR"],     featured: false },
-  { slug: "ielts-vs-toefl",                     title: "IELTS vs TOEFL 2025: Which Test Is Right for Your Dream University?",            excerpt: "A detailed comparison of IELTS and TOEFL — scoring, university acceptance, test format, and our recommendation.",                                         category: "Test Prep",     readTime: "5 min read",  date: "2025-03-28", tags: ["IELTS", "TOEFL"],   featured: false },
-  { slug: "germany-free-tuition-guide",         title: "Study in Germany for Free: Public Universities and How to Apply",               excerpt: "German public universities charge almost zero tuition. Here is how Indian students can get admission and what living costs look like.",                    category: "Country Guide", readTime: "7 min read",  date: "2025-03-20", tags: ["Germany", "Europe"], featured: false },
-  { slug: "sop-writing-guide",                  title: "How to Write a Statement of Purpose That Gets You Admitted",                    excerpt: "Your SOP is the single most important document in your application. A step-by-step guide on structure, mistakes, and what top universities want.",      category: "Admissions",    readTime: "9 min read",  date: "2025-03-12", tags: ["SOP", "Admissions"], featured: false },
-];
+interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  category: string;
+  readTime: string;
+  created_at: string;
+  tags: string[];
+  is_published: boolean;
+  cover_image: string | null;
+}
 
 const CATEGORIES = ["All", "Visa Guide", "Scholarships", "Immigration", "Test Prep", "Country Guide", "Admissions"];
 
@@ -26,10 +31,39 @@ const CAT_COLORS: Record<string, string> = {
 
 export default function BlogsClient() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const featured = MOCK_POSTS.find((p) => p.featured);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch blogs from backend
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        // We add ?published=true if we had that filter on backend, or just filter in frontend
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs`);
+        const data = await res.json();
+        if (data.success) {
+          // Add default fields if they are missing from backend model
+          const mappedPosts = data.data.map((p: any) => ({
+            ...p,
+            category: "Country Guide", // Default if not in backend model
+            readTime: "5 min read",
+            tags: [],
+          }));
+          setPosts(mappedPosts);
+        }
+      } catch (error) {
+        console.error("Failed to fetch blogs:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
+
+  const featured = posts.length > 0 ? posts[0] : null; // Just use first post as featured for now
   const filtered = activeCategory === "All"
-    ? MOCK_POSTS
-    : MOCK_POSTS.filter((p) => p.category === activeCategory);
+    ? posts
+    : posts.filter((p) => p.category === activeCategory);
 
   return (
     <>
@@ -69,7 +103,7 @@ export default function BlogsClient() {
                 </div>
                 <div className="flex items-center gap-5 mt-6 text-white/50 text-sm">
                   <span className="flex items-center gap-1.5"><Clock size={13} />{featured.readTime}</span>
-                  <span>{new Date(featured.date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span>
+                  <span>{new Date(featured.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span>
                   <span className="ml-auto flex items-center gap-1 text-[#c9a84c] font-semibold">
                     Read Article <ArrowRight size={14} />
                   </span>
@@ -100,7 +134,9 @@ export default function BlogsClient() {
             ))}
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-16 text-gray-400">Loading insights...</div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-16 text-gray-400">No posts in this category yet.</div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -121,7 +157,7 @@ export default function BlogsClient() {
                     <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>
                     <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100 text-gray-400 text-xs">
                       <span className="flex items-center gap-1"><Clock size={11} />{post.readTime}</span>
-                      <span>{new Date(post.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+                      <span>{new Date(post.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
                       <div className="flex gap-1 ml-auto">
                         {post.tags.slice(0, 2).map((t) => (
                           <span key={t} className="bg-gray-100 px-2 py-0.5 rounded-full flex items-center gap-1">
