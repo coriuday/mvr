@@ -16,7 +16,7 @@ pub mod admin;
 pub mod auth;
 pub mod blogs;
 pub mod contact;
-pub mod leads;
+pub use crate::handlers::lead_handler as leads;
 pub mod scholarships;
 pub mod testimonials;
 pub mod universities;
