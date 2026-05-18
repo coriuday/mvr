@@ -29,6 +29,43 @@ pub fn validate_required(value: &str, field_name: &str) -> Result<(), AppError> 
     Ok(())
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_email() {
+        // Valid emails
+        assert!(validate_email("test@example.com").is_ok());
+        assert!(validate_email("user.name@domain.co.uk").is_ok());
+        assert!(validate_email("a@b.c").is_ok());
+
+        // Invalid emails - empty
+        let err = validate_email("").unwrap_err();
+        assert!(matches!(err, AppError::BadRequest(msg) if msg == "Email is required"));
+
+        // Invalid emails - whitespace
+        let err = validate_email("   ").unwrap_err();
+        assert!(matches!(err, AppError::BadRequest(msg) if msg == "Email is required"));
+
+        // Invalid emails - missing @
+        let err = validate_email("testexample.com").unwrap_err();
+        assert!(matches!(err, AppError::BadRequest(msg) if msg == "Invalid email address format"));
+
+        // Invalid emails - missing local part
+        let err = validate_email("@example.com").unwrap_err();
+        assert!(matches!(err, AppError::BadRequest(msg) if msg == "Invalid email address format"));
+
+        // Invalid emails - missing domain part
+        let err = validate_email("test@").unwrap_err();
+        assert!(matches!(err, AppError::BadRequest(msg) if msg == "Invalid email address format"));
+
+        // Invalid emails - missing dot in domain
+        let err = validate_email("test@example").unwrap_err();
+        assert!(matches!(err, AppError::BadRequest(msg) if msg == "Invalid email domain"));
+    }
+}
+
 /// Validates string length within bounds
 pub fn validate_length(
     value: &str,
