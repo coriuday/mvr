@@ -55,3 +55,69 @@ pub fn validate_password_strength(password: &str) -> Result<(), AppError> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_password_strength_valid() {
+        assert!(validate_password_strength("Valid123").is_ok());
+        assert!(validate_password_strength("StrongPassw0rd!").is_ok());
+    }
+
+    #[test]
+    fn test_validate_password_strength_too_short() {
+        let result = validate_password_strength("Val1d");
+        assert!(result.is_err());
+        if let Err(AppError::BadRequest(msg)) = result {
+            assert_eq!(msg, "Password must be at least 8 characters long");
+        } else {
+            panic!("Expected BadRequest error");
+        }
+    }
+
+    #[test]
+    fn test_validate_password_strength_no_uppercase() {
+        let result = validate_password_strength("invalid123");
+        assert!(result.is_err());
+        if let Err(AppError::BadRequest(msg)) = result {
+            assert_eq!(msg, "Password must contain at least one uppercase letter");
+        } else {
+            panic!("Expected BadRequest error");
+        }
+    }
+
+    #[test]
+    fn test_validate_password_strength_no_lowercase() {
+        let result = validate_password_strength("INVALID123");
+        assert!(result.is_err());
+        if let Err(AppError::BadRequest(msg)) = result {
+            assert_eq!(msg, "Password must contain at least one lowercase letter");
+        } else {
+            panic!("Expected BadRequest error");
+        }
+    }
+
+    #[test]
+    fn test_validate_password_strength_no_digit() {
+        let result = validate_password_strength("InvalidPassword");
+        assert!(result.is_err());
+        if let Err(AppError::BadRequest(msg)) = result {
+            assert_eq!(msg, "Password must contain at least one digit");
+        } else {
+            panic!("Expected BadRequest error");
+        }
+    }
+
+    #[test]
+    fn test_validate_password_strength_empty() {
+        let result = validate_password_strength("");
+        assert!(result.is_err());
+        if let Err(AppError::BadRequest(msg)) = result {
+            assert_eq!(msg, "Password must be at least 8 characters long");
+        } else {
+            panic!("Expected BadRequest error");
+        }
+    }
+}
