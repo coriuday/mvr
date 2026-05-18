@@ -4,6 +4,7 @@ use crate::{
     models::lead::{CreateLeadRequest, LeadFilter, UpdateLeadRequest},
     repositories::lead_repository::LeadRepository,
     routes::AppState,
+    services::lead_service::LeadService,
     utils::{
         errors::AppResult,
         response::{MessageResponse, PaginatedResponse},
@@ -15,8 +16,8 @@ pub async fn create_lead(
     State(state): State<AppState>,
     Json(body): Json<CreateLeadRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = LeadRepository::new(state.db.clone());
-    let lead = repo.create(&body).await?;
+    let lead_service = LeadService::new(state.db.clone(), state.config.clone());
+    let lead = lead_service.create_lead_with_notification(&body).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": lead })))
 }
 
