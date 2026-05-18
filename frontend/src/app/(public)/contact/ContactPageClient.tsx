@@ -221,7 +221,7 @@ export default function ContactPageClient() {
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-gray-700 font-medium text-sm">Country of Interest</Label>
-                        <Select value={form.country_interest} onValueChange={(v) => setForm((p) => ({ ...p, country_interest: v }))}>
+                        <Select value={form.country_interest} onValueChange={(v) => setForm((p) => ({ ...p, country_interest: v || "" }))}>
                           <SelectTrigger className="rounded-xl h-11 border-gray-200">
                             <SelectValue placeholder="Select country" />
                           </SelectTrigger>

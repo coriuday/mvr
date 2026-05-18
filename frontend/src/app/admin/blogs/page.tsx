@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { Plus, Trash2, Edit2, Eye, EyeOff, RefreshCw, AlertCircle, FileText, X, Check } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, RefreshCw, AlertCircle, FileText, X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
