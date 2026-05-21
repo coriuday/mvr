@@ -5,7 +5,7 @@ import CountriesSection from "@/components/sections/CountriesSection";
 import ServicesSection from "@/components/sections/ServicesSection";
 import StatsBanner from "@/components/sections/StatsBanner";
 import HighlightGrid from "@/components/sections/HighlightGrid";
-import TestimonialsSection from "@/components/sections/TestimonialsSection";
+import StudentResourcesSection from "@/components/sections/StudentResourcesSection";
 import NewsletterSection from "@/components/sections/NewsletterSection";
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default function HomePage() {
       <ServicesSection />
       <StatsBanner />
       <HighlightGrid />
-      <TestimonialsSection />
+      <StudentResourcesSection />
       <NewsletterSection />
     </>
   );

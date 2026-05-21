@@ -2,105 +2,198 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Building2, GraduationCap, Star } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 
-const GRID_ITEMS = [
+const COURSES = [
+  { icon: "⚙️", name: "Engineering", href: "/courses/engineering" },
+  { icon: "💼", name: "Business & MBA", href: "/courses/business" },
+  { icon: "💻", name: "Computer Science", href: "/courses/cs" },
+  { icon: "🏥", name: "Medicine & Health", href: "/courses/medicine" },
+  { icon: "⚖️", name: "Law", href: "/courses/law" },
+  { icon: "🎨", name: "Design & Arts", href: "/courses/design" },
+];
+
+const UNIVERSITIES = [
+  { name: "Harvard University", country: "USA", flag: "🇺🇸", href: "/universities/harvard" },
+  { name: "University of Toronto", country: "Canada", flag: "🇨🇦", href: "/universities/toronto" },
+  { name: "University of Oxford", country: "UK", flag: "🇬🇧", href: "/universities/oxford" },
+  { name: "The University of Melbourne", country: "Australia", flag: "🇦🇺", href: "/universities/melbourne" },
+];
+
+const SCHOLARSHIPS = [
   {
-    id: "courses",
-    icon: BookOpen,
-    color: "from-blue-500 to-indigo-600",
-    badge: "2,500+ Programs",
-    title: "Explore Courses",
-    desc: "Find the perfect program across engineering, medicine, business, arts, and more.",
-    href: "/courses",
-    highlights: ["Undergraduate", "Postgraduate", "PhD / Research"],
+    name: "Merit Based Scholarships",
+    desc: "Unlock your potential",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5" className="w-6 h-6 shrink-0">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    ),
   },
   {
-    id: "universities",
-    icon: Building2,
-    color: "from-[#1a2f5e] to-[#2a4a8e]",
-    badge: "100+ Partners",
-    title: "Top Universities",
-    desc: "Explore QS World Ranked universities and find the best fit for your profile.",
-    href: "/universities",
-    highlights: ["USA", "UK", "Canada", "Australia"],
+    name: "Need Based Scholarships",
+    desc: "Financial support for you",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5" className="w-6 h-6 shrink-0">
+        <rect x="2" y="8" width="20" height="12" rx="2"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/>
+        <circle cx="12" cy="14" r="2"/>
+      </svg>
+    ),
   },
   {
-    id: "scholarships",
-    icon: GraduationCap,
-    color: "from-amber-500 to-orange-600",
-    badge: "$50M+ Awarded",
-    title: "Scholarships",
-    desc: "Government, university and private scholarships to fund your education abroad.",
-    href: "/scholarships",
-    highlights: ["Merit Based", "Need Based", "Country Specific"],
-  },
-  {
-    id: "testimonials",
-    icon: Star,
-    color: "from-emerald-500 to-teal-600",
-    badge: "4.9★ Google",
-    title: "Success Stories",
-    desc: "See what our students say — 50,000+ dreams realized with MVR Consultants.",
-    href: "/testimonials",
-    highlights: ["Harvard", "Oxford", "Toronto", "Melbourne"],
+    name: "Government Scholarships",
+    desc: "Explore global opportunities",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5" className="w-6 h-6 shrink-0">
+        <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c-3 4-4.5 8-4.5 10s1.5 6 4.5 10M12 2c3 4 4.5 8 4.5 10S13.5 18 12 22"/>
+      </svg>
+    ),
   },
 ];
 
 export default function HighlightGrid() {
   return (
-    <section className="py-20 bg-[#f8f9fc]" id="highlights">
+    <section className="py-16 bg-[#f8f9fc]" id="highlights">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-          <p className="text-[#c9a84c] text-sm font-semibold uppercase tracking-widest mb-3">Explore Everything</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#1a2f5e] mb-4" style={{ fontFamily: "var(--font-playfair)" }}>
-            Your Complete Study Abroad Hub
-          </h2>
-          <div className="section-divider" />
-        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {GRID_ITEMS.map((item, i) => (
-            <motion.div key={item.id} initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.09 }}>
-              <Link href={item.href}>
-                <div className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
-                  {/* Gradient header */}
-                  <div className={`bg-gradient-to-br ${item.color} p-6 text-white`}>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center">
-                        <item.icon size={22} />
-                      </div>
-                      <span className="text-xs bg-white/20 rounded-full px-3 py-1 font-semibold">
-                        {item.badge}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-bold mb-1" style={{ fontFamily: "var(--font-playfair)" }}>
-                      {item.title}
-                    </h3>
-                  </div>
+          {/* ── Explore Courses ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-lg p-6 border border-gray-100"
+          >
+            <h3 className="text-[#1a2f5e] font-bold text-base mb-5 tracking-wide uppercase text-sm">
+              Explore Courses
+            </h3>
+            <ul className="space-y-3">
+              {COURSES.map((c) => (
+                <li key={c.name}>
+                  <Link href={c.href} className="flex items-center gap-3 group">
+                    <span className="text-base">{c.icon}</span>
+                    <span className="text-[#1a2f5e] text-sm group-hover:text-[#c9a84c] transition-colors duration-150 font-medium">
+                      {c.name}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-1.5 text-[#1a2f5e] text-xs font-semibold mt-6 hover:text-[#c9a84c] transition-colors"
+            >
+              View All Courses <ArrowRight size={13} />
+            </Link>
+          </motion.div>
 
-                  {/* Body */}
-                  <div className="p-5 flex-1 flex flex-col">
-                    <p className="text-gray-500 text-sm leading-relaxed mb-4">{item.desc}</p>
-                    <div className="flex flex-wrap gap-1.5 mb-5">
-                      {item.highlights.map((h) => (
-                        <span key={h} className="text-xs bg-gray-100 text-gray-600 rounded-full px-2.5 py-0.5 font-medium">
-                          {h}
-                        </span>
-                      ))}
+          {/* ── Top Universities ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-white rounded-lg p-6 border border-gray-100"
+          >
+            <h3 className="text-[#1a2f5e] font-bold text-base mb-5 tracking-wide uppercase text-sm">
+              Top Universities
+            </h3>
+            <ul className="space-y-4">
+              {UNIVERSITIES.map((u) => (
+                <li key={u.name}>
+                  <Link href={u.href} className="flex items-center gap-3 group">
+                    <div className="w-9 h-9 rounded-full bg-[#f8f9fc] border border-gray-100 flex items-center justify-center text-base shrink-0">
+                      {u.flag}
                     </div>
-                    <div className="mt-auto flex items-center gap-1.5 text-[#1a2f5e] text-sm font-bold group-hover:text-[#c9a84c] transition-colors">
-                      View All
-                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[#1a2f5e] text-sm font-semibold leading-tight group-hover:text-[#c9a84c] transition-colors truncate">
+                        {u.name}
+                      </p>
+                      <p className="text-gray-400 text-xs">{u.country}</p>
                     </div>
-                  </div>
+                    <ChevronRight size={14} className="text-gray-300 group-hover:text-[#c9a84c] shrink-0" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/universities"
+              className="inline-flex items-center gap-1.5 text-[#1a2f5e] text-xs font-semibold mt-6 hover:text-[#c9a84c] transition-colors"
+            >
+              View All Universities <ArrowRight size={13} />
+            </Link>
+          </motion.div>
+
+          {/* ── Scholarships ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white rounded-lg p-6 border border-gray-100"
+          >
+            <h3 className="text-[#1a2f5e] font-bold text-base mb-5 tracking-wide uppercase text-sm">
+              Scholarships
+            </h3>
+            <ul className="space-y-5">
+              {SCHOLARSHIPS.map((s) => (
+                <li key={s.name}>
+                  <Link href="/scholarships" className="flex items-start gap-3 group">
+                    {s.icon}
+                    <div>
+                      <p className="text-[#1a2f5e] text-sm font-semibold leading-tight group-hover:text-[#c9a84c] transition-colors">
+                        {s.name}
+                      </p>
+                      <p className="text-gray-400 text-xs mt-0.5">{s.desc}</p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/scholarships"
+              className="inline-flex items-center gap-1.5 text-[#1a2f5e] text-xs font-semibold mt-6 hover:text-[#c9a84c] transition-colors"
+            >
+              View All Scholarships <ArrowRight size={13} />
+            </Link>
+          </motion.div>
+
+          {/* ── Success Stories ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-white rounded-lg p-6 border border-gray-100"
+          >
+            <h3 className="text-[#1a2f5e] font-bold text-base mb-5 tracking-wide uppercase text-sm">
+              Success Stories
+            </h3>
+            <div className="bg-[#f8f9fc] rounded-lg p-4 border border-gray-100">
+              {/* Profile */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-[#1a2f5e] flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  AM
                 </div>
-              </Link>
-            </motion.div>
-          ))}
+                <div>
+                  <p className="text-[#1a2f5e] font-bold text-sm">Arjun Mehta</p>
+                  <p className="text-gray-400 text-xs">University of Melbourne, Australia</p>
+                </div>
+              </div>
+              {/* Quote */}
+              <p className="text-gray-600 text-xs leading-relaxed italic">
+                &ldquo;Thanks to MVR Consultants, I got admission in my dream university and achieved my goals.&rdquo;
+              </p>
+              <p className="text-[#c9a84c] text-xs font-bold mt-3">– Arjun Mehta</p>
+            </div>
+            <Link
+              href="/success-stories"
+              className="inline-flex items-center gap-1.5 text-[#1a2f5e] text-xs font-semibold mt-6 hover:text-[#c9a84c] transition-colors"
+            >
+              Read More Stories <ArrowRight size={13} />
+            </Link>
+          </motion.div>
         </div>
       </div>
     </section>

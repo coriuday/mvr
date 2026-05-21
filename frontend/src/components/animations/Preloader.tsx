@@ -87,8 +87,8 @@ export default function Preloader() {
               <Image
                 src="/web-app-manifest-512x512.png"
                 alt="MVR Consultants"
-                width={120}
-                height={120}
+                width={400}
+                height={400}
                 priority
                 className="drop-shadow-2xl"
               />

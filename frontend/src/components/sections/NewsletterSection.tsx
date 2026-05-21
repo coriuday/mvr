@@ -2,9 +2,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Send, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function NewsletterSection() {
@@ -16,75 +13,70 @@ export default function NewsletterSection() {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    // Simulate API call — wire to backend in Phase 3
     await new Promise((r) => setTimeout(r, 1000));
     setDone(true);
     setLoading(false);
-    toast.success("You're subscribed! Welcome to MVR Consultants.");
+    toast.success("Subscribed! Welcome to MVR Consultants.");
   }
 
   return (
-    <section className="py-20 bg-[#f8f9fc]" id="newsletter">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section
+      className="py-14 relative overflow-hidden"
+      id="newsletter"
+      style={{ background: "linear-gradient(135deg, #1a2f5e 0%, #0f1c3d 100%)" }}
+    >
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
-          className="bg-navy-gradient rounded-3xl px-8 py-14 sm:px-14 text-center relative overflow-hidden"
-          initial={{ opacity: 0, y: 24 }}
+          className="flex flex-col lg:flex-row items-center gap-6 lg:gap-10"
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
         >
-          {/* Background glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#c9a84c]/10 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-white/5 -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+          {/* Left — icon + text */}
+          <div className="flex items-center gap-5 flex-shrink-0">
+            {/* Envelope icon */}
+            <div className="w-14 h-14 rounded-full bg-[#c9a84c] flex items-center justify-center shrink-0">
+              <svg viewBox="0 0 28 28" fill="none" stroke="white" strokeWidth="1.8" className="w-7 h-7">
+                <rect x="2" y="6" width="24" height="17" rx="2"/>
+                <path d="M2 8l12 9 12-9" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-white text-xl font-bold leading-tight">
+                Stay Updated with the Latest
+              </h2>
+              <p className="text-gray-300 text-sm mt-0.5">
+                Scholarships, university updates, visa news & more.
+              </p>
+            </div>
+          </div>
 
-          <div className="relative z-10">
-            <p className="text-[#c9a84c] text-sm font-semibold uppercase tracking-widest mb-3">
-              Stay Updated
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4" style={{ fontFamily: "var(--font-playfair)" }}>
-              Get Free Study Abroad Tips
-            </h2>
-            <p className="text-white/60 max-w-lg mx-auto text-sm mb-8">
-              Subscribe to our newsletter and receive expert advice on scholarships, visa updates, university deadlines, and career tips.
-            </p>
-
+          {/* Right — form */}
+          <div className="flex-1 w-full lg:max-w-md">
             {done ? (
-              <motion.div
-                initial={{ scale: 0.85, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="flex items-center justify-center gap-3 text-[#c9a84c] font-semibold text-lg"
-              >
-                <CheckCircle size={26} />
-                Subscribed! Thank you.
-              </motion.div>
+              <p className="text-[#c9a84c] font-semibold text-center text-lg">
+                ✓ Subscribed! Thank you.
+              </p>
             ) : (
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col sm:flex-row items-center gap-3 max-w-md mx-auto"
-              >
-                <Input
+              <form onSubmit={handleSubmit} className="flex gap-0">
+                <input
                   type="email"
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="flex-1 bg-white/15 border-white/20 text-white placeholder:text-white/40 focus:border-[#c9a84c] focus:ring-[#c9a84c] rounded-full px-5"
+                  className="flex-1 px-5 py-3.5 bg-white text-gray-700 placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9a84c] rounded-l-sm"
                 />
-                <Button
+                <button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white font-bold rounded-full px-7 shrink-0 disabled:opacity-60"
+                  className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white font-bold px-6 py-3.5 text-sm transition-all duration-200 shrink-0 rounded-r-sm disabled:opacity-60"
                 >
-                  {loading ? "Subscribing…" : (
-                    <>Subscribe <Send size={15} className="ml-2" /></>
-                  )}
-                </Button>
+                  {loading ? "..." : "SUBSCRIBE"}
+                </button>
               </form>
             )}
-
-            <p className="text-white/30 text-xs mt-4">
-              No spam. Unsubscribe anytime.
-            </p>
           </div>
         </motion.div>
       </div>

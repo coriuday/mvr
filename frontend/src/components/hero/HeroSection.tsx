@@ -3,23 +3,14 @@
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  GraduationCap,
-  Star,
-  Users,
-  Award,
-  CheckCircle,
-  ArrowRight,
-  Play,
-} from "lucide-react";
+import Image from "next/image";
+import { Users, CheckCircle, GraduationCap, BookOpen } from "lucide-react";
 
 const stats = [
+  { value: "15+", label: "Years of Excellence", icon: BookOpen },
   { value: "50K+", label: "Students Guided", icon: Users },
-  { value: "98%", label: "Visa Success", icon: CheckCircle },
-  { value: "100+", label: "Universities", icon: GraduationCap },
-  { value: "4.9★", label: "Google Rating", icon: Star },
+  { value: "98%", label: "Visa Success Rate", icon: CheckCircle },
+  { value: "100+", label: "Partner Universities", icon: GraduationCap },
 ];
 
 const containerVariants: Variants = {
@@ -35,86 +26,120 @@ const itemVariants: Variants = {
 export default function HeroSection() {
   return (
     <section
-      className="relative bg-[#1a2f5e] overflow-hidden min-h-[88vh] flex items-center"
+      className="relative overflow-hidden"
+      style={{ background: "linear-gradient(135deg, #fdf8ef 0%, #fef9f0 40%, #fff8e8 100%)" }}
       id="hero"
     >
-      {/* Background decoration */}
+      {/* Subtle background decorations */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-[#c9a84c]/5 -translate-y-1/4 translate-x-1/4" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#2a4a8e]/40 translate-y-1/4 -translate-x-1/4" />
-        {/* Grid lines */}
+        {/* Top-right golden glow */}
         <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
-          }}
+          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-20"
+          style={{ background: "radial-gradient(circle, #c9a84c 0%, transparent 70%)", transform: "translate(30%, -30%)" }}
         />
+        {/* Bottom-left navy tint */}
+        <div
+          className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-10"
+          style={{ background: "radial-gradient(circle, #1a2f5e 0%, transparent 70%)", transform: "translate(-30%, 30%)" }}
+        />
+        {/* Decorative curved golden line — top right */}
+        <svg
+          className="absolute top-0 right-0 w-[340px] opacity-30"
+          viewBox="0 0 340 220"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M340,0 Q200,100 340,220"
+            stroke="#c9a84c"
+            strokeWidth="2.5"
+            fill="none"
+          />
+          <path
+            d="M340,20 Q210,110 340,200"
+            stroke="#c9a84c"
+            strokeWidth="1"
+            fill="none"
+            opacity="0.5"
+          />
+        </svg>
+        {/* Decorative curved golden line — bottom left */}
+        <svg
+          className="absolute bottom-0 left-0 w-[260px] opacity-25"
+          viewBox="0 0 260 180"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0,180 Q130,80 0,0"
+            stroke="#c9a84c"
+            strokeWidth="2.5"
+            fill="none"
+          />
+        </svg>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-0 lg:pt-14">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* ── Left column ── */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="text-white"
+            className="text-[#1a2f5e] pb-10 lg:pb-16"
           >
-            {/* Pill badge */}
-            <motion.div variants={itemVariants}>
-              <Badge className="bg-[#c9a84c]/20 text-[#c9a84c] border-[#c9a84c]/30 mb-5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider">
-                🎓 Trusted Study Abroad Experts — 15+ Years
-              </Badge>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl sm:text-5xl xl:text-6xl font-bold leading-[1.1] mb-6"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
-              Your{" "}
-              <span className="text-gradient-gold">Dream University</span>
-              <br />
-              Awaits You Abroad
-            </motion.h1>
-
-            {/* Subtext */}
+            {/* Tagline */}
             <motion.p
               variants={itemVariants}
-              className="text-white/65 text-lg leading-relaxed mb-8 max-w-xl"
+              className="text-sm font-semibold uppercase tracking-widest mb-3"
+              style={{ color: "#c9a84c" }}
             >
-              Expert guidance for university admissions, student visas,
-              scholarships, and study abroad placements across 25+ countries.
-              We&apos;ve helped{" "}
-              <span className="text-[#c9a84c] font-semibold">
-                50,000+ students
-              </span>{" "}
-              achieve their dreams.
+              Your Dream. Our Guidance.
+            </motion.p>
+
+            {/* Main headline */}
+            <motion.h1
+              variants={itemVariants}
+              className="text-4xl sm:text-5xl xl:text-[3.6rem] font-bold leading-[1.08] mb-5"
+              style={{ fontFamily: "var(--font-playfair)", color: "#1a2f5e" }}
+            >
+              Study Abroad.
+              <br />
+              Shape Your Future.
+            </motion.h1>
+
+            {/* Sub-description */}
+            <motion.p
+              variants={itemVariants}
+              className="text-base leading-relaxed mb-8 max-w-lg"
+              style={{ color: "#4b5563" }}
+            >
+              Expert guidance for admissions, visas, scholarships
+              <br />
+              and everything you need to succeed globally.
             </motion.p>
 
             {/* CTA buttons */}
             <motion.div
               variants={itemVariants}
-              className="flex flex-wrap items-center gap-4 mb-12"
+              className="flex flex-wrap items-center gap-4 mb-10"
             >
               <Link href="/contact">
-                <Button
-                  size="lg"
-                  className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white font-bold px-8 py-6 text-base rounded-full shadow-lg shadow-yellow-900/25 transition-all duration-200 hover:scale-105"
+                <button
+                  className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-none transition-all duration-200 hover:opacity-90 hover:scale-105"
+                  style={{ background: "#1a2f5e" }}
                 >
-                  Get Free Counseling
-                  <ArrowRight size={18} className="ml-2" />
-                </Button>
+                  BOOK FREE CONSULTATION
+                  <span className="ml-1">→</span>
+                </button>
               </Link>
-              <Link href="/universities">
-                <button className="flex items-center gap-2.5 text-white/80 hover:text-white font-medium transition-colors group">
-                  <span className="w-11 h-11 rounded-full bg-white/15 group-hover:bg-white/25 flex items-center justify-center transition-colors">
-                    <Play size={14} fill="currentColor" />
-                  </span>
-                  Explore Universities
+              <Link href="/countries">
+                <button
+                  className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold rounded-none border-2 transition-all duration-200 hover:bg-[#c9a84c] hover:text-white hover:border-[#c9a84c]"
+                  style={{ borderColor: "#c9a84c", color: "#c9a84c", background: "transparent" }}
+                >
+                  EXPLORE DESTINATIONS
+                  <span className="ml-1">→</span>
                 </button>
               </Link>
             </motion.div>
@@ -122,126 +147,87 @@ export default function HeroSection() {
             {/* Stats row */}
             <motion.div
               variants={itemVariants}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-5 pt-8 border-t border-white/10"
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
             >
               {stats.map(({ value, label, icon: Icon }) => (
-                <div key={label} className="text-center">
-                  <Icon
-                    size={18}
-                    className="text-[#c9a84c] mx-auto mb-1.5 opacity-90"
-                  />
-                  <p className="text-xl font-bold text-white leading-tight">
-                    {value}
-                  </p>
-                  <p className="text-white/50 text-[11px] font-medium mt-0.5">
-                    {label}
-                  </p>
+                <div key={label} className="flex items-start gap-2">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                    style={{ background: "rgba(201,168,76,0.15)" }}
+                  >
+                    <Icon size={16} style={{ color: "#c9a84c" }} />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold leading-tight" style={{ color: "#1a2f5e" }}>
+                      {value}
+                    </p>
+                    <p className="text-[11px] font-medium leading-tight" style={{ color: "#6b7280" }}>
+                      {label}
+                    </p>
+                  </div>
                 </div>
               ))}
             </motion.div>
           </motion.div>
 
-          {/* ── Right column — illustration card ── */}
+          {/* ── Right column — hero image in golden oval ── */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="hidden lg:block relative"
+            className="hidden lg:flex items-end justify-center relative"
           >
-            {/* Main card */}
-            <div className="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/15">
-              {/* Decorative flag row */}
-              <div className="flex items-center gap-2 mb-6">
-                {["🇺🇸", "🇬🇧", "🇨🇦", "🇦🇺", "🇩🇪", "🇮🇪"].map((flag) => (
-                  <span
-                    key={flag}
-                    className="w-9 h-9 bg-white/15 rounded-full flex items-center justify-center text-lg"
-                  >
-                    {flag}
-                  </span>
-                ))}
-                <span className="text-white/50 text-sm font-medium ml-1">
-                  +20 more
-                </span>
+            {/* Outer golden ring / oval glow */}
+            <div
+              className="relative flex items-end justify-center"
+              style={{ width: "520px", height: "560px" }}
+            >
+              {/* Golden oval background */}
+              <div
+                className="absolute inset-0 rounded-[50%] opacity-80"
+                style={{
+                  background: "linear-gradient(160deg, #e8c96a 0%, #c9a84c 40%, #a07a2e 100%)",
+                  transform: "scale(0.92)",
+                }}
+              />
+              {/* Inner lighter oval */}
+              <div
+                className="absolute inset-0 rounded-[50%]"
+                style={{
+                  background: "linear-gradient(160deg, #f5dfa0 0%, #dbb55a 50%, #b8892a 100%)",
+                  transform: "scale(0.82)",
+                }}
+              />
+              {/* Student image — positioned to overflow upward */}
+              <div className="relative z-10" style={{ marginBottom: "-2px" }}>
+                <Image
+                  src="/Gemini_Generated_Image_whl9aywhl9aywhl9.png"
+                  alt="Student with world landmarks — Study Abroad with MVR Consultants"
+                  width={480}
+                  height={560}
+                  className="object-contain object-bottom block"
+                  style={{
+                    maxHeight: "560px",
+                    width: "auto",
+                    filter: "drop-shadow(0 20px 40px rgba(26,47,94,0.18))",
+                  }}
+                  priority
+                />
               </div>
 
-              <h3
-                className="text-white text-2xl font-bold mb-2"
-                style={{ fontFamily: "var(--font-playfair)" }}
-              >
-                Study in Your Dream Country
-              </h3>
-              <p className="text-white/55 text-sm mb-8">
-                Top-ranked universities across the globe
-              </p>
-
-              {/* Feature pills */}
-              {[
-                "✅ Free University Shortlisting",
-                "✅ Visa Application Support",
-                "✅ Scholarship Guidance",
-                "✅ Post-Arrival Assistance",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center gap-3 mb-3.5 text-white/80 text-sm font-medium"
-                >
-                  {item}
-                </div>
-              ))}
-
-              {/* CTA inside card */}
-              <Link href="/contact">
-                <Button className="mt-4 w-full bg-[#c9a84c] hover:bg-[#a07a2e] text-white font-bold rounded-xl py-5">
-                  Book Free Consultation →
-                </Button>
-              </Link>
+              {/* World landmarks background watermark
+              <div
+                className="absolute inset-0 rounded-[50%] overflow-hidden opacity-15"
+                style={{
+                  background:
+                    "url('/Gemini_Generated_Image_whl9aywhl9aywhl9.png') center/cover no-repeat",
+                  transform: "scale(0.85)",
+                  filter: "blur(2px) sepia(1)",
+                }}
+              /> */}
             </div>
-
-            {/* Floating badge — top right */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-5 -right-5 bg-[#c9a84c] text-white rounded-2xl px-4 py-3 shadow-xl"
-            >
-              <div className="flex items-center gap-2">
-                <Award size={18} />
-                <div>
-                  <p className="text-xs font-bold leading-none">98% Success</p>
-                  <p className="text-[10px] opacity-80 mt-0.5">Visa Rate</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Floating badge — bottom left */}
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              className="absolute -bottom-5 -left-5 bg-white rounded-2xl px-4 py-3 shadow-xl"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#1a2f5e] rounded-full flex items-center justify-center">
-                  <Users size={14} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-gray-800 leading-none">
-                    50,000+
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">
-                    Students Placed
-                  </p>
-                </div>
-              </div>
-            </motion.div>
           </motion.div>
         </div>
-      </div>
-
-      {/* Wave SVG at bottom */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" className="w-full fill-white">
-          <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" />
-        </svg>
       </div>
     </section>
   );
