@@ -1,0 +1,161 @@
+{
+  "slug": "france",
+  "name": "France",
+  "flag": "🇫🇷",
+  "tagline": "Culture Meets Excellence",
+  "description": "France is a global hub of culture, fashion, and innovation. Home to world-class Grandes Écoles and public universities, France offers excellent education at remarkably affordable tuition rates.",
+  "heroImage": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/france/img_00.jpg",
+    "/images/countries/france/img_01.jpg",
+    "/images/countries/france/img_02.png",
+    "/images/countries/france/img_03.png",
+    "/images/countries/france/img_04.jpg",
+    "/images/countries/france/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "250+",
+    "workRights": "1 Year (APS)",
+    "intakes": "Sep, Jan",
+    "avgTuition": "€2,770–16,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "France is the only country in Europe to offer this benefit. All students are eligible on a case-to-case basis to apply for assistance and receive subsidy on cost of accommodation from 30% to 50% of the rent from the French Government.",
+    "postgraduate": "French classes are provided by many Government organizations for free. Enrolment fees are typically around €5 to €10. Duration remains 2 to 3 hours a day. It is part of the course curriculum for which exams are conducted and students are awarded a certificate for their French knowledge level.",
+    "phd": "€380–€400 at public universities; often funded through research contracts"
+  },
+  "scholarships": [
+    {
+      "name": "For French Government scholarship holder : attestation certifying the amount and duration of the scholarship",
+      "amount": "Varies",
+      "eligibility": "Covering letter mentioning the purpose of the trip, duration, sponsors, motivation… Curriculum Vitae",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Long-Stay Student Visa (VLS-TS)",
+    "requirements": [
+      "Valid national passport",
+      "University acceptance letter / Campus France approval",
+      "Proof of financial resources (€615/month minimum)",
+      "French health insurance or private coverage",
+      "Proof of accommodation in France",
+      "Language proficiency (French B2 for French programs / IELTS for English)",
+      "Long-Stay Visa (VLS-TS) application"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 964 hours per year (approximately 20 hours per week)",
+    "postStudy": "APS Visa: 1 year to find work in France after graduation",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Computer Science",
+    "Engineering",
+    "AI",
+    "Management",
+    "Fashion & Design",
+    "Business Administration",
+    "Culinary Arts",
+    "International Relations"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "French B2 required for French-taught programs; many English-taught programs available"
+  },
+  "topUniversities": [
+    {
+      "name": "Sorbonne University",
+      "ranking": "#59 QS 2024",
+      "programs": [
+        "Sciences",
+        "Humanities",
+        "Medicine"
+      ]
+    },
+    {
+      "name": "École Polytechnique",
+      "ranking": "#61 QS 2024",
+      "programs": [
+        "Engineering",
+        "Sciences",
+        "Economics"
+      ]
+    },
+    {
+      "name": "HEC Paris",
+      "ranking": "#1 European Business School",
+      "programs": [
+        "MBA",
+        "Business",
+        "Finance"
+      ]
+    },
+    {
+      "name": "Sciences Po Paris",
+      "ranking": "Top 250 QS",
+      "programs": [
+        "Political Science",
+        "Law",
+        "International Relations"
+      ]
+    },
+    {
+      "name": "Clermont School of Business",
+      "ranking": "",
+      "programs": [
+        "Computer Science",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "ESSCA School of Management",
+      "ranking": "",
+      "programs": [
+        "Computer Science",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Queen Mary University of London Institute in Paris",
+      "ranking": "",
+      "programs": [
+        "Computer Science",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Rennes School of Business",
+      "ranking": "",
+      "programs": [
+        "Computer Science",
+        "Engineering"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for France?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for France is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in France?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

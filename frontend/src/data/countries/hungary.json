@@ -1,0 +1,158 @@
+{
+  "slug": "hungary",
+  "name": "Hungary",
+  "flag": "🇭🇺",
+  "tagline": "Europe's Medical Capital",
+  "description": "Hungary is a top destination for medical education in Europe, with WHO-recognized programs and affordable fees. Its vibrant capital Budapest offers a rich student life.",
+  "heroImage": "https://images.unsplash.com/photo-1551867633-194f125bddfa?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/hungary/img_00.jpg",
+    "/images/countries/hungary/img_01.jpg",
+    "/images/countries/hungary/img_02.jpg",
+    "/images/countries/hungary/img_03.png",
+    "/images/countries/hungary/img_04.png",
+    "/images/countries/hungary/img_05.png"
+  ],
+  "stats": {
+    "unis": "65+",
+    "workRights": "9 Months",
+    "intakes": "Sep, Feb",
+    "avgTuition": "€3,000–14,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "Universities charge comparatively low tuition fees. At the same time, student life in Hungary is very affordable. Considering accommodation, food, transport and other things, you can get by on less than 600 euros per month in Budapest (the capital), and on less than 500 euros per month in the smaller cities.",
+    "postgraduate": "Visa fee will be EUR 110. No visa fee waiver for this category of travel except for holders of diplomatic and service passports.",
+    "phd": "€3,000–€7,000 per year; Stipendium Hungaricum covers full tuition"
+  },
+  "scholarships": [
+    {
+      "name": "Hungary Government Scholarship",
+      "amount": "Varies",
+      "eligibility": "Merit-based for international students",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Awards",
+      "amount": "Up to 50% tuition waiver",
+      "eligibility": "Academic excellence; GPA 3.5+",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Hungarian Student Visa (D Visa)",
+    "requirements": [
+      "Valid passport",
+      "University admission letter",
+      "Proof of financial means (approx. €5,000/year)",
+      "Health insurance or certificate of coverage",
+      "Academic transcripts (apostilled and translated to English)",
+      "Criminal background check",
+      "Application at the Hungarian embassy/consulate"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 24 hours per week during semester",
+    "postStudy": "9-month job-seeker residence permit after graduation",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "MBA",
+    "AI",
+    "Mathematics",
+    "Medicine",
+    "Dentistry",
+    "Engineering",
+    "Business Administration",
+    "Computer Science"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Some programs in English; Hungarian for local programs"
+  },
+  "topUniversities": [
+    {
+      "name": "Semmelweis University",
+      "ranking": "Top Medical School",
+      "programs": [
+        "Medicine",
+        "Dentistry",
+        "Pharmacy"
+      ]
+    },
+    {
+      "name": "Budapest University of Technology",
+      "ranking": "Top 300 QS",
+      "programs": [
+        "Engineering",
+        "IT",
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Corvinus University",
+      "ranking": "EQUIS Accredited",
+      "programs": [
+        "Business",
+        "Economics",
+        "Law"
+      ]
+    },
+    {
+      "name": "The best-ranked university in Hungary, and usually among the top 700 universities worldwide",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Ai"
+      ]
+    },
+    {
+      "name": "University of Debrecen",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Ai"
+      ]
+    },
+    {
+      "name": "Budapest Metropolitan University of Applied Science",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Ai"
+      ]
+    },
+    {
+      "name": "University of Debrecen77",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Ai"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Hungary?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Hungary is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Hungary?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

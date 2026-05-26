@@ -1,0 +1,164 @@
+{
+  "slug": "malaysia",
+  "name": "Malaysia",
+  "flag": "🇲🇾",
+  "tagline": "Asia's Education Hub",
+  "description": "Malaysia is Asia's most accessible study destination, offering quality education at affordable costs. Its multicultural environment and English medium instruction make international students feel at home.",
+  "heroImage": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/malaysia/img_00.jpg",
+    "/images/countries/malaysia/img_01.jpg",
+    "/images/countries/malaysia/img_02.png",
+    "/images/countries/malaysia/img_03.png",
+    "/images/countries/malaysia/img_04.jpg",
+    "/images/countries/malaysia/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "70+",
+    "workRights": "Emp. Pass",
+    "intakes": "Mar, Jul, Nov",
+    "avgTuition": "MYR 15k–40k/yr"
+  },
+  "tuitionFees": {
+    "currency": "MYR",
+    "undergraduate": "Flexible study options - Kuching. Melbourne. Or both! Student will pay only 1/3 the tuition fee as a Swinburne Sarawak student",
+    "postgraduate": "Contact institution for MYR fees",
+    "phd": "MYR 10,000–25,000 per year; research scholarships available"
+  },
+  "scholarships": [
+    {
+      "name": "scholarships opportunities for the student",
+      "amount": "Varies",
+      "eligibility": "✓Asia is home to many large corporations and there are ample opportunities in sectors like Banking and Finance, International",
+      "link": ""
+    },
+    {
+      "name": "have been awarded AACSB accreditation",
+      "amount": "Varies",
+      "eligibility": "Retained 5-star SETARA rating for the fourth consecutive time in 2017, placing them under the Mature University category.",
+      "link": ""
+    },
+    {
+      "name": "Fees payment done after visa is granted",
+      "amount": "Varies",
+      "eligibility": "--- PAGE ---",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Malaysia Student Pass",
+    "requirements": [
+      "Valid passport (minimum 18 months validity)",
+      "University acceptance letter",
+      "Visa approval letter from Malaysian immigration",
+      "Medical examination at a government-registered clinic",
+      "Bank statement showing sufficient funds",
+      "Academic transcripts and qualifications",
+      "Student Pass application through your university"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours/week during holidays",
+    "postStudy": "Graduate Employment Pass available; Malaysia My Second Home (MM2H) for long-term stay",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "Computer Science",
+    "Information Technology",
+    "Engineering",
+    "Medicine",
+    "Law",
+    "Economics"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "English medium instruction; IELTS 6.0+ for top universities"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Malaya",
+      "ranking": "#65 QS 2024",
+      "programs": [
+        "Medicine",
+        "Engineering",
+        "Business"
+      ]
+    },
+    {
+      "name": "Universiti Putra Malaysia",
+      "ranking": "Top 200 QS",
+      "programs": [
+        "Agriculture",
+        "Sciences",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Taylor's University",
+      "ranking": "Top 250 QS",
+      "programs": [
+        "Hospitality",
+        "Business",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "✓Home to many foreign University campuses of USA, UK",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "• University of Southampton ranks 81 in QS World University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "• As a global top 100 university, their expert academics and",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "University of",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Malaysia?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Malaysia is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Malaysia?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

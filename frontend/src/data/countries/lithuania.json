@@ -1,0 +1,138 @@
+{
+  "slug": "lithuania",
+  "name": "Lithuania",
+  "flag": "🇱🇹",
+  "tagline": "Baltic Academic Hub",
+  "description": "Lithuania is an affordable EU destination with WHO-recognized medical programs and a growing tech sector. English-taught programs are widely available at accredited universities.",
+  "heroImage": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/lithuania/img_00.jpg",
+    "/images/countries/lithuania/img_01.jpg"
+  ],
+  "stats": {
+    "unis": "20+",
+    "workRights": "6–12 Months",
+    "intakes": "Sep, Feb",
+    "avgTuition": "€2,500–5,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "Usually, the residents of the hall share common showers and kitchen area. Students share their room with one or two others. This is offset by a comparatively low cost of living Expect the rent to be about 50-100 Euros a month.",
+    "postgraduate": "Student must show complete balance tuition fee + 1 year living expenses minimum Euro 8,000 to Euro 9,000.",
+    "phd": "€2,000–€4,000 per year; some funded positions available"
+  },
+  "scholarships": [
+    {
+      "name": "Lithuania Government Scholarship",
+      "amount": "Varies",
+      "eligibility": "Merit-based for international students",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Awards",
+      "amount": "Up to 50% tuition waiver",
+      "eligibility": "Academic excellence; GPA 3.5+",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Lithuanian National Visa (D)",
+    "requirements": [
+      "Valid passport",
+      "University admission letter",
+      "Proof of financial means (€300/month minimum)",
+      "Health insurance valid in Lithuania",
+      "Criminal record certificate",
+      "National Visa (Type D) application at Lithuanian embassy",
+      "Temporary Residence Permit after arrival"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours per week during term",
+    "postStudy": "Temporary residence permit for 6–12 months after graduation",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Engineering",
+    "Arts",
+    "AI",
+    "Media",
+    "Management",
+    "Medicine",
+    "Dentistry",
+    "Business Administration"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "English programs widely available; Lithuanian for local programs"
+  },
+  "topUniversities": [
+    {
+      "name": "Vilnius University",
+      "ranking": "Top 600 QS",
+      "programs": [
+        "Medicine",
+        "Law",
+        "IT"
+      ]
+    },
+    {
+      "name": "Lithuanian University of Health Sciences",
+      "ranking": "WHO Recognized",
+      "programs": [
+        "Medicine",
+        "Dentistry",
+        "Pharmacy"
+      ]
+    },
+    {
+      "name": "KTU (Kaunas University of Technology)",
+      "ranking": "Nationally Accredited",
+      "programs": [
+        "Engineering",
+        "IT",
+        "Business"
+      ]
+    },
+    {
+      "name": "Kazimieras Simonavicius University, Vilnius",
+      "ranking": "",
+      "programs": [
+        "Engineering",
+        "Arts"
+      ]
+    },
+    {
+      "name": "Mediation letter – Provided by the university after tuition fees payment",
+      "ranking": "",
+      "programs": [
+        "Engineering",
+        "Arts"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Lithuania?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Lithuania is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Lithuania?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Phone, Mail, MapPin, Globe, ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Phone, Mail, MapPin, ArrowRight } from "lucide-react";
+import { SiFacebook, SiInstagram, SiYoutube } from "@icons-pack/react-simple-icons";
 import {
   CONTACT_INFO,
   FOOTER_QUICK_LINKS,
@@ -9,23 +13,202 @@ import {
   FOOTER_SUPPORT,
 } from "@/constants/navigation";
 
-const SOCIALS = [
-  { short: "f",  name: "Facebook",  href: CONTACT_INFO.socialMedia.facebook  },
-  { short: "ig", name: "Instagram", href: CONTACT_INFO.socialMedia.instagram },
-  { short: "in", name: "LinkedIn",  href: CONTACT_INFO.socialMedia.linkedin  },
-  { short: "yt", name: "YouTube",   href: CONTACT_INFO.socialMedia.youtube   },
+// LinkedIn not in this simple-icons version — inline SVG matches official shape
+function IconLinkedin() {
+  return (
+    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+
+// ─── Brand definitions ────────────────────────────────────────────────────────
+type SocialDef = {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  /** solid bg color (hex) — null = use gradient */
+  bg: string | null;
+  /** gradient string for Instagram */
+  gradient?: string;
+  /** glow color for box-shadow */
+  glow: string;
+};
+
+const SOCIAL_DEFS: SocialDef[] = [
+  {
+    label: "Facebook",
+    href: CONTACT_INFO.socialMedia.facebook,
+    icon: <SiFacebook size={18} />,
+    bg: "#1877F2",
+    glow: "rgba(24,119,242,0.55)",
+  },
+  {
+    label: "Instagram",
+    href: CONTACT_INFO.socialMedia.instagram,
+    icon: <SiInstagram size={18} />,
+    bg: null,
+    gradient: "linear-gradient(135deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%)",
+    glow: "rgba(221,42,123,0.55)",
+  },
+  {
+    label: "LinkedIn",
+    href: CONTACT_INFO.socialMedia.linkedin,
+    icon: <IconLinkedin />,
+    bg: "#0A66C2",
+    glow: "rgba(10,102,194,0.55)",
+  },
+  {
+    label: "YouTube",
+    href: CONTACT_INFO.socialMedia.youtube,
+    icon: <SiYoutube size={18} />,
+    bg: "#FF0000",
+    glow: "rgba(255,0,0,0.50)",
+  },
 ];
 
-function FooterColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
+// ─── Premium animated social icon ─────────────────────────────────────────────
+function SocialIcon({ def }: { def: SocialDef }) {
+  const [hovered, setHovered] = useState(false);
+
+  const containerStyle: React.CSSProperties = {
+    position: "relative",
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    overflow: "hidden",
+    background: hovered
+      ? def.bg ?? "transparent"
+      : "rgba(255,255,255,0.07)",
+    border: hovered
+      ? "1.5px solid transparent"
+      : "1.5px solid rgba(255,255,255,0.12)",
+    backdropFilter: "blur(8px)",
+    boxShadow: hovered
+      ? `0 0 18px 4px ${def.glow}, 0 4px 20px rgba(0,0,0,0.3)`
+      : "0 2px 8px rgba(0,0,0,0.25)",
+    color: hovered ? "#fff" : "rgba(255,255,255,0.55)",
+    transition:
+      "background 0.3s ease, box-shadow 0.3s ease, border 0.3s ease, color 0.3s ease",
+  };
+
+  const gradientOverlay: React.CSSProperties | null =
+    def.gradient
+      ? {
+        position: "absolute",
+        inset: 0,
+        background: def.gradient,
+        borderRadius: "50%",
+        opacity: hovered ? 1 : 0,
+        transition: "opacity 0.3s ease",
+        zIndex: 0,
+      }
+      : null;
+
+  const iconWrap: React.CSSProperties = {
+    position: "relative",
+    zIndex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
+  return (
+    <motion.a
+      href={def.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={def.label}
+      title={def.label}
+      style={containerStyle}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      whileHover={{ scale: 1.15 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 380, damping: 22 }}
+    >
+      {gradientOverlay && <div style={gradientOverlay} />}
+      <span style={iconWrap}>{def.icon}</span>
+    </motion.a>
+  );
+}
+
+// ─── Sitemap data ─────────────────────────────────────────────────────────────
+const SITEMAP = [
+  {
+    title: "Main Pages",
+    links: [
+      { label: "Home", href: "/" },
+      { label: "About Us", href: "/about" },
+      { label: "Services", href: "/services" },
+      { label: "Scholarships", href: "/scholarships" },
+      { label: "Universities", href: "/universities" },
+      { label: "Blogs", href: "/blogs" },
+      { label: "Contact Us", href: "/contact" },
+    ],
+  },
+  {
+    title: "Study Abroad",
+    links: [
+      { label: "All Countries", href: "/countries" },
+      { label: "USA", href: "/countries/usa" },
+      { label: "UK", href: "/countries/uk" },
+      { label: "Canada", href: "/countries/canada" },
+      { label: "Australia", href: "/countries/australia" },
+      { label: "Germany", href: "/countries/germany" },
+      { label: "Ireland", href: "/countries/ireland" },
+    ],
+  },
+  {
+    title: "Visa & Resources",
+    links: [
+      { label: "Visa Assistance", href: "/visa" },
+      { label: "Student Visa", href: "/visa/student" },
+      { label: "Visa Checklist", href: "/visa/checklist" },
+      { label: "Courses", href: "/courses" },
+      { label: "Student Resources", href: "/resources" },
+    ],
+  },
+  {
+    title: "Support",
+    links: [
+      { label: "FAQ", href: "/faq" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms & Conditions", href: "/terms" },
+    ],
+  },
+];
+
+// ─── Footer column component ──────────────────────────────────────────────────
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: { label: string; href: string }[];
+}) {
   return (
     <div>
-      <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">{title}</h4>
+      <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">
+        {title}
+      </h4>
       <ul className="space-y-2">
         {links.map((link) => (
           <li key={link.href}>
-            <Link href={link.href}
-              className="text-white/60 hover:text-[#c9a84c] text-sm transition-colors duration-150 flex items-center gap-1.5 group">
-              <ArrowRight size={11} className="opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-150" />
+            <Link
+              href={link.href}
+              className="text-white/60 hover:text-[#c9a84c] text-sm transition-colors duration-150 flex items-center gap-1.5 group"
+            >
+              <ArrowRight
+                size={11}
+                className="opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-150"
+              />
               {link.label}
             </Link>
           </li>
@@ -35,96 +218,134 @@ function FooterColumn({ title, links }: { title: string; links: { label: string;
   );
 }
 
+// ─── Main footer ──────────────────────────────────────────────────────────────
 export default function SiteFooter() {
   return (
     <footer className="bg-[#0f1c3d]">
+      {/* Main footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
 
           {/* Brand column */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-[#c9a84c]/20 rounded-xl flex items-center justify-center">
-                <span className="text-[#c9a84c] font-black text-lg">MVR</span>
-              </div>
-              <div>
-                <p className="text-white font-bold text-base leading-tight">MVR CONSULTANTS</p>
-                <p className="text-[#c9a84c] text-[10px] tracking-[0.15em] uppercase">Overseas Education · Immigration</p>
+            {/* Logo — same clipping approach as navbar, inverted white for dark bg */}
+            <Link href="/" className="flex items-center shrink-0 mb-5">
+              <div
+                style={{
+                  width: "260px",
+                  height: "95px",
+                  overflow: "hidden",
+                  position: "relative",
+                  flexShrink: 0,
+                }}
+              >
+                <Image
+                  src="/favicon-removebg-preview.png"
+                  alt="MVR Consultants — Abroad Education"
+                  width={1536}
+                  height={1024}
+                  style={{
+                    width: "245px",
+                    height: "163px",
+                    position: "absolute",
+                    top: "-31px",
+                    left: "0",
+                    filter: "brightness(0) invert(1)",
+                  }}
+                  unoptimized
+                  priority
+                />
               </div>
             </Link>
-            <p className="text-white/55 text-sm leading-relaxed mb-5 max-w-sm">
-              Empowering students to achieve their dream of studying abroad with expert guidance on
-              admissions, visas, and scholarships. Offices in Hyderabad & Guntur.
+
+            <p className="text-white/55 text-sm leading-relaxed mb-6 max-w-sm">
+              Empowering students to achieve their dream of studying abroad
+              with expert guidance on admissions, visas, scholarships, and
+              more. 15+ years of trust.
             </p>
 
-            {/* Social media */}
-            <div className="flex items-center gap-3 mb-6">
-              {SOCIALS.map((s) => (
-                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer"
-                  aria-label={s.name} title={s.name}
-                  className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-[#c9a84c] hover:text-white transition-all duration-200 text-xs font-bold uppercase">
-                  {s.short}
-                </a>
+            {/* Social media buttons — premium animated */}
+            <div className="flex items-center gap-3 mb-7">
+              {SOCIAL_DEFS.map((def) => (
+                <SocialIcon key={def.label} def={def} />
               ))}
             </div>
 
             {/* Contact info */}
             <div className="space-y-3">
-              <a href={`tel:+919966903884`}
-                className="flex items-center gap-3 text-white/60 hover:text-white text-sm transition-colors group">
+              <a
+                href={`tel:${CONTACT_INFO.phone}`}
+                className="flex items-center gap-3 text-white/60 hover:text-white text-sm transition-colors group"
+              >
                 <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c] transition-colors">
                   <Phone size={13} />
                 </span>
-                <span>
-                  <span className="block">{CONTACT_INFO.phone}</span>
-                  <span className="text-white/40 text-xs">{CONTACT_INFO.phoneAlt}</span>
-                </span>
+                {CONTACT_INFO.phone}
               </a>
-              <a href={`mailto:${CONTACT_INFO.email}`}
-                className="flex items-center gap-3 text-white/60 hover:text-white text-sm transition-colors group">
+              <a
+                href={`mailto:${CONTACT_INFO.email}`}
+                className="flex items-center gap-3 text-white/60 hover:text-white text-sm transition-colors group"
+              >
                 <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c] transition-colors">
                   <Mail size={13} />
                 </span>
-                <span>
-                  <span className="block">{CONTACT_INFO.email}</span>
-                  <span className="text-white/40 text-xs">{CONTACT_INFO.emailGuntur}</span>
-                </span>
+                {CONTACT_INFO.email}
               </a>
               <div className="flex items-start gap-3 text-white/60 text-sm">
                 <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
                   <MapPin size={13} />
                 </span>
-                <div>
-                  <p className="text-white/40 text-xs uppercase tracking-wider mb-0.5">Hyderabad</p>
-                  <p>{CONTACT_INFO.address}</p>
-                  <p className="text-white/40 text-xs uppercase tracking-wider mt-2 mb-0.5">Guntur</p>
-                  <p className="text-white/50 text-xs">{CONTACT_INFO.addressGuntur}</p>
-                </div>
+                {CONTACT_INFO.address}
               </div>
-              <a href={`https://${CONTACT_INFO.website}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-3 text-white/60 hover:text-[#c9a84c] text-sm transition-colors group">
-                <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c] transition-colors">
-                  <Globe size={13} />
-                </span>
-                {CONTACT_INFO.website}
-              </a>
             </div>
           </div>
 
-          {/* Nav columns */}
-          <FooterColumn title="Quick Links"  links={FOOTER_QUICK_LINKS}  />
+          {/* Link columns */}
+          <FooterColumn title="Quick Links" links={FOOTER_QUICK_LINKS} />
           <FooterColumn title="Study Abroad" links={FOOTER_STUDY_ABROAD} />
-          <FooterColumn title="Support"      links={FOOTER_SUPPORT}      />
+          <FooterColumn title="Support" links={FOOTER_SUPPORT} />
         </div>
       </div>
+
+      {/* ── Sitemap section ──
+      <div className="border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+          <h3 className="text-white/40 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+            Site Map
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            {SITEMAP.map((section) => (
+              <div key={section.title}>
+                <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest mb-3">
+                  {section.title}
+                </p>
+                <ul className="space-y-1.5">
+                  {section.links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-white/25 hover:text-[#c9a84c] text-xs transition-colors duration-150"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div> */}
 
       {/* Bottom bar */}
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-white/40 text-xs text-center">
-            © {new Date().getFullYear()} MVR Consultants. All rights reserved. · MD: {CONTACT_INFO.md}
+            © {new Date().getFullYear()} MVR Consultants. All rights reserved.
           </p>
-          <p className="text-white/25 text-xs">Crafted with ❤️ for aspiring students worldwide</p>
+          <p className="text-white/30 text-xs">
+            Crafted with ❤️ for aspiring students worldwide
+          </p>
         </div>
       </div>
     </footer>

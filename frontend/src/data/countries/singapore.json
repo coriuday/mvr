@@ -1,0 +1,194 @@
+{
+  "slug": "singapore",
+  "name": "Singapore",
+  "flag": "🇸🇬",
+  "tagline": "Asia's Global City",
+  "description": "Singapore is Asia's global financial capital with world-class universities like NUS and NTU. Its strategic location, safe environment, and strong economy make it a premium study destination.",
+  "heroImage": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/singapore/img_00.png",
+    "/images/countries/singapore/img_01.jpg",
+    "/images/countries/singapore/img_02.jpg",
+    "/images/countries/singapore/img_03.jpg",
+    "/images/countries/singapore/img_04.jpg",
+    "/images/countries/singapore/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "6+",
+    "workRights": "Emp. Pass",
+    "intakes": "Aug, Jan",
+    "avgTuition": "SGD 15k–35k/yr"
+  },
+  "tuitionFees": {
+    "currency": "SGD",
+    "undergraduate": "SGD 15,000–35,000 per year (after government subsidy)",
+    "postgraduate": "SGD 20,000–40,000 per year; MBA up to SGD 60,000",
+    "phd": "Often funded with a Research Scholarship from the institution"
+  },
+  "scholarships": [
+    {
+      "name": "Singapore is a nation built by immigrants and",
+      "amount": "Varies",
+      "eligibility": "it still welcomes all who are keen to play a part in its economic development.",
+      "link": ""
+    },
+    {
+      "name": "awarded by S P Jain School of Global Management, Australia",
+      "amount": "Varies",
+      "eligibility": "The Association of MBAs (AMBA), U.K.",
+      "link": ""
+    },
+    {
+      "name": "Alliance on Business Education and Scholarship for Tomorrow",
+      "amount": "Varies",
+      "eligibility": "Japan. S P Jain offers world’s only Tri – City Program. Each student",
+      "link": ""
+    },
+    {
+      "name": "first Hostel in Singapore to be awarded the Green",
+      "amount": "Varies",
+      "eligibility": "Mark Gold Plus Award. MDIS Residence",
+      "link": ""
+    },
+    {
+      "name": "Mark Gold Plus Award",
+      "amount": "Varies",
+      "eligibility": "MDIS Residence --- PAGE ---",
+      "link": ""
+    },
+    {
+      "name": "Awarded by",
+      "amount": "Varies",
+      "eligibility": "1. University of Sunderland, UK : Bachelor's Degree, No Work Experience required.",
+      "link": ""
+    },
+    {
+      "name": "Awarding Bodies",
+      "amount": "Varies",
+      "eligibility": "・University College Dublin, Ireland • Bachelor of Science (8+18=26 months)",
+      "link": ""
+    },
+    {
+      "name": "• MBA‐ Awarded by Murdoch University, Australia (16 months)",
+      "amount": "Varies",
+      "eligibility": "・Northumbria University, UK • Bachelor of Arts (8+16 months)",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Singapore Student Pass",
+    "requirements": [
+      "Valid passport",
+      "Student's Pass application via SOLAR+ system",
+      "University acceptance letter",
+      "Proof of financial means",
+      "Academic transcripts and certificates",
+      "Medical examination report (if required)",
+      "Disembarkation/Embarkation card"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 16 hours per week during term time",
+    "postStudy": "Employment Pass or S Pass available for graduates meeting eligibility criteria",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "Computer Science",
+    "Information Technology",
+    "Engineering",
+    "Finance",
+    "Architecture",
+    "Design"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "English is the primary medium of instruction"
+  },
+  "topUniversities": [
+    {
+      "name": "National University of Singapore (NUS)",
+      "ranking": "#8 QS 2024",
+      "programs": [
+        "Engineering",
+        "Business",
+        "Medicine"
+      ]
+    },
+    {
+      "name": "Nanyang Technological University (NTU)",
+      "ranking": "#26 QS 2024",
+      "programs": [
+        "Engineering",
+        "Business",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "Singapore Management University",
+      "ranking": "Top Business School",
+      "programs": [
+        "Business",
+        "Law",
+        "Information Systems"
+      ]
+    },
+    {
+      "name": "Types of Institutes in Singapore",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "o National University of Singapore",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "o Nanyang Technological University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "o Singapore Management University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Singapore?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Singapore is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Singapore?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

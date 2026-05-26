@@ -1,0 +1,148 @@
+{
+  "slug": "georgia",
+  "name": "Georgia",
+  "flag": "🇬🇪",
+  "tagline": "Affordable Gateway to Europe",
+  "description": "Georgia is an emerging affordable destination for medical and engineering students. Its universities are WHO-recognized and MCI-approved, making it an excellent choice for Indian medical aspirants.",
+  "heroImage": "https://images.unsplash.com/photo-1565008576549-57569a49371d?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/georgia/img_00.jpg",
+    "/images/countries/georgia/img_01.jpg",
+    "/images/countries/georgia/img_02.jpg",
+    "/images/countries/georgia/img_03.png"
+  ],
+  "stats": {
+    "unis": "50+",
+    "workRights": "Temp. Permit",
+    "intakes": "Sep, Feb",
+    "avgTuition": "$2,000–6,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "USD",
+    "undergraduate": "Affordable Education: Tuition fees and living costs are lower compared to many Western countries, making it financially accessible",
+    "postgraduate": "Welcoming Environment: Georgians are known for their hospitality, making it easier for international students to feel at home.",
+    "phd": "$2,000–$5,000 per year"
+  },
+  "scholarships": [
+    {
+      "name": "Georgia Government Scholarship",
+      "amount": "Varies",
+      "eligibility": "Merit-based for international students",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Awards",
+      "amount": "Up to 50% tuition waiver",
+      "eligibility": "Academic excellence; GPA 3.5+",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Georgian Student Visa",
+    "requirements": [
+      "Valid passport",
+      "University admission letter",
+      "Proof of financial means",
+      "Medical certificate",
+      "Criminal background check",
+      "No visa required for Indian nationals (up to 360-day stay visa-free)",
+      "Register at Civil Registry Agency within 45 days of arrival"
+    ],
+    "processingTime": "to Study in Georgia --- SLIDE --- Visa Process Processing Time The processing time for the short–term visa application at the Embassy of Georgia is mi",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "No official restriction on working hours for students",
+    "postStudy": "Temporary residence permit available for graduates",
+    "notes": "Low cost of living; growing tech sector with increasing job opportunities"
+  },
+  "popularPrograms": [
+    "MBA",
+    "Engineering",
+    "Medicine",
+    "AI",
+    "Hospitality",
+    "Physics",
+    "Biology",
+    "Chemistry"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "English proficiency required for English programs; Georgian not required"
+  },
+  "topUniversities": [
+    {
+      "name": "Tbilisi State Medical University",
+      "ranking": "WHO Recognized",
+      "programs": [
+        "Medicine",
+        "Dentistry",
+        "Pharmacy"
+      ]
+    },
+    {
+      "name": "University of Georgia (Tbilisi)",
+      "ranking": "MCI Approved",
+      "programs": [
+        "Medicine",
+        "Business",
+        "Law"
+      ]
+    },
+    {
+      "name": "Caucasus University",
+      "ranking": "Nationally Accredited",
+      "programs": [
+        "Business",
+        "Law",
+        "IT"
+      ]
+    },
+    {
+      "name": "University, Intake and Course",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "University - David Tvildiani Medical University",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Admission Letter: Acceptance letter from a recognized Georgian university",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Engineering"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Georgia?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Georgia is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Georgia?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

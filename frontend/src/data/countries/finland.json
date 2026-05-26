@@ -1,0 +1,154 @@
+{
+  "slug": "finland",
+  "name": "Finland",
+  "flag": "🇫🇮",
+  "tagline": "Nordic Innovation",
+  "description": "Finland's education system is among the world's best. Top-ranked universities, a strong focus on research and innovation, and a growing number of English-taught programs make Finland increasingly popular.",
+  "heroImage": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/finland/img_00.png",
+    "/images/countries/finland/img_01.png",
+    "/images/countries/finland/img_02.jpg",
+    "/images/countries/finland/img_03.jpg",
+    "/images/countries/finland/img_04.jpg",
+    "/images/countries/finland/img_05.png"
+  ],
+  "stats": {
+    "unis": "40+",
+    "workRights": "2 Years",
+    "intakes": "Sep",
+    "avgTuition": "€6,000–18,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "€6,000–18,000 per year (for non-EU/EEA students)",
+    "postgraduate": "Living Expenses of € 9,600 per year to be shown for living expenses + entire duration of the program fees has to be shown in the student’s savings account only https://migri.fi/en/income-requirement-for-students",
+    "phd": "Starting January 1, 2025, applicants from non-EU/EEA countries will be required to pay an application fee of EUR 100 when applying for higher education degrees in Finland, excluding licentiate and doctoral degrees."
+  },
+  "scholarships": [
+    {
+      "name": "Scholarships",
+      "amount": "Varies",
+      "eligibility": "Universities offer a range of options for scholarships both for bachelor's and master's level international students. Post Study Work Visa:",
+      "link": ""
+    },
+    {
+      "name": "Universities offer a range of options for scholarships both for bachelor's and master's level international students",
+      "amount": "Varies",
+      "eligibility": "Post Study Work Visa: 2 Years after completion of Bachelor’s or Master’s",
+      "link": ""
+    },
+    {
+      "name": "Documentation of paid tuition fee or documentation of scholarship",
+      "amount": "Varies",
+      "eligibility": "Living Expenses of € 9,600 per year to be shown for living expenses + entire duration of the program fees has to be shown in the student’s savings account only https://migri.fi/en/income-requirement-f",
+      "link": ""
+    },
+    {
+      "name": "Students will be granted a residence permit for the entire length of their studies",
+      "amount": "Varies",
+      "eligibility": "Foreign students’ right to work during their studies will increase from the average of 25 hours to 30 hours a week. The type of permit for students studying for a higher education degree will change f",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Finnish Residence Permit (Student)",
+    "requirements": [
+      "Valid passport",
+      "University admission letter",
+      "Residence permit application (if staying 90+ days)",
+      "Proof of financial means (€6,720/year minimum)",
+      "Health insurance valid in Finland",
+      "Completed and signed application form",
+      "English/Finnish language proficiency proof"
+    ],
+    "processingTime": "Finland Student Visa or Residence Permit Expected processing time for electronic application First permit 2 - 3 months Electronic application fee Firs",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 25 hours per week during term; full-time during holidays",
+    "postStudy": "Up to 2 years extended residence permit for job-seeking after graduation",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "MBA",
+    "Law",
+    "Economics",
+    "AI",
+    "Engineering",
+    "Computer Science",
+    "Design",
+    "Business Administration"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Many programs taught in English; Finnish required for Finnish-taught programs"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Helsinki",
+      "ranking": "#106 QS 2024",
+      "programs": [
+        "Sciences",
+        "Law",
+        "Humanities"
+      ]
+    },
+    {
+      "name": "Aalto University",
+      "ranking": "#Top 150 QS",
+      "programs": [
+        "Engineering",
+        "Business",
+        "Design"
+      ]
+    },
+    {
+      "name": "Tampere University",
+      "ranking": "Top 400 QS",
+      "programs": [
+        "Engineering",
+        "IT",
+        "Health Sciences"
+      ]
+    },
+    {
+      "name": "University of Turku",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Law"
+      ]
+    },
+    {
+      "name": "University of Eastern Finland",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Law"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Finland?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Finland is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Finland?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

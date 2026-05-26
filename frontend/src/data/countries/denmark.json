@@ -1,0 +1,169 @@
+{
+  "slug": "denmark",
+  "name": "Denmark",
+  "flag": "🇩🇰",
+  "tagline": "Innovation & Design",
+  "description": "Denmark is a global leader in design, sustainability, and innovation. Its universities consistently rank among Europe's best, and the country boasts a high quality of life with a strong focus on work-life balance.",
+  "heroImage": "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/denmark/img_00.jpg",
+    "/images/countries/denmark/img_01.jpg",
+    "/images/countries/denmark/img_02.jpg",
+    "/images/countries/denmark/img_03.jpg",
+    "/images/countries/denmark/img_04.jpg"
+  ],
+  "stats": {
+    "unis": "40+",
+    "workRights": "2 Years",
+    "intakes": "Sep, Feb",
+    "avgTuition": "DKK 45k–120k/yr"
+  },
+  "tuitionFees": {
+    "currency": "DKK",
+    "undergraduate": "Living costs will add up to around 700 - 900 EUR monthly in smaller towns. In larger areas, like Copenhagen, living costs could reach up to 1200 EUR a month.",
+    "postgraduate": "Entry Requirements, Duration of the programs and Tuition Fee",
+    "phd": "Fully funded as a 3-year PhD employee at Danish universities"
+  },
+  "scholarships": [
+    {
+      "name": "Scholarships / Grants",
+      "amount": "Varies",
+      "eligibility": "Many universities will offer scholarships, grants, and/or financial aid to help fund your education Unique Social Life / Traditions",
+      "link": ""
+    },
+    {
+      "name": "Many universities will offer scholarships, grants, and/or financial aid to help fund your education",
+      "amount": "Varies",
+      "eligibility": "Unique Social Life / Traditions Students in Denmark are involved in more social interactions surrounding their studies.",
+      "link": ""
+    },
+    {
+      "name": "A residence permit can be granted to foreigners who are enrolled in one of the following programs",
+      "amount": "Varies",
+      "eligibility": "Higher education Courses giving access to higher education",
+      "link": ""
+    },
+    {
+      "name": "Documentation showing that your financial support is secured via a scholarship or a student loan",
+      "amount": "Varies",
+      "eligibility": "Merit-based scholarship for international students",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Danish Residence Permit (Student)",
+    "requirements": [
+      "Valid passport",
+      "University acceptance/admission letter",
+      "Proof of financial means (DKK 5,941/month)",
+      "Proof of accommodation in Denmark",
+      "Health insurance (automatically covered after residence permit)",
+      "Language proficiency certificate (English or Danish)",
+      "Study permit application form"
+    ],
+    "processingTime": "nt, you must use form PHD1. VISA FEES – DKK 2,490 PROCESSING TIME – 2 Months --- SLIDE --- Visa Filing 11 Please note that both you and your education",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours per week during term; full-time in June, July, August",
+    "postStudy": "2-year Establishment Card (job-seeker permit) for graduates",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "MBA",
+    "Arts",
+    "AI",
+    "Management",
+    "Design",
+    "Architecture",
+    "Engineering",
+    "Business Administration"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Many programs taught in English; Danish required for some programs"
+  },
+  "topUniversities": [
+    {
+      "name": "Technical University of Denmark (DTU)",
+      "ranking": "Top 200 QS",
+      "programs": [
+        "Engineering",
+        "Life Sciences",
+        "IT"
+      ]
+    },
+    {
+      "name": "University of Copenhagen",
+      "ranking": "#79 QS 2024",
+      "programs": [
+        "Sciences",
+        "Medicine",
+        "Humanities"
+      ]
+    },
+    {
+      "name": "Copenhagen Business School",
+      "ranking": "AACSB Accredited",
+      "programs": [
+        "Business",
+        "Finance",
+        "International Relations"
+      ]
+    },
+    {
+      "name": "Aarhus University",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Arts"
+      ]
+    },
+    {
+      "name": "University of Southern Denmark, Odense and Sonderborg Campus",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Arts"
+      ]
+    },
+    {
+      "name": "VIA University College",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Arts"
+      ]
+    },
+    {
+      "name": "Aarhus University requires 16 years education for PG",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Arts"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Denmark?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Denmark is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Denmark?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

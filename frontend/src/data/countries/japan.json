@@ -1,0 +1,148 @@
+{
+  "slug": "japan",
+  "name": "Japan",
+  "flag": "🇯🇵",
+  "tagline": "Innovation Meets Tradition",
+  "description": "A global leader in technology and innovation, Japan offers cutting-edge research opportunities and a unique cultural experience. Government scholarships like MEXT make it accessible for international students.",
+  "heroImage": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/japan/img_00.png",
+    "/images/countries/japan/img_01.png"
+  ],
+  "stats": {
+    "unis": "750+",
+    "workRights": "1 Year",
+    "intakes": "Apr, Sep",
+    "avgTuition": "¥500k–2M/yr"
+  },
+  "tuitionFees": {
+    "currency": "JPY",
+    "undergraduate": "Only a few scholarships in Japan cover the entire cost of studying. At the same time, the majority only aim to cover a portion of the tuition fees and living expenses. This means it’s important to calculate the entire cost of your studies abroad well ahead of time and see how much financial help you need to afford it.",
+    "postgraduate": "Like in many other countries, the cost of living in Japan is different depending on the area where you live. Expenses in urban areas like Tokyo are generally higher compared to rural areas. In terms of housing, the average cost in Japan for students is around 260 EURO per month, but in Tokyo, it goes up to 340 EURO. Another thing to remember is that in big cities, it’s harder to find accommodation close to schools which means you will spend more on transport.",
+    "phd": "Often supported through MEXT or JASSO scholarships"
+  },
+  "scholarships": [
+    {
+      "name": "Financial Aid and Scholarships in Japan",
+      "amount": "Varies",
+      "eligibility": "Only a few scholarships in Japan cover the entire cost of studying. At the same time, the majority only aim to cover a portion of the tuition fees and living expenses. This means it’s important to cal",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Japanese Student Visa (College Student)",
+    "requirements": [
+      "Valid passport",
+      "Certificate of Eligibility (CoE) issued by Japanese immigration",
+      "University admission letter",
+      "Financial support documents (¥2,000,000+ equivalent)",
+      "Academic transcripts and diplomas",
+      "Japanese language proficiency (JLPT N2 for Japanese programs) or English scores",
+      "Application form with recent photograph"
+    ],
+    "processingTime": "/japan/india/mumbai/pdf/Visa-Application-Form.pdf Processing Time The timelines given by Consulate General of Japan, Mumbai for the processing of each",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 28 hours per week with official permission from immigration",
+    "postStudy": "Designated Activities visa for job-hunting (up to 1 year)",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "MBA",
+    "Economics",
+    "Arts",
+    "AI",
+    "International Relations",
+    "Engineering",
+    "Robotics",
+    "Business Administration"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Japanese JLPT N2 for Japanese-taught programs; English programs growing rapidly"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Tokyo",
+      "ranking": "#28 QS 2024",
+      "programs": [
+        "Engineering",
+        "Sciences",
+        "Law"
+      ]
+    },
+    {
+      "name": "Kyoto University",
+      "ranking": "#46 QS 2024",
+      "programs": [
+        "Sciences",
+        "Medicine",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Osaka University",
+      "ranking": "#80 QS 2024",
+      "programs": [
+        "Engineering",
+        "Medicine",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "Tokyo International University",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Economics"
+      ]
+    },
+    {
+      "name": "Kudan Institute of Japanese language & Culture",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Economics"
+      ]
+    },
+    {
+      "name": "International College of Liberal Arts, Kofu",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Economics"
+      ]
+    },
+    {
+      "name": "English language proficiency test mandatory – IELTS/TOEFL/PTE or DET (mandatory for Tokyo International University)",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Economics"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Japan?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Japan is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Japan?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "slug": "uk",
+  "name": "United Kingdom",
+  "flag": "🇬🇧",
+  "tagline": "Academic Excellence",
+  "description": "Experience academic prestige with shorter course durations. The UK is a global leader in quality education with the 2–3 year Graduate Route Visa making it one of the most sought-after study destinations.",
+  "heroImage": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/uk/img_00.jpg",
+    "/images/countries/uk/img_01.jpg",
+    "/images/countries/uk/img_02.png",
+    "/images/countries/uk/img_03.png",
+    "/images/countries/uk/img_04.jpg",
+    "/images/countries/uk/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "150+",
+    "workRights": "2–3 Years",
+    "intakes": "Sep, Jan",
+    "avgTuition": "£12k–25k/yr"
+  },
+  "tuitionFees": {
+    "currency": "GBP",
+    "undergraduate": "£9,250–£30,000 per year (varies by program and university)",
+    "postgraduate": "£12,000–£30,000 per year; MBA programs £20,000–£60,000",
+    "phd": "£5,000–£15,000 per year; many are fully funded through research councils"
+  },
+  "scholarships": [
+    {
+      "name": "Chevening Scholarships",
+      "amount": "Full funding (tuition + living)",
+      "eligibility": "Outstanding academics with leadership potential; government-backed",
+      "link": "https://www.chevening.org"
+    },
+    {
+      "name": "Commonwealth Scholarships",
+      "amount": "Full funding",
+      "eligibility": "Citizens of Commonwealth countries for postgraduate study",
+      "link": "https://cscuk.fcdo.gov.uk"
+    },
+    {
+      "name": "GREAT Scholarships",
+      "amount": "£10,000 minimum",
+      "eligibility": "Indian students for postgraduate courses at UK universities",
+      "link": "https://study-uk.britishcouncil.org/scholarships/great"
+    },
+    {
+      "name": "University Merit Awards",
+      "amount": "10%–50% tuition waiver",
+      "eligibility": "High-achieving international applicants (varies by university)",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "UK Student Visa (formerly Tier 4)",
+    "requirements": [
+      "Valid passport with at least 6 months validity beyond your course end date",
+      "Unconditional offer letter (CAS) from a UK licensed sponsor university",
+      "Proof of English proficiency (IELTS 6.0+ or equivalent)",
+      "Financial evidence: £1,334/month for London or £1,023/month outside London",
+      "Academic qualifications and transcripts",
+      "TB test certificate (if applicable for your nationality)",
+      "UK Student Visa application fee: £490 (from outside UK)"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours per week during term time; full-time during official vacation periods",
+    "postStudy": "Graduate Route Visa: 2 years for degree graduates; 3 years for PhD graduates",
+    "notes": "No IELTS required for the Graduate Route if already on a Student Visa"
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "Engineering",
+    "Law",
+    "Economics",
+    "Finance",
+    "Design",
+    "Arts"
+  ],
+  "languageRequirements": {
+    "ielts": "6.5",
+    "toefl": "90",
+    "pte": "65",
+    "gmat": "",
+    "gre": "",
+    "notes": "English language proficiency required for all programs"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Oxford",
+      "ranking": "#3 QS 2024",
+      "programs": [
+        "Law",
+        "Medicine",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "University of Cambridge",
+      "ranking": "#2 QS 2024",
+      "programs": [
+        "Engineering",
+        "Sciences",
+        "Law"
+      ]
+    },
+    {
+      "name": "Imperial College London",
+      "ranking": "#6 QS 2024",
+      "programs": [
+        "Engineering",
+        "Medicine",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "University College London",
+      "ranking": "#9 QS 2024",
+      "programs": [
+        "Medicine",
+        "Engineering",
+        "Arts"
+      ]
+    },
+    {
+      "name": "Bristol, University of Glasgow, University of Birmingham",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "University of Leicester",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "What is the UK Graduate Route Visa?",
+      "answer": "The Graduate Route allows international students to stay in the UK for 2 years (3 for PhD graduates) after completing their degree to work or look for work."
+    },
+    {
+      "question": "Do I need a CAS number for a UK Student Visa?",
+      "answer": "Yes, you need a Confirmation of Acceptance for Studies (CAS) from your UK university before applying for a Student Visa."
+    },
+    {
+      "question": "How much bank balance is needed for a UK Student Visa?",
+      "answer": "You must show £1,334/month for up to 9 months for London, or £1,023/month for outside London, plus your full first-year tuition fees."
+    },
+    {
+      "question": "Can I work while studying in the UK?",
+      "answer": "Yes, most student visa holders can work up to 20 hours per week during term time and full-time during official vacation periods."
+    }
+  ]
+}

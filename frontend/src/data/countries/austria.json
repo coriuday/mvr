@@ -1,0 +1,136 @@
+{
+  "slug": "austria",
+  "name": "Austria",
+  "flag": "🇦🇹",
+  "tagline": "Alpine Academic Excellence",
+  "description": "Austria offers a rich academic tradition, affordable tuition, and a central European location. Vienna is consistently ranked among the world's most livable cities, making it perfect for students.",
+  "heroImage": "https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/austria/img_00.jpg",
+    "/images/countries/austria/img_01.jpg",
+    "/images/countries/austria/img_02.jpg",
+    "/images/countries/austria/img_03.jpg",
+    "/images/countries/austria/img_04.jpg",
+    "/images/countries/austria/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "70+",
+    "workRights": "12 Months",
+    "intakes": "Oct, Mar",
+    "avgTuition": "€700–1,500/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "Proof of sufficient financial means to cover the living costs [as of 2024]:",
+    "postgraduate": "Visa Fees is Euro 140",
+    "phd": "Often funded through FWF fellowships or university assistantships"
+  },
+  "scholarships": [
+    {
+      "name": "Evidence of payment of tuition fee or acceptance of scholarship for the intended studies in Austria",
+      "amount": "Varies",
+      "eligibility": "Proof of sufficient funds to cover overall cost of living during the probable duration of study Proof of accommodation in Austria or letter of acceptance at the school’s / college’s / university’s dor",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Student Visa (Type D)",
+    "requirements": [
+      "Valid passport (valid 3 months beyond intended stay)",
+      "University admission letter",
+      "Proof of financial means (€924/month for Vienna)",
+      "Health insurance valid in Austria",
+      "Accommodation proof in Austria",
+      "Academic transcripts and qualifications (apostilled)",
+      "Application for student visa (Type D) at Austrian embassy"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours per week during term time",
+    "postStudy": "12-month job-seeker residence permit; Red-White-Red card for qualified graduates",
+    "notes": "Red-White-Red card available post-graduation"
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "AI",
+    "Hospitality",
+    "Management",
+    "Music & Arts",
+    "Architecture",
+    "Engineering"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "German B2 for German programs; English programs widely available"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Vienna",
+      "ranking": "#150 QS 2024",
+      "programs": [
+        "Law",
+        "Sciences",
+        "Humanities"
+      ]
+    },
+    {
+      "name": "TU Wien",
+      "ranking": "#Top 300 QS",
+      "programs": [
+        "Engineering",
+        "Technology",
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Vienna University of Economics",
+      "ranking": "AACSB Accredited",
+      "programs": [
+        "Business",
+        "Economics",
+        "Finance"
+      ]
+    },
+    {
+      "name": "Modul University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "Webster Vienna Private University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Austria?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Austria is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Austria?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

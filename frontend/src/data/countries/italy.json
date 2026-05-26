@@ -1,0 +1,129 @@
+{
+  "slug": "italy",
+  "name": "Italy",
+  "flag": "🇮🇹",
+  "tagline": "Art, Culture & Academia",
+  "description": "Italy blends world-class education with unparalleled cultural heritage. Home to some of the world's oldest universities, it offers programs in architecture, arts, fashion, and engineering.",
+  "heroImage": "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=1920&q=80",
+  "images": [],
+  "stats": {
+    "unis": "90+",
+    "workRights": "12 Months",
+    "intakes": "Oct, Mar",
+    "avgTuition": "€900–12,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "Italian universities charge tuition fees from international students and offer Diploma, Bachelors and Masters programs exclusively taught in English.",
+    "postgraduate": "Italian universities charge tuition fees from international students and offer Diploma, Bachelors and Masters programs exclusively taught in English.",
+    "phd": "€900–€1,500 per year; often fully funded through research grants"
+  },
+  "scholarships": [
+    {
+      "name": "Students are being called to the Embassy for an interview after which the Visa will be granted within 10 to 15 days",
+      "amount": "Varies",
+      "eligibility": "Merit-based scholarship for international students",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Italian Student Visa (Type D)",
+    "requirements": [
+      "Valid passport",
+      "University pre-enrollment / acceptance letter",
+      "Proof of financial means (€448/month minimum)",
+      "Study visa (Type D) from Italian consulate",
+      "Health insurance or EHIC card",
+      "Accommodation proof in Italy",
+      "Academic qualifications (officially translated to Italian)"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours per week",
+    "postStudy": "12-month job-seeker permit after graduation",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "Engineering",
+    "Design",
+    "Arts",
+    "AI",
+    "Fashion",
+    "Marketing"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Italian B2 for Italian programs; growing number of English programs"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Bologna",
+      "ranking": "#154 QS 2024",
+      "programs": [
+        "Law",
+        "Engineering",
+        "Arts"
+      ]
+    },
+    {
+      "name": "Politecnico di Milano",
+      "ranking": "#139 QS 2024",
+      "programs": [
+        "Architecture",
+        "Engineering",
+        "Design"
+      ]
+    },
+    {
+      "name": "Sapienza University of Rome",
+      "ranking": "Top 200 QS",
+      "programs": [
+        "Medicine",
+        "Law",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "University of Padua",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "Guglielmo Marconi University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Italy?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Italy is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Italy?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

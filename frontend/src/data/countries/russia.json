@@ -1,0 +1,154 @@
+{
+  "slug": "russia",
+  "name": "Russia",
+  "flag": "🇷🇺",
+  "tagline": "Science & Heritage",
+  "description": "Russia is home to world-leading universities in science, engineering, and medicine. Scholarships through the Russian Government Scholarship program make it a highly accessible option.",
+  "heroImage": "https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/russia/img_00.jpg",
+    "/images/countries/russia/img_01.png"
+  ],
+  "stats": {
+    "unis": "300+",
+    "workRights": "Temp. Permit",
+    "intakes": "Sep, Feb",
+    "avgTuition": "$2,000–6,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "USD",
+    "undergraduate": "Tuition fees in Russia are relatively low compared to Western countries, making it an economical choice for students.",
+    "postgraduate": "Entrance Fees- US$ 200",
+    "phd": "$2,000–$5,000 per year; Russian Government Scholarships available"
+  },
+  "scholarships": [
+    {
+      "name": "Russia Government Scholarship",
+      "amount": "Varies",
+      "eligibility": "Merit-based for international students",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Awards",
+      "amount": "Up to 50% tuition waiver",
+      "eligibility": "Academic excellence; GPA 3.5+",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Russian Student Visa",
+    "requirements": [
+      "Valid passport (minimum 6 months beyond stay)",
+      "Invitation letter from Russian university",
+      "Student visa application at Russian embassy",
+      "Medical insurance valid in Russia",
+      "HIV test certificate",
+      "Proof of financial means",
+      "Migration card on arrival (keep throughout stay)"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Part-time work with university permission",
+    "postStudy": "Temporary work permit available for qualified graduates",
+    "notes": "Low tuition and cost of living; Russian Government Scholarships widely available"
+  },
+  "popularPrograms": [
+    "MBA",
+    "Engineering",
+    "Medicine",
+    "Design",
+    "AI",
+    "Physics",
+    "Biology",
+    "Chemistry"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Russian language proficiency for Russian-taught programs; English programs available"
+  },
+  "topUniversities": [
+    {
+      "name": "Lomonosov Moscow State University",
+      "ranking": "#87 QS 2024",
+      "programs": [
+        "Sciences",
+        "Mathematics",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Saint Petersburg State University",
+      "ranking": "Top 250 QS",
+      "programs": [
+        "Sciences",
+        "Law",
+        "Humanities"
+      ]
+    },
+    {
+      "name": "ITMO University",
+      "ranking": "Top IT University",
+      "programs": [
+        "Computer Science",
+        "IT",
+        "Physics"
+      ]
+    },
+    {
+      "name": "UNIVERSITY, COURSE, INTAKE AND ENTRY REQUIREMENT",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "University : Synergy University, Moscow",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "University - National Research Nuclear University (MEPhI)",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Bachelor's degree with minimum 55% from a recognized university + Online Interview",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Engineering"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Russia?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Russia is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Russia?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

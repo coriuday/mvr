@@ -1,0 +1,147 @@
+{
+  "slug": "canada",
+  "name": "Canada",
+  "flag": "🇨🇦",
+  "tagline": "Welcoming & Diverse",
+  "description": "Consistently ranked as one of the best countries for quality of life, Canada offers top-tier education with clear pathways to permanent residency. The PGWP makes it a top choice for Indian students seeking long-term immigration.",
+  "heroImage": "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/canada/img_00.jpg",
+    "/images/countries/canada/img_01.jpg",
+    "/images/countries/canada/img_02.jpg",
+    "/images/countries/canada/img_03.png",
+    "/images/countries/canada/img_04.jpg",
+    "/images/countries/canada/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "100+",
+    "workRights": "Up to 3 Years",
+    "intakes": "Sep, Jan, May",
+    "avgTuition": "CAD 15k–35k/yr"
+  },
+  "tuitionFees": {
+    "currency": "CAD",
+    "undergraduate": "CAD 15,000–40,000 per year (varies by province and program)",
+    "postgraduate": "CAD 12,000–35,000 per year; MBA programs CAD 30,000–60,000",
+    "phd": "CAD 7,000–25,000 per year; many include research funding"
+  },
+  "scholarships": [
+    {
+      "name": "Vanier Canada Graduate Scholarships",
+      "amount": "CAD 50,000/year (3 years)",
+      "eligibility": "Doctoral students; exceptional academic excellence and leadership",
+      "link": "https://vanier.gc.ca"
+    },
+    {
+      "name": "Ontario Graduate Scholarship (OGS)",
+      "amount": "CAD 10,000/year",
+      "eligibility": "Graduate students in Ontario universities; merit-based",
+      "link": ""
+    },
+    {
+      "name": "University International Entrance Scholarships",
+      "amount": "CAD 5,000–40,000",
+      "eligibility": "High academic achievement at entry; varies by institution",
+      "link": ""
+    },
+    {
+      "name": "Shastri Indo-Canadian Institute Fellowships",
+      "amount": "Varies",
+      "eligibility": "Indian students for postgraduate research in Canada",
+      "link": "https://www.shastriinstitute.org"
+    }
+  ],
+  "visaRequirements": {
+    "type": "Canadian Student Permit",
+    "requirements": [
+      "Valid passport (valid for the full duration of your study permit)",
+      "Letter of acceptance from a Designated Learning Institution (DLI)",
+      "Proof of financial support (CAD 10,000+/year for living expenses)",
+      "Statement of purpose and study plan",
+      "Immigration Medical Examination (IME) if required",
+      "Biometrics enrollment (mandatory for most nationalities)",
+      "Police clearance certificate"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 24 hours per week off-campus; unlimited on-campus during semester; full-time during scheduled breaks",
+    "postStudy": "Post-Graduation Work Permit (PGWP) for up to 3 years (equal to study duration)",
+    "notes": "PGWP is a direct pathway to Canadian Permanent Residency (Express Entry)"
+  },
+  "popularPrograms": [
+    "Law",
+    "Finance",
+    "Design",
+    "AI",
+    "Biotechnology",
+    "Management",
+    "Cybersecurity",
+    "Computer Science"
+  ],
+  "languageRequirements": {
+    "ielts": "6.5",
+    "toefl": "90",
+    "pte": "65",
+    "gmat": "",
+    "gre": "",
+    "notes": "English language proficiency required for all programs"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Toronto",
+      "ranking": "#21 QS 2024",
+      "programs": [
+        "Engineering",
+        "Medicine",
+        "Business"
+      ]
+    },
+    {
+      "name": "McGill University",
+      "ranking": "#30 QS 2024",
+      "programs": [
+        "Medicine",
+        "Law",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "University of British Columbia",
+      "ranking": "#34 QS 2024",
+      "programs": [
+        "Engineering",
+        "Business",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "University of Waterloo",
+      "ranking": "#112 QS 2024",
+      "programs": [
+        "Computer Science",
+        "Engineering",
+        "Math"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "What is the PGWP in Canada?",
+      "answer": "The Post-Graduation Work Permit (PGWP) allows graduates to work in Canada for up to 3 years. It is a major pathway to Canadian Permanent Residency."
+    },
+    {
+      "question": "Can I bring my family to Canada as a student?",
+      "answer": "Yes, spouses of international students can apply for an open work permit, and children can attend school in Canada."
+    },
+    {
+      "question": "How long does it take to get a Canadian student permit?",
+      "answer": "Processing typically takes 4–8 weeks for online applications. Biometrics may be required for certain nationalities."
+    },
+    {
+      "question": "What is the SDS (Student Direct Stream) in Canada?",
+      "answer": "SDS is a faster processing stream for students from eligible countries including India. Applications are usually processed within 20 working days."
+    }
+  ]
+}

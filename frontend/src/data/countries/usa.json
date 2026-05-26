@@ -1,0 +1,170 @@
+{
+  "slug": "usa",
+  "name": "United States",
+  "flag": "🇺🇸",
+  "tagline": "Hub of Innovation",
+  "description": "The US is home to the world's highest number of top-ranked universities, offering unparalleled academic flexibility, research opportunities, and career prospects through OPT and STEM extensions.",
+  "heroImage": "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/usa/img_00.jpg",
+    "/images/countries/usa/img_01.jpg",
+    "/images/countries/usa/img_02.png",
+    "/images/countries/usa/img_03.jpg",
+    "/images/countries/usa/img_04.png"
+  ],
+  "stats": {
+    "unis": "4,000+",
+    "workRights": "1–3 Years (OPT)",
+    "intakes": "Fall, Spring",
+    "avgTuition": "$20k–60k/yr"
+  },
+  "tuitionFees": {
+    "currency": "USD",
+    "undergraduate": "Visa Fees Payment can be done through IMPS, NEFT and Challan.",
+    "postgraduate": "Pay visa application processing fee of $185 and Schedule an interview (Link - https://www.usvisascheduling.com/) Students scheduling Interview for US visa are required to schedule for two dates-",
+    "phd": "Often fully funded with stipends for research assistants (TA/RA)"
+  },
+  "scholarships": [
+    {
+      "name": "Fulbright Foreign Student Program",
+      "amount": "Full funding (tuition + living + airfare)",
+      "eligibility": "Outstanding academic record; leadership qualities; government-sponsored",
+      "link": "https://foreign.fulbrightonline.org"
+    },
+    {
+      "name": "Hubert H. Humphrey Fellowship",
+      "amount": "Full funding",
+      "eligibility": "Mid-career professionals from eligible countries",
+      "link": ""
+    },
+    {
+      "name": "University Merit Scholarships",
+      "amount": "25%–100% tuition waiver",
+      "eligibility": "High GPA, GRE/GMAT scores; varies by institution",
+      "link": ""
+    },
+    {
+      "name": "Graduate Teaching/Research Assistantships (TA/RA)",
+      "amount": "$15,000–$35,000 stipend + tuition waiver",
+      "eligibility": "Postgraduate students; competitive selection",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "F-1 Student Visa",
+    "requirements": [
+      "Valid passport (must be valid for at least 6 months beyond stay)",
+      "Form I-20 from your SEVP-certified US institution",
+      "SEVIS fee payment receipt ($350 for F-1 students)",
+      "DS-160 Online Nonimmigrant Visa Application",
+      "Proof of financial support (bank statements, affidavit of support)",
+      "Academic transcripts and English test scores (IELTS/TOEFL)",
+      "Evidence of ties to home country (intent to return after studies)"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours per week on-campus; Curricular Practical Training (CPT) for off-campus internships",
+    "postStudy": "Optional Practical Training (OPT): 1 year; STEM OPT Extension: additional 24 months (total 3 years)",
+    "notes": "H-1B visa lottery is the primary long-term path to US employment authorization"
+  },
+  "popularPrograms": [
+    "MBA",
+    "Law",
+    "Architecture",
+    "Design",
+    "Arts",
+    "AI",
+    "Management",
+    "Computer Science"
+  ],
+  "languageRequirements": {
+    "ielts": "6.5",
+    "toefl": "90",
+    "pte": "65",
+    "gmat": "",
+    "gre": "",
+    "notes": "English language proficiency required for all programs"
+  },
+  "topUniversities": [
+    {
+      "name": "Massachusetts Institute of Technology (MIT)",
+      "ranking": "#1 QS 2024",
+      "programs": [
+        "Engineering",
+        "Computer Science",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "Stanford University",
+      "ranking": "#5 QS 2024",
+      "programs": [
+        "Business",
+        "Engineering",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "Harvard University",
+      "ranking": "#4 QS 2024",
+      "programs": [
+        "Law",
+        "Medicine",
+        "Business"
+      ]
+    },
+    {
+      "name": "Carnegie Mellon University",
+      "ranking": "#52 QS 2024",
+      "programs": [
+        "Computer Science",
+        "Engineering",
+        "Business"
+      ]
+    },
+    {
+      "name": "Elite Colleges very selective in admission, academic excellence, known for Business programs",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Law"
+      ]
+    },
+    {
+      "name": "Virginia Tech Language and Culture Institute",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Law"
+      ]
+    },
+    {
+      "name": "University of Connecticut",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Law"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "What is F-1 OPT?",
+      "answer": "Optional Practical Training (OPT) allows F-1 students to work in a job related to their major for up to 12 months. STEM graduates can apply for a 24-month extension."
+    },
+    {
+      "question": "How much does it cost to study in the USA?",
+      "answer": "Tuition ranges from $20,000–$60,000/year at private universities and $10,000–$30,000/year at public universities for out-of-state students."
+    },
+    {
+      "question": "What are the SAT/GRE/GMAT requirements?",
+      "answer": "Requirements vary by program. Most graduate programs require GRE or GMAT. Undergraduate admissions often consider SAT/ACT scores."
+    },
+    {
+      "question": "Can Indian students get scholarships in the USA?",
+      "answer": "Yes. Many universities offer merit scholarships, and there are federal programs like Fulbright. Assistantships (TA/RA) also provide stipends for graduate students."
+    }
+  ]
+}

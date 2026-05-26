@@ -1,0 +1,134 @@
+{
+  "slug": "spain",
+  "name": "Spain",
+  "flag": "🇪🇸",
+  "tagline": "Sun, Culture & Study",
+  "description": "Spain offers an excellent quality of life, rich culture, and affordable living costs. Its universities provide strong programs in business, architecture, and tourism within an EU framework.",
+  "heroImage": "https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/spain/img_00.jpg",
+    "/images/countries/spain/img_01.jpg",
+    "/images/countries/spain/img_02.jpg",
+    "/images/countries/spain/img_03.jpg",
+    "/images/countries/spain/img_04.png",
+    "/images/countries/spain/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "80+",
+    "workRights": "1 Year",
+    "intakes": "Sep, Feb",
+    "avgTuition": "€1,000–12,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "The Visa fees of INR 8185 must be paid via cash or online. We recommend DEMAND DRAFT.",
+    "postgraduate": "Financials – EUR 13,000 (1 year living) + Balance tuition fees",
+    "phd": "Often subsidized; FPU fellowships cover tuition + stipend"
+  },
+  "scholarships": [
+    {
+      "name": "Spain Government Scholarship",
+      "amount": "Varies",
+      "eligibility": "Merit-based for international students",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Awards",
+      "amount": "Up to 50% tuition waiver",
+      "eligibility": "Academic excellence; GPA 3.5+",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Spanish Student Visa (Type D)",
+    "requirements": [
+      "Valid passport (minimum 6 months validity)",
+      "University acceptance letter",
+      "Proof of financial means (€700/month minimum)",
+      "Health insurance valid in Spain",
+      "Criminal background check (apostilled)",
+      "Accommodation proof in Spain",
+      "Long-stay student visa (Type D) application at Spanish consulate"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 30 hours per week",
+    "postStudy": "1-year job-seeker residence authorization after graduation",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "Design",
+    "AI",
+    "Hotel Management",
+    "Marketing",
+    "Management",
+    "Tourism"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Spanish B1–B2 for Spanish programs; English programs at private universities"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Barcelona",
+      "ranking": "#171 QS 2024",
+      "programs": [
+        "Medicine",
+        "Law",
+        "Arts"
+      ]
+    },
+    {
+      "name": "IE University",
+      "ranking": "AACSB Accredited",
+      "programs": [
+        "Business",
+        "Law",
+        "Architecture"
+      ]
+    },
+    {
+      "name": "University of Madrid (Complutense)",
+      "ranking": "Top 250 QS",
+      "programs": [
+        "Law",
+        "Medicine",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "Schiller International University, Madrid Campus",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Spain?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Spain is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Spain?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

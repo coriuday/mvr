@@ -1,0 +1,147 @@
+{
+  "slug": "germany",
+  "name": "Germany",
+  "flag": "🇩🇪",
+  "tagline": "Engineering & Tech Hub",
+  "description": "The engine of Europe's economy. Germany is globally revered for engineering and technology, offering zero or extremely low tuition fees at public universities — even for international students.",
+  "heroImage": "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/germany/img_00.jpg",
+    "/images/countries/germany/img_01.png",
+    "/images/countries/germany/img_02.png",
+    "/images/countries/germany/img_03.jpg",
+    "/images/countries/germany/img_04.jpg",
+    "/images/countries/germany/img_05.png"
+  ],
+  "stats": {
+    "unis": "300+",
+    "workRights": "18 Months",
+    "intakes": "Oct, Apr",
+    "avgTuition": "€0–3,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "€0 tuition at public universities (semester administration fee of €150–€350 only)",
+    "postgraduate": "€0 at most public universities; €5,000–€20,000 at private institutions",
+    "phd": "Free at public universities; doctoral candidates often receive a stipend"
+  },
+  "scholarships": [
+    {
+      "name": "DAAD Scholarship (German Academic Exchange Service)",
+      "amount": "€850/month + travel + tuition",
+      "eligibility": "Postgraduate and doctoral students; excellent academic record",
+      "link": "https://www.daad.de"
+    },
+    {
+      "name": "Heinrich Böll Foundation Scholarships",
+      "amount": "€850/month + €300 book allowance",
+      "eligibility": "Socially engaged students with excellent academics",
+      "link": "https://www.boell.de"
+    },
+    {
+      "name": "Konrad-Adenauer-Stiftung Scholarships",
+      "amount": "€1,100/month (PhD)",
+      "eligibility": "Students with high academic achievement and civic engagement",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Scholarships (Deutschlandstipendium)",
+      "amount": "€300/month",
+      "eligibility": "Top students; jointly funded by government and private sponsors",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "German Student Visa (Section 16b AufenthG)",
+    "requirements": [
+      "Valid passport (valid for at least 12 months beyond intended stay)",
+      "University admission letter / enrollment confirmation",
+      "Blocked account (Sperrkonto) with €11,904 (€992/month)",
+      "Health insurance certificate (public or private)",
+      "Proof of German/English language proficiency",
+      "Academic transcripts (officially translated/apostilled)",
+      "Biometric photographs"
+    ],
+    "processingTime": "8–12 weeks; apply at least 3 months before departure",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "120 full days or 240 half-days per year (approx. 20 hours/week); €8–12/hour typical wage",
+    "postStudy": "18-month job-seeker visa",
+    "notes": "Opportunity Card (Chancenkarte) available for skilled graduates seeking German employment"
+  },
+  "popularPrograms": [
+    "MBA",
+    "Computer Science",
+    "Engineering",
+    "Medicine",
+    "Law",
+    "Economics",
+    "Architecture",
+    "Design"
+  ],
+  "languageRequirements": {
+    "ielts": "6.5",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Some programs taught in English; German B2 required for German-taught programs"
+  },
+  "topUniversities": [
+    {
+      "name": "Technical University of Munich",
+      "ranking": "#37 QS 2024",
+      "programs": [
+        "Engineering",
+        "Computer Science",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "LMU Munich",
+      "ranking": "#54 QS 2024",
+      "programs": [
+        "Medicine",
+        "Law",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "Heidelberg University",
+      "ranking": "#87 QS 2024",
+      "programs": [
+        "Medicine",
+        "Sciences",
+        "Humanities"
+      ]
+    },
+    {
+      "name": "RWTH Aachen",
+      "ranking": "Top 100 QS",
+      "programs": [
+        "Engineering",
+        "Technology",
+        "Business"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is studying in Germany really free?",
+      "answer": "Public universities in Germany charge only a semester fee of €150–€350 for administration. There is no tuition fee for most programs, even for international students."
+    },
+    {
+      "question": "Do I need to know German to study in Germany?",
+      "answer": "Not necessarily. Many master's programs are offered in English. However, knowing German is very helpful for daily life and increases job prospects."
+    },
+    {
+      "question": "What is the blocked account requirement for Germany?",
+      "answer": "A blocked account (Sperrkonto) of €11,904/year (€992/month) is required to show financial sufficiency for your German student visa."
+    },
+    {
+      "question": "Can I stay in Germany after graduation?",
+      "answer": "Yes, you can apply for an 18-month job-seeker visa (Aufenthaltserlaubnis zur Arbeitssuche) after completing your degree."
+    }
+  ]
+}

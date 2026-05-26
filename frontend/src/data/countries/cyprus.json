@@ -1,0 +1,158 @@
+{
+  "slug": "cyprus",
+  "name": "Cyprus",
+  "flag": "🇨🇾",
+  "tagline": "Mediterranean Study Hub",
+  "description": "A sunny Mediterranean island nation, Cyprus offers affordable, quality education in an English-friendly environment. Its EU membership and strategic location make it an attractive base for students.",
+  "heroImage": "https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/cyprus/img_00.jpg",
+    "/images/countries/cyprus/img_01.jpg",
+    "/images/countries/cyprus/img_02.jpg",
+    "/images/countries/cyprus/img_03.jpg",
+    "/images/countries/cyprus/img_04.jpg",
+    "/images/countries/cyprus/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "10+",
+    "workRights": "Temp. Permit",
+    "intakes": "Sep, Feb",
+    "avgTuition": "€3,500–8,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "tuition fees (1-month validity).",
+    "postgraduate": "and his/her willingness to sponsor the student for the living and tuition expense,",
+    "phd": "€4,000–€8,000 per year"
+  },
+  "scholarships": [
+    {
+      "name": "Scholarships in Cyprus",
+      "amount": "Varies",
+      "eligibility": "Scholarships offered",
+      "link": ""
+    },
+    {
+      "name": "Scholarships",
+      "amount": "Varies",
+      "eligibility": "offered",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Student Visa Category D",
+    "requirements": [
+      "Valid passport (minimum 6 months beyond stay)",
+      "University acceptance letter",
+      "Bank statement showing €1,800/month",
+      "Medical certificate in good health",
+      "Clean criminal record certificate",
+      "Proof of accommodation",
+      "Temporary Residence Permit application at Civil Registry office"
+    ],
+    "processingTime": "submission. It may take up to 3-4 weeks for the visa processing. Tuition fees (1st instalment) and Visa Fees needs to be paid to the University to pro",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours/week",
+    "postStudy": "Temporary residence extension available",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "Engineering",
+    "Finance",
+    "Architecture",
+    "Design",
+    "Psychology",
+    "AI",
+    "Nursing"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Many programs taught in English or Greek"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Cyprus",
+      "ranking": "Top 600 QS",
+      "programs": [
+        "Business",
+        "Engineering",
+        "Humanities"
+      ]
+    },
+    {
+      "name": "Cyprus University of Technology",
+      "ranking": "Nationally Accredited",
+      "programs": [
+        "Engineering",
+        "IT",
+        "Business"
+      ]
+    },
+    {
+      "name": "European University Cyprus",
+      "ranking": "Accredited",
+      "programs": [
+        "Medicine",
+        "Dentistry",
+        "Business"
+      ]
+    },
+    {
+      "name": "Institutes in",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "University of Central",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Neapolis University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "University of Nicosia",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Engineering"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Cyprus?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Cyprus is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Cyprus?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

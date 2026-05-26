@@ -1,0 +1,171 @@
+{
+  "slug": "ireland",
+  "name": "Ireland",
+  "flag": "🇮🇪",
+  "tagline": "Europe's Silicon Valley",
+  "description": "The European headquarters for Google, Apple, and Facebook. Ireland offers an English-speaking environment with a booming tech and pharma sector, making it ideal for career-focused students.",
+  "heroImage": "https://images.unsplash.com/photo-1590089415225-401ed6f9db8e?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/ireland/img_00.jpg",
+    "/images/countries/ireland/img_01.png",
+    "/images/countries/ireland/img_02.jpg",
+    "/images/countries/ireland/img_03.png",
+    "/images/countries/ireland/img_04.jpg",
+    "/images/countries/ireland/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "30+",
+    "workRights": "Up to 2 Years",
+    "intakes": "Sep, Jan",
+    "avgTuition": "€10k–25k/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "It is highly recommended that the tuition fee should not be sponsored only through the education loan, which means the sponsor should have 6 months old liquid funds in their account apart from education loan.",
+    "postgraduate": "Evidence that the student has immediate access to Tuition Fees + Living expenses for all the years. €12,000 is the estimated cost of living in Ireland as per Irish Embassy for a student for one academic year. The cost of total duration of study and stay needs to be shown in liquid funds such as Education Loan, Bank Balances and Fixed Deposits.",
+    "phd": "€5,000–€15,000 per year; many include research bursaries"
+  },
+  "scholarships": [
+    {
+      "name": "Scholarships",
+      "amount": "Varies",
+      "eligibility": "Innumerable scholarships and student grants are available for international students in Ireland from various sources such as the Government of Ireland, the Irish Higher Education institutions and othe",
+      "link": ""
+    },
+    {
+      "name": "Scholarships in Irish Universities",
+      "amount": "€10,000",
+      "eligibility": "The Government of Ireland International Education Scholarship Scholarship Amount: Full fee waiver + €10,000 stipend for one study year",
+      "link": ""
+    },
+    {
+      "name": "The Government of Ireland International Education Scholarship",
+      "amount": "€10,000",
+      "eligibility": "Scholarship Amount: Full fee waiver + €10,000 stipend for one study year Scholarship Type: Academic qualifications and achievements",
+      "link": ""
+    },
+    {
+      "name": "Scholarship Amount: Full fee waiver + €10,000 stipend for one study year",
+      "amount": "€10,000",
+      "eligibility": "Scholarship Type: Academic qualifications and achievements Applicability: All QQI approved Institutions",
+      "link": ""
+    },
+    {
+      "name": "Scholarship Type: Academic qualifications and achievements",
+      "amount": "Varies",
+      "eligibility": "Applicability: All QQI approved Institutions Link: https://hea.ie/assets/uploads/2019/01/Government-of-Ireland-International-Education-Scholarship-Call-2019.pdf",
+      "link": ""
+    },
+    {
+      "name": "Link: https://hea.ie/assets/uploads/2019/01/Government-of-Ireland-International-Education-Scholarship-Call-2019.pdf",
+      "amount": "Varies",
+      "eligibility": "V.V. Giri Global Excellence Scholarship Scholarship Amount: 100% Tuition Fees",
+      "link": ""
+    },
+    {
+      "name": "V.V. Giri Global Excellence Scholarship",
+      "amount": "Varies",
+      "eligibility": "Scholarship Amount: 100% Tuition Fees Scholarship Type: Merit-based",
+      "link": ""
+    },
+    {
+      "name": "Scholarship Amount: 100% Tuition Fees",
+      "amount": "Varies",
+      "eligibility": "Scholarship Type: Merit-based Applicability: University College Dublin",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Irish Study Visa",
+    "requirements": [
+      "Valid passport (valid for the full duration of study)",
+      "Letter of acceptance from an Irish institution",
+      "Proof of financial means (€7,000+ for the first year)",
+      "Private medical insurance (if not covered by an employer)",
+      "Academic transcripts and English proficiency certificates",
+      "Evidence of payment of first year tuition fees",
+      "Two recent passport-sized photographs"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours/week during term; 40 hours during summer",
+    "postStudy": "1–2 years Stay Back Option (SBOT): 2 years for degree graduates, 1 year for others",
+    "notes": "Ireland is the only English-speaking EU country — ideal for EU career access"
+  },
+  "popularPrograms": [
+    "MBA",
+    "Information Technology",
+    "Arts",
+    "AI",
+    "Hotel Management",
+    "Media",
+    "Management",
+    "Computer Science"
+  ],
+  "languageRequirements": {
+    "ielts": "6.5",
+    "toefl": "90",
+    "pte": "65",
+    "gmat": "",
+    "gre": "",
+    "notes": "English language proficiency required for all programs"
+  },
+  "topUniversities": [
+    {
+      "name": "Trinity College Dublin",
+      "ranking": "#81 QS 2024",
+      "programs": [
+        "Computer Science",
+        "Law",
+        "Medicine"
+      ]
+    },
+    {
+      "name": "University College Dublin",
+      "ranking": "#181 QS 2024",
+      "programs": [
+        "Business",
+        "Engineering",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "University of Galway",
+      "ranking": "Top 300 QS",
+      "programs": [
+        "Medicine",
+        "Arts",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "University College Cork",
+      "ranking": "Top 300 QS",
+      "programs": [
+        "Medicine",
+        "Business",
+        "Engineering"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Ireland?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Ireland is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Ireland?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

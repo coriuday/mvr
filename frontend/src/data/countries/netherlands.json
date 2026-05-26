@@ -1,0 +1,158 @@
+{
+  "slug": "netherlands",
+  "name": "Netherlands",
+  "flag": "🇳🇱",
+  "tagline": "Bicycle & Business Capital",
+  "description": "The Netherlands is a forward-thinking nation with world-class universities. It offers hundreds of English-taught bachelor's and master's programs, making it a top choice for international students in Europe.",
+  "heroImage": "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/netherlands/img_00.jpg",
+    "/images/countries/netherlands/img_01.jpg",
+    "/images/countries/netherlands/img_02.jpg",
+    "/images/countries/netherlands/img_03.jpg",
+    "/images/countries/netherlands/img_04.jpg",
+    "/images/countries/netherlands/img_05.png"
+  ],
+  "stats": {
+    "unis": "50+",
+    "workRights": "1 Year",
+    "intakes": "Sep, Feb",
+    "avgTuition": "€8,000–20,000/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "The Fees for Visa and residence permit application is usually included in the University Tuition fees package which is approx. € 228",
+    "postgraduate": "One year living expense must be shown – EUR 15,000 + Balance tuition fees.",
+    "phd": "Often fully funded as a paid PhD employee position"
+  },
+  "scholarships": [
+    {
+      "name": "Government Scholarship for Netherlands",
+      "amount": "Varies",
+      "eligibility": "Merit-based for international students",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Award",
+      "amount": "Up to 50% tuition waiver",
+      "eligibility": "High academic achievement at entry",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Dutch MVV / Residence Permit (Student)",
+    "requirements": [
+      "Valid passport",
+      "University acceptance letter",
+      "Proof of financial means (€11,000+ per year)",
+      "Authorization for Temporary Stay (MVV) if required",
+      "Health insurance (obligatory in the Netherlands)",
+      "Proof of language proficiency (IELTS 6.0+)",
+      "Completed residence permit application forms"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 16 hours/week; full-time in June, July, August",
+    "postStudy": "1-year Orientation Year (Zoekjaar) visa for graduates of Dutch or top-100 QS universities",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "Engineering",
+    "Economics",
+    "Finance",
+    "Design",
+    "Psychology",
+    "AI"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Many programs taught in English; Dutch not required"
+  },
+  "topUniversities": [
+    {
+      "name": "Delft University of Technology",
+      "ranking": "#47 QS 2024",
+      "programs": [
+        "Engineering",
+        "Architecture",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "University of Amsterdam",
+      "ranking": "#53 QS 2024",
+      "programs": [
+        "Business",
+        "Sciences",
+        "Humanities"
+      ]
+    },
+    {
+      "name": "Eindhoven University of Technology",
+      "ranking": "Top 150 QS",
+      "programs": [
+        "Engineering",
+        "Technology",
+        "Business"
+      ]
+    },
+    {
+      "name": "University of Twente, Enschede",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "Radboud University",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "The Hague University of Applied Sciences through The Hague Pathway College",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "University of Twente through Twente Pathway College",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Netherlands?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Netherlands is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Netherlands?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

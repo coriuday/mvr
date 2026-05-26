@@ -11,29 +11,29 @@ export const metadata: Metadata = {
 };
 
 const COUNTRIES = [
-  { flag: "🇺🇸", name: "United States",    unis: 48, tagline: "Ivy League to State Schools" },
-  { flag: "🇬🇧", name: "United Kingdom",   unis: 35, tagline: "Russell Group & Beyond" },
-  { flag: "🇨🇦", name: "Canada",           unis: 28, tagline: "PR-Friendly Pathways" },
-  { flag: "🇦🇺", name: "Australia",        unis: 24, tagline: "Group of Eight Universities" },
-  { flag: "🇩🇪", name: "Germany",          unis: 22, tagline: "Free Tuition Options" },
-  { flag: "🇮🇪", name: "Ireland",          unis: 15, tagline: "2-Year Stay-Back Visa" },
-  { flag: "🇳🇿", name: "New Zealand",      unis: 12, tagline: "Post-Study Work Rights" },
-  { flag: "🇳🇱", name: "Netherlands",      unis: 18, tagline: "English-Taught Programs" },
+  { flag: "🇺🇸", name: "United States",    slug: "usa",         unis: 48,  tagline: "Ivy League to State Schools" },
+  { flag: "🇬🇧", name: "United Kingdom",   slug: "uk",          unis: 35,  tagline: "Russell Group & Beyond" },
+  { flag: "🇨🇦", name: "Canada",           slug: "canada",      unis: 28,  tagline: "PR-Friendly Pathways" },
+  { flag: "🇦🇺", name: "Australia",        slug: "australia",   unis: 24,  tagline: "Group of Eight Universities" },
+  { flag: "🇩🇪", name: "Germany",          slug: "germany",     unis: 22,  tagline: "Free Tuition Options" },
+  { flag: "🇮🇪", name: "Ireland",          slug: "ireland",     unis: 15,  tagline: "2-Year Stay-Back Visa" },
+  { flag: "🇳🇿", name: "New Zealand",      slug: "new-zealand", unis: 12,  tagline: "Post-Study Work Rights" },
+  { flag: "🇳🇱", name: "Netherlands",      slug: "netherlands", unis: 18,  tagline: "English-Taught Programs" },
 ];
 
 const FEATURED_UNIS = [
-  { name: "University of Toronto",       country: "🇨🇦 Canada",    rank: "#1 in Canada",    qs: "21",  fields: ["Business", "Engineering", "Medicine"],          highlight: "PR pathway" },
-  { name: "University of Melbourne",     country: "🇦🇺 Australia", rank: "#1 in Australia", qs: "14",  fields: ["Arts", "Science", "Law"],                        highlight: "Group of Eight" },
-  { name: "University of Edinburgh",     country: "🇬🇧 UK",        rank: "Russell Group",   qs: "27",  fields: ["Medicine", "Business", "Engineering"],           highlight: "Graduate visa" },
-  { name: "TU Munich",                   country: "🇩🇪 Germany",   rank: "#1 in Germany",   qs: "37",  fields: ["Engineering", "CS", "Sciences"],                 highlight: "Low/No tuition" },
-  { name: "McGill University",           country: "🇨🇦 Canada",    rank: "Top 5 Canada",    qs: "32",  fields: ["Medicine", "Law", "Engineering"],                highlight: "Research leader" },
-  { name: "University College London",   country: "🇬🇧 UK",        rank: "Russell Group",   qs: "22",  fields: ["Architecture", "Economics", "Medicine"],         highlight: "London campus" },
-  { name: "UNSW Sydney",                 country: "🇦🇺 Australia", rank: "Group of Eight",  qs: "19",  fields: ["Engineering", "Commerce", "Law"],                highlight: "Industry links" },
-  { name: "University of Amsterdam",     country: "🇳🇱 Netherlands", rank: "Top Dutch Uni", qs: "53", fields: ["Business", "Social Sciences", "Humanities"],      highlight: "English programs" },
-  { name: "University of Dublin (TCD)",  country: "🇮🇪 Ireland",   rank: "#1 in Ireland",   qs: "81",  fields: ["Business", "Engineering", "Medicine"],           highlight: "Stay-back visa" },
-  { name: "New York University",         country: "🇺🇸 USA",       rank: "Top 50 Global",   qs: "38",  fields: ["Business", "Law", "Arts"],                       highlight: "NYC campus" },
-  { name: "University of British Columbia", country: "🇨🇦 Canada", rank: "Top 3 Canada",   qs: "34",  fields: ["Forestry", "Science", "Arts"],                   highlight: "Vancouver campus" },
-  { name: "Maastricht University",       country: "🇳🇱 Netherlands", rank: "Top EU Uni",    qs: "246", fields: ["Business", "Law", "Psychology"],                 highlight: "Problem-based learning" },
+  { name: "University of Toronto",          countrySlug: "canada",      country: "🇨🇦 Canada",       rank: "#1 in Canada",     qs: "21",  fields: ["Business", "Engineering", "Medicine"],        highlight: "PR pathway" },
+  { name: "University of Melbourne",        countrySlug: "australia",   country: "🇦🇺 Australia",    rank: "#1 in Australia",  qs: "14",  fields: ["Arts", "Science", "Law"],                      highlight: "Group of Eight" },
+  { name: "University of Edinburgh",        countrySlug: "uk",          country: "🇬🇧 UK",           rank: "Russell Group",    qs: "27",  fields: ["Medicine", "Business", "Engineering"],         highlight: "Graduate visa" },
+  { name: "TU Munich",                      countrySlug: "germany",     country: "🇩🇪 Germany",      rank: "#1 in Germany",    qs: "37",  fields: ["Engineering", "CS", "Sciences"],               highlight: "Low/No tuition" },
+  { name: "McGill University",              countrySlug: "canada",      country: "🇨🇦 Canada",       rank: "Top 5 Canada",     qs: "32",  fields: ["Medicine", "Law", "Engineering"],              highlight: "Research leader" },
+  { name: "University College London",      countrySlug: "uk",          country: "🇬🇧 UK",           rank: "Russell Group",    qs: "22",  fields: ["Architecture", "Economics", "Medicine"],       highlight: "London campus" },
+  { name: "UNSW Sydney",                    countrySlug: "australia",   country: "🇦🇺 Australia",    rank: "Group of Eight",   qs: "19",  fields: ["Engineering", "Commerce", "Law"],              highlight: "Industry links" },
+  { name: "University of Amsterdam",        countrySlug: "netherlands", country: "🇳🇱 Netherlands",  rank: "Top Dutch Uni",    qs: "53",  fields: ["Business", "Social Sciences", "Humanities"],   highlight: "English programs" },
+  { name: "University of Dublin (TCD)",     countrySlug: "ireland",     country: "🇮🇪 Ireland",      rank: "#1 in Ireland",    qs: "81",  fields: ["Business", "Engineering", "Medicine"],        highlight: "Stay-back visa" },
+  { name: "New York University",            countrySlug: "usa",         country: "🇺🇸 USA",          rank: "Top 50 Global",    qs: "38",  fields: ["Business", "Law", "Arts"],                    highlight: "NYC campus" },
+  { name: "University of British Columbia", countrySlug: "canada",      country: "🇨🇦 Canada",       rank: "Top 3 Canada",     qs: "34",  fields: ["Forestry", "Science", "Arts"],                 highlight: "Vancouver campus" },
+  { name: "Maastricht University",          countrySlug: "netherlands", country: "🇳🇱 Netherlands",  rank: "Top EU Uni",       qs: "246", fields: ["Business", "Law", "Psychology"],               highlight: "Problem-based learning" },
 ];
 
 export default function UniversitiesPage() {
@@ -81,13 +81,13 @@ export default function UniversitiesPage() {
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {COUNTRIES.map((c) => (
-              <div key={c.name}
-                className="rounded-2xl border border-gray-100 p-5 text-center hover:border-[#c9a84c] hover:shadow-md transition-all duration-200 cursor-pointer group">
+              <Link key={c.name} href={`/countries/${c.slug}`}
+                className="rounded-2xl border border-gray-100 p-5 text-center hover:border-[#c9a84c] hover:shadow-md transition-all duration-200 cursor-pointer group block">
                 <span className="text-4xl mb-3 block">{c.flag}</span>
                 <h3 className="font-bold text-[#1a2f5e] group-hover:text-[#c9a84c] transition-colors">{c.name}</h3>
                 <p className="text-gray-500 text-xs mt-1">{c.unis} universities</p>
                 <p className="text-gray-400 text-xs mt-0.5">{c.tagline}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -132,9 +132,10 @@ export default function UniversitiesPage() {
                   <span className="text-emerald-600 text-xs font-semibold bg-emerald-50 px-2.5 py-1 rounded-full">
                     ✓ {u.highlight}
                   </span>
-                  <button className="text-[#1a2f5e] text-xs font-semibold flex items-center gap-1 hover:text-[#c9a84c] transition-colors">
+                  <Link href={`/countries/${u.countrySlug}`}
+                    className="text-[#1a2f5e] text-xs font-semibold flex items-center gap-1 hover:text-[#c9a84c] transition-colors">
                     Learn more <ExternalLink size={11} />
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

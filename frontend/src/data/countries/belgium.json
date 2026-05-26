@@ -1,0 +1,144 @@
+{
+  "slug": "belgium",
+  "name": "Belgium",
+  "flag": "🇧🇪",
+  "tagline": "Heart of Europe",
+  "description": "Located at the heart of Europe, Belgium is home to some of the continent's oldest universities and serves as the political capital of the EU. Excellent for students interested in international relations, law, and business.",
+  "heroImage": "https://images.unsplash.com/photo-1491557345352-5929e343eb89?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/belgium/img_00.jpg",
+    "/images/countries/belgium/img_01.jpg",
+    "/images/countries/belgium/img_02.png",
+    "/images/countries/belgium/img_03.jpg",
+    "/images/countries/belgium/img_04.jpg",
+    "/images/countries/belgium/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "50+",
+    "workRights": "12 Months",
+    "intakes": "Sep, Feb",
+    "avgTuition": "€835–4,175/yr"
+  },
+  "tuitionFees": {
+    "currency": "EUR",
+    "undergraduate": "Quality Education: Home to top-ranked universities like KU Leuven and Ghent University, University of Antwerp, Thomas More - University of Applied Science. Multilingual Programs: Offers courses in English, Dutch, and French. Diverse Fields: Strong in engineering, business, arts, and social sciences. Cultural Exposure: Immerse in a rich, multilingual cultural environment. Affordable Tuition: Generally lower tuition fees compared to other Western European countries. Cost of Living: Living expenses vary by city, with Brussels being pricier. Vibrant Student Life: Active international community with clubs and activities. Central Location: Easy travel access to neighboring European countries. Student Visa Required: Non-EU students need a visa, including proof of enrollment and financial means.",
+    "postgraduate": "Students need to first obtain a visa before they can proceed with online enrolment at the university, where paying the tuition fee is one of the last steps.",
+    "phd": "Typically funded through FWO, FNRS grants, or university fellowships"
+  },
+  "scholarships": [
+    {
+      "name": "The fee will not be refunded if the application for a D visa or residence is refused",
+      "amount": "Varies",
+      "eligibility": "Applicants submitting their files at the Belgian VAC shall be levied a service fee of INR 1200/- (inclusive of taxes). Applicants that are exempt from the visa fee are not exempt from paying this serv",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Student Visa Type D",
+    "requirements": [
+      "Valid passport",
+      "University enrollment confirmation",
+      "Proof of financial means (€600/month)",
+      "Criminal background check (apostilled)",
+      "Medical certificate of good health",
+      "Proof of accommodation in Belgium",
+      "Student visa / residence permit application (Type D for 90+ days)"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 20 hours per week during term; full-time during holidays",
+    "postStudy": "12-month job-search permit for graduates",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "MBA",
+    "Computer Science",
+    "Engineering",
+    "Law",
+    "Economics",
+    "Architecture",
+    "Design",
+    "Arts"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "French or Dutch depending on region; many English programs available"
+  },
+  "topUniversities": [
+    {
+      "name": "KU Leuven",
+      "ranking": "#74 QS 2024",
+      "programs": [
+        "Engineering",
+        "Medicine",
+        "Sciences"
+      ]
+    },
+    {
+      "name": "Ghent University",
+      "ranking": "#Top 150 QS",
+      "programs": [
+        "Sciences",
+        "Engineering",
+        "Veterinary"
+      ]
+    },
+    {
+      "name": "Université Libre de Bruxelles",
+      "ranking": "Top 200 QS",
+      "programs": [
+        "Law",
+        "Sciences",
+        "Business"
+      ]
+    },
+    {
+      "name": "University, Intake and Course",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "University of Antwerp",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "Thomas More - University of Applied Science",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Computer Science"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Belgium?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Belgium is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Belgium?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "slug": "australia",
+  "name": "Australia",
+  "flag": "🇦🇺",
+  "tagline": "Global Opportunities",
+  "description": "Home to 8 of the world's top 100 universities, Australia combines world-class education with an incredible lifestyle. Strong post-study work options and a clear pathway to permanent residency make it a top choice for Indian students.",
+  "heroImage": "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/australia/img_00.png",
+    "/images/countries/australia/img_01.png",
+    "/images/countries/australia/img_02.jpg",
+    "/images/countries/australia/img_03.jpg",
+    "/images/countries/australia/img_04.png",
+    "/images/countries/australia/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "40+",
+    "workRights": "Up to 4 Years",
+    "intakes": "Feb, Jul",
+    "avgTuition": "AUD 30k–50k/yr"
+  },
+  "tuitionFees": {
+    "currency": "AUD",
+    "undergraduate": "Tuition Fee of ELICOS: AUD 300 to AUD 400 per week",
+    "postgraduate": "Contact institution for AUD fees",
+    "phd": "AUD 28,000–40,000 per year; domestic rate scholarships often available"
+  },
+  "scholarships": [
+    {
+      "name": "Australia Awards Scholarships",
+      "amount": "Full tuition + living allowance + flights",
+      "eligibility": "Citizens of eligible developing countries; government-funded",
+      "link": "https://www.dfat.gov.au/people-to-people/australia-awards"
+    },
+    {
+      "name": "Destination Australia Scholarship",
+      "amount": "AUD 15,000/year",
+      "eligibility": "Domestic and international students studying in regional Australia",
+      "link": ""
+    },
+    {
+      "name": "University International Scholarships",
+      "amount": "AUD 5,000–50,000",
+      "eligibility": "Excellent academic records; varies by institution",
+      "link": ""
+    },
+    {
+      "name": "Research Training Program (RTP)",
+      "amount": "Tuition waiver + stipend",
+      "eligibility": "Higher Degree by Research students (PhD, Masters by Research)",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Student Visa (Subclass 500)",
+    "requirements": [
+      "Valid passport (minimum 6 months validity)",
+      "Confirmation of Enrolment (CoE) from your Australian institution",
+      "Genuine Temporary Entrant (GTE) statement",
+      "OSHC (Overseas Student Health Cover) for the duration of study",
+      "Proof of financial capacity (AUD 21,041/year for living)",
+      "English proficiency scores (IELTS/TOEFL/PTE)",
+      "Academic transcripts and qualifications"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Up to 48 hours/fortnight during semester, unlimited during breaks",
+    "postStudy": "--- Annual expenses in Australia --- SLIDE --- Post study work rights --- SLIDE --- Thank you!",
+    "notes": "Regional study boosts post-study work rights by 1–2 extra years"
+  },
+  "popularPrograms": [
+    "Engineering",
+    "AI",
+    "Marketing",
+    "Business Administration",
+    "Information Technology",
+    "Medicine",
+    "Nursing",
+    "Environmental Science"
+  ],
+  "languageRequirements": {
+    "ielts": "6.5",
+    "toefl": "90",
+    "pte": "65",
+    "gmat": "",
+    "gre": "",
+    "notes": "English language proficiency required for all programs"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Melbourne",
+      "ranking": "#33 QS 2024",
+      "programs": [
+        "Engineering",
+        "Business",
+        "Medicine"
+      ]
+    },
+    {
+      "name": "Australian National University",
+      "ranking": "#34 QS 2024",
+      "programs": [
+        "Sciences",
+        "Arts",
+        "Law"
+      ]
+    },
+    {
+      "name": "University of Sydney",
+      "ranking": "#42 QS 2024",
+      "programs": [
+        "Medicine",
+        "Engineering",
+        "Law"
+      ]
+    },
+    {
+      "name": "UNSW Sydney",
+      "ranking": "#45 QS 2024",
+      "programs": [
+        "Engineering",
+        "Business",
+        "Law"
+      ]
+    },
+    {
+      "name": "Offered by universities and private colleges",
+      "ranking": "",
+      "programs": [
+        "Engineering",
+        "Ai"
+      ]
+    },
+    {
+      "name": "Offered by private colleges and some of the major universities",
+      "ranking": "",
+      "programs": [
+        "Engineering",
+        "Ai"
+      ]
+    },
+    {
+      "name": "Type of educational institutes in Australia",
+      "ranking": "",
+      "programs": [
+        "Engineering",
+        "Ai"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Can Indian students work while studying in Australia?",
+      "answer": "Yes, student visa holders can work up to 48 hours per fortnight during the academic semester and unlimited hours during scheduled breaks."
+    },
+    {
+      "question": "What is the PSW visa in Australia?",
+      "answer": "The Temporary Graduate Visa (subclass 485) allows international graduates to live and work in Australia for 2–4 years after completing their studies."
+    },
+    {
+      "question": "Is IELTS mandatory for Australian universities?",
+      "answer": "Most universities require an IELTS score of 6.0–6.5 (overall). Some accept alternative tests like PTE, TOEFL, or Duolingo."
+    },
+    {
+      "question": "What are the popular intakes in Australia?",
+      "answer": "The main intakes are February (Semester 1) and July (Semester 2). Some institutions also offer November intake."
+    }
+  ]
+}

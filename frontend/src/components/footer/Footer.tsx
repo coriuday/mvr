@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, ArrowRight } from "lucide-react";
 import { SiFacebook, SiInstagram, SiYoutube } from "@icons-pack/react-simple-icons";
 import {
@@ -11,10 +13,10 @@ import {
   FOOTER_SUPPORT,
 } from "@/constants/navigation";
 
-// LinkedIn not available in this simple-icons version — inline SVG matches the official shape
+// LinkedIn not in this simple-icons version — inline SVG matches official shape
 function IconLinkedin() {
   return (
-    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
       <rect x="2" y="9" width="4" height="12" />
       <circle cx="4" cy="4" r="2" />
@@ -22,12 +24,123 @@ function IconLinkedin() {
   );
 }
 
-const socialLinks = [
-  { icon: <SiFacebook  size={16} />, label: "Facebook",  href: CONTACT_INFO.socialMedia.facebook,  color: "hover:text-blue-600",  border: "hover:border-blue-400"  },
-  { icon: <SiInstagram size={16} />, label: "Instagram", href: CONTACT_INFO.socialMedia.instagram, color: "hover:text-pink-600",  border: "hover:border-pink-400"  },
-  { icon: <IconLinkedin />,          label: "LinkedIn",  href: CONTACT_INFO.socialMedia.linkedin,  color: "hover:text-sky-600",   border: "hover:border-sky-400"   },
-  { icon: <SiYoutube   size={16} />, label: "YouTube",   href: CONTACT_INFO.socialMedia.youtube,   color: "hover:text-red-600",   border: "hover:border-red-400"   },
+// ─── Brand definitions ────────────────────────────────────────────────────────
+type SocialDef = {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  /** solid bg color (hex) — null = use gradient */
+  bg: string | null;
+  /** gradient string for Instagram */
+  gradient?: string;
+  /** glow color for box-shadow */
+  glow: string;
+};
+
+const SOCIAL_DEFS: SocialDef[] = [
+  {
+    label: "Facebook",
+    href: CONTACT_INFO.socialMedia.facebook,
+    icon: <SiFacebook size={18} />,
+    bg: "#1877F2",
+    glow: "rgba(24,119,242,0.55)",
+  },
+  {
+    label: "Instagram",
+    href: CONTACT_INFO.socialMedia.instagram,
+    icon: <SiInstagram size={18} />,
+    bg: null,
+    gradient: "linear-gradient(135deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%)",
+    glow: "rgba(221,42,123,0.55)",
+  },
+  {
+    label: "LinkedIn",
+    href: CONTACT_INFO.socialMedia.linkedin,
+    icon: <IconLinkedin />,
+    bg: "#0A66C2",
+    glow: "rgba(10,102,194,0.55)",
+  },
+  {
+    label: "YouTube",
+    href: CONTACT_INFO.socialMedia.youtube,
+    icon: <SiYoutube size={18} />,
+    bg: "#FF0000",
+    glow: "rgba(255,0,0,0.50)",
+  },
 ];
+
+// ─── Premium animated social icon ─────────────────────────────────────────────
+function SocialIcon({ def }: { def: SocialDef }) {
+  const [hovered, setHovered] = useState(false);
+
+  // Default: dark glass circle — Hovered: brand color fill + glow
+  const containerStyle: React.CSSProperties = {
+    position: "relative",
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    overflow: "hidden",
+    // Glass default
+    background: hovered
+      ? def.bg ?? "transparent"
+      : "rgba(255,255,255,0.07)",
+    border: hovered
+      ? "1.5px solid transparent"
+      : "1.5px solid rgba(255,255,255,0.12)",
+    backdropFilter: "blur(8px)",
+    boxShadow: hovered
+      ? `0 0 18px 4px ${def.glow}, 0 4px 20px rgba(0,0,0,0.3)`
+      : "0 2px 8px rgba(0,0,0,0.25)",
+    color: hovered ? "#fff" : "rgba(255,255,255,0.55)",
+    transition:
+      "background 0.3s ease, box-shadow 0.3s ease, border 0.3s ease, color 0.3s ease",
+  };
+
+  // Instagram gradient overlay (sits on top, fades in/out)
+  const gradientOverlay: React.CSSProperties | null =
+    def.gradient
+      ? {
+        position: "absolute",
+        inset: 0,
+        background: def.gradient,
+        borderRadius: "50%",
+        opacity: hovered ? 1 : 0,
+        transition: "opacity 0.3s ease",
+        zIndex: 0,
+      }
+      : null;
+
+  const iconWrap: React.CSSProperties = {
+    position: "relative",
+    zIndex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
+  return (
+    <motion.a
+      href={def.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={def.label}
+      title={def.label}
+      style={containerStyle}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      whileHover={{ scale: 1.15 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 380, damping: 22 }}
+    >
+      {gradientOverlay && <div style={gradientOverlay} />}
+      <span style={iconWrap}>{def.icon}</span>
+    </motion.a>
+  );
+}
 
 // ─── Sitemap data ─────────────────────────────────────────────────────────────
 const SITEMAP = [
@@ -71,7 +184,6 @@ const SITEMAP = [
       { label: "FAQ", href: "/faq" },
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Terms & Conditions", href: "/terms" },
-      { label: "Refund Policy", href: "/refund" },
     ],
   },
 ];
@@ -155,20 +267,10 @@ export default function SiteFooter() {
               more. 15+ years of trust.
             </p>
 
-            {/* Social media buttons */}
+            {/* Social media buttons — premium animated */}
             <div className="flex items-center gap-3 mb-7">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  title={s.label}
-                  className={`w-9 h-9 rounded-lg bg-white border border-white/20 flex items-center justify-center text-gray-500 shadow-sm transition-all duration-200 hover:scale-110 ${s.color} ${s.border}`}
-                >
-                  {s.icon}
-                </a>
+              {SOCIAL_DEFS.map((def) => (
+                <SocialIcon key={def.label} def={def} />
               ))}
             </div>
 

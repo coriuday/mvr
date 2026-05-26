@@ -1,0 +1,158 @@
+{
+  "slug": "sweden",
+  "name": "Sweden",
+  "flag": "🇸🇪",
+  "tagline": "Nordic Tech Pioneer",
+  "description": "Sweden is a global innovator with top-ranked universities and a strong focus on sustainability and technology. Many programs are English-taught, and the country offers a high standard of living.",
+  "heroImage": "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/sweden/img_00.jpg",
+    "/images/countries/sweden/img_01.jpg",
+    "/images/countries/sweden/img_02.png",
+    "/images/countries/sweden/img_03.jpg",
+    "/images/countries/sweden/img_04.jpg",
+    "/images/countries/sweden/img_05.jpg"
+  ],
+  "stats": {
+    "unis": "40+",
+    "workRights": "1 Year",
+    "intakes": "Sep, Jan",
+    "avgTuition": "SEK 80k–180k/yr"
+  },
+  "tuitionFees": {
+    "currency": "SEK",
+    "undergraduate": "Once a student has paid the tuition fees, we need to apply online through the portal of The Swedish Migration Agency for visa on the link below –",
+    "postgraduate": "After submission of the form and payment of visa fees online, schedule an appointment by emailing the Embassy of Sweden at Chanakyapuri, New Delhi. The details are provided as below:",
+    "phd": "Fully funded through employment contracts at Swedish universities"
+  },
+  "scholarships": [
+    {
+      "name": "Sweden Government Scholarship",
+      "amount": "Varies",
+      "eligibility": "Merit-based for international students",
+      "link": ""
+    },
+    {
+      "name": "University Excellence Awards",
+      "amount": "Up to 50% tuition waiver",
+      "eligibility": "Academic excellence; GPA 3.5+",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "Swedish Residence Permit (Student)",
+    "requirements": [
+      "Valid passport",
+      "University admission letter",
+      "Proof of financial means (SEK 8,568/month)",
+      "Comprehensive health insurance (for first 12 months)",
+      "English language test scores (IELTS 6.0+)",
+      "Completed residence permit application via Migrationsverket",
+      "Payment of application fee (SEK 1,000)"
+    ],
+    "processingTime": "4–8 weeks",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Unlimited hours during study period",
+    "postStudy": "1-year job-seeker residence permit after graduation",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "MBA",
+    "Computer Science",
+    "Engineering",
+    "Medicine",
+    "Economics",
+    "Design",
+    "Arts",
+    "AI"
+  ],
+  "languageRequirements": {
+    "ielts": "6.0",
+    "toefl": "80",
+    "pte": "58",
+    "gmat": "",
+    "gre": "",
+    "notes": "Most master's programs taught in English"
+  },
+  "topUniversities": [
+    {
+      "name": "KTH Royal Institute of Technology",
+      "ranking": "#89 QS 2024",
+      "programs": [
+        "Engineering",
+        "Computer Science",
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Lund University",
+      "ranking": "#92 QS 2024",
+      "programs": [
+        "Medicine",
+        "Engineering",
+        "Law"
+      ]
+    },
+    {
+      "name": "Stockholm University",
+      "ranking": "Top 200 QS",
+      "programs": [
+        "Sciences",
+        "Business",
+        "Law"
+      ]
+    },
+    {
+      "name": "Uppsala University",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "Linnaeus University",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "Halmstad University",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "University of Skövde",
+      "ranking": "",
+      "programs": [
+        "Mba",
+        "Computer Science"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Sweden?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Sweden is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Sweden?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}

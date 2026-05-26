@@ -1,0 +1,157 @@
+{
+  "slug": "dubai",
+  "name": "Dubai (UAE)",
+  "flag": "🇦🇪",
+  "tagline": "Future-Forward Education",
+  "description": "Dubai and the UAE offer a tax-free, cosmopolitan education hub with campuses of top global universities. The region's booming economy creates excellent career opportunities for graduates.",
+  "heroImage": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80",
+  "images": [
+    "/images/countries/dubai/img_00.jpg",
+    "/images/countries/dubai/img_01.jpg",
+    "/images/countries/dubai/img_02.jpg",
+    "/images/countries/dubai/img_03.jpg",
+    "/images/countries/dubai/img_04.jpg"
+  ],
+  "stats": {
+    "unis": "60+",
+    "workRights": "2 Years",
+    "intakes": "Sep, Jan, May",
+    "avgTuition": "AED 30k–80k/yr"
+  },
+  "tuitionFees": {
+    "currency": "AED",
+    "undergraduate": "Even though the visa processing fee is set by the UAE Government Services Office (GSO), every university/",
+    "postgraduate": "Visa processing fee: 3000 - 4000 AED (Rs. 55,000 - 72,000 approx.)",
+    "phd": "AED 50,000–90,000 per year"
+  },
+  "scholarships": [
+    {
+      "name": "Student visa is granted for one year and is to be renewed every year",
+      "amount": "Varies",
+      "eligibility": "Initially Student gets an entry permit to enter Dubai and then the visa is granted at the visa office of Dubai airport.",
+      "link": ""
+    },
+    {
+      "name": "Initially Student gets an entry permit to enter Dubai and then the visa is granted at the visa office of Dubai",
+      "amount": "Varies",
+      "eligibility": "airport. --- PAGE ---",
+      "link": ""
+    }
+  ],
+  "visaRequirements": {
+    "type": "UAE Student Visa",
+    "requirements": [
+      "Valid passport (minimum 6 months validity)",
+      "University acceptance letter",
+      "Emirates ID application",
+      "Medical fitness test and blood test",
+      "Health insurance coverage",
+      "Financial proof (AED 3,000/month minimum)",
+      "Passport-sized photographs"
+    ],
+    "processingTime": "--- Dubai Student Visa Charges • Even though the visa processing fee is set by the UAE Government Services Office (GSO), every university/ institute's",
+    "fee": "Varies by country of application"
+  },
+  "workPermit": {
+    "duringStudy": "Part-time work permitted with NOC from institution",
+    "postStudy": "2-year Graduate Visa available; Employment visa through employer sponsorship",
+    "notes": ""
+  },
+  "popularPrograms": [
+    "Business Administration",
+    "MBA",
+    "Computer Science",
+    "Information Technology",
+    "Engineering",
+    "Law",
+    "Finance",
+    "Architecture"
+  ],
+  "languageRequirements": {
+    "ielts": "6.5",
+    "toefl": "90",
+    "pte": "65",
+    "gmat": "",
+    "gre": "",
+    "notes": "English medium instruction widely available"
+  },
+  "topUniversities": [
+    {
+      "name": "University of Dubai",
+      "ranking": "Nationally Accredited",
+      "programs": [
+        "Business",
+        "Law",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Middlesex University Dubai",
+      "ranking": "UK Accredited",
+      "programs": [
+        "Business",
+        "Design",
+        "Engineering"
+      ]
+    },
+    {
+      "name": "Heriot-Watt University Dubai",
+      "ranking": "UK Accredited",
+      "programs": [
+        "Engineering",
+        "Business",
+        "Computer Science"
+      ]
+    },
+    {
+      "name": "University)",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "Note: University of Wollongong, Canadian University and",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "Murdoch University also has May intake along with",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    },
+    {
+      "name": "University Tie Up’s In Dubai",
+      "ranking": "",
+      "programs": [
+        "Business Administration",
+        "Mba"
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Is it easy to get a student visa for Dubai (UAE)?",
+      "answer": "With proper documentation and financial proof, obtaining a student visa for Dubai (UAE) is straightforward. MVR Consultants can guide you through the entire process."
+    },
+    {
+      "question": "What are the tuition fees in Dubai (UAE)?",
+      "answer": "Tuition fees vary by university and program. Contact our counselors for program-specific fee structures."
+    },
+    {
+      "question": "Can I work while studying?",
+      "answer": "Most countries allow international students to work part-time during term time. Specific hours and conditions depend on the country's immigration rules."
+    },
+    {
+      "question": "Are there scholarships available for Indian students?",
+      "answer": "Yes, many universities and governments offer merit-based and need-based scholarships for international students. Ask our counselors for scholarship matching."
+    }
+  ]
+}
