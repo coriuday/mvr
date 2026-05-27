@@ -57,13 +57,17 @@ pub fn validate_length(
 pub fn validate_phone(phone: &str) -> Result<(), AppError> {
     let cleaned: String = phone
         .chars()
-        .filter(|c| c.is_ascii_digit() || *c == '+' || *c == '-' || *c == ' ' || *c == '(' || *c == ')')
+        .filter(|c| {
+            c.is_ascii_digit() || *c == '+' || *c == '-' || *c == ' ' || *c == '(' || *c == ')'
+        })
         .collect();
 
     let digit_count = cleaned.chars().filter(|c| c.is_ascii_digit()).count();
 
-    if digit_count < 7 || digit_count > 15 {
-        return Err(AppError::BadRequest("Invalid phone number format".to_string()));
+    if !(7..=15).contains(&digit_count) {
+        return Err(AppError::BadRequest(
+            "Invalid phone number format".to_string(),
+        ));
     }
     Ok(())
 }
@@ -71,7 +75,10 @@ pub fn validate_phone(phone: &str) -> Result<(), AppError> {
 /// Validates a URL slug (lowercase letters, numbers, hyphens only)
 #[allow(dead_code)]
 pub fn validate_slug(slug: &str) -> Result<(), AppError> {
-    if !slug.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-') {
+    if !slug
+        .chars()
+        .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
+    {
         return Err(AppError::BadRequest(
             "Slug may only contain lowercase letters, numbers, and hyphens".to_string(),
         ));

@@ -1,9 +1,9 @@
-use sqlx::PgPool;
 use crate::{
     models::lead::LeadFilter,
     repositories::{auth_repository::AuthRepository, lead_repository::LeadRepository},
     utils::errors::AppResult,
 };
+use sqlx::PgPool;
 
 /// Dashboard statistics computed from the leads and users tables.
 pub struct DashboardStats {
@@ -47,7 +47,10 @@ impl AdminService {
             .count();
 
         let conversion_rate = if total_leads > 0 {
-            format!("{:.1}%", (converted_count as f64 / total_leads as f64) * 100.0)
+            format!(
+                "{:.1}%",
+                (converted_count as f64 / total_leads as f64) * 100.0
+            )
         } else {
             "0%".to_string()
         };

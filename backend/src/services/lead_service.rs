@@ -1,5 +1,3 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
     models::lead::{CreateLeadRequest, Lead, LeadFilter, UpdateLeadRequest},
     repositories::lead_repository::LeadRepository,
@@ -8,6 +6,8 @@ use crate::{
         validators::{validate_email, validate_length, validate_required},
     },
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct LeadService {
     db: PgPool,

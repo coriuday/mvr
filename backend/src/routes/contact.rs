@@ -1,9 +1,9 @@
-use axum::{extract::State, Json};
 use crate::{
     routes::AppState,
     services::contact_service::{ContactRequest, ContactService},
     utils::{errors::AppResult, response::MessageResponse},
 };
+use axum::{Json, extract::State};
 
 // ─────────────────────────────────────────────
 // POST /api/contact

@@ -1,9 +1,11 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
-    models::country::{Country, CountryCard, CountryFilter, CreateCountryRequest, UpdateCountryRequest},
+    models::country::{
+        Country, CountryCard, CountryFilter, CreateCountryRequest, UpdateCountryRequest,
+    },
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct CountryRepository {
     pub db: PgPool,
@@ -56,9 +58,9 @@ impl CountryRepository {
 
     /// Admin: paginated list of all countries (active + inactive).
     pub async fn find_all(&self, filter: &CountryFilter) -> AppResult<(Vec<Country>, i64)> {
-        let page     = filter.page.unwrap_or(1).max(1);
+        let page = filter.page.unwrap_or(1).max(1);
         let per_page = filter.per_page.unwrap_or(50).min(100);
-        let offset   = (page - 1) * per_page;
+        let offset = (page - 1) * per_page;
 
         let total: i64 = sqlx::query_scalar(
             "SELECT COUNT(*)::bigint FROM countries WHERE ($1::boolean IS NULL OR is_active = $1)",
@@ -90,7 +92,10 @@ impl CountryRepository {
 
     /// Admin: create a new country record.
     pub async fn create(&self, req: &CreateCountryRequest) -> AppResult<Country> {
-        let content = req.content.clone().unwrap_or(serde_json::Value::Object(Default::default()));
+        let content = req
+            .content
+            .clone()
+            .unwrap_or(serde_json::Value::Object(Default::default()));
         let content_json = serde_json::to_value(&content)
             .map_err(|e| AppError::BadRequest(format!("Invalid content JSON: {e}")))?;
 
@@ -125,9 +130,10 @@ impl CountryRepository {
 
     /// Admin: update an existing country.
     pub async fn update(&self, id: Uuid, req: &UpdateCountryRequest) -> AppResult<Country> {
-        let content_json = req.content.as_ref().map(|v| {
-            serde_json::to_value(v).ok()
-        }).flatten();
+        let content_json = req
+            .content
+            .as_ref()
+            .and_then(|v| serde_json::to_value(v).ok());
 
         sqlx::query_as::<_, Country>(
             r#"

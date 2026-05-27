@@ -1,9 +1,9 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
     models::user::{RegisterRequest, User, UserResponse, UserRole},
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct AuthRepository {
     pub db: PgPool,
@@ -41,7 +41,11 @@ impl AuthRepository {
     }
 
     /// Create a new staff user account
-    pub async fn create(&self, req: &RegisterRequest, password_hash: &str) -> AppResult<UserResponse> {
+    pub async fn create(
+        &self,
+        req: &RegisterRequest,
+        password_hash: &str,
+    ) -> AppResult<UserResponse> {
         let role = req.role.clone().unwrap_or(UserRole::Counselor);
 
         sqlx::query_as::<_, UserResponse>(

@@ -20,7 +20,7 @@ pub struct Scholarship {
     pub name: String,
     pub scholarship_type: ScholarshipType,
     pub country: String,
-    pub amount: Option<String>,     // String to support "Full Tuition", "$5,000", etc.
+    pub amount: Option<String>, // String to support "Full Tuition", "$5,000", etc.
     pub deadline: Option<NaiveDate>,
     pub description: Option<String>,
     pub eligibility: Option<String>,

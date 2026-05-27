@@ -1,12 +1,9 @@
-use sqlx::PgPool;
 use crate::{
     models::newsletter::{NewsletterSubscriber, SubscribeOutcome, SubscribeRequest},
     repositories::newsletter_repository::NewsletterRepository,
-    utils::{
-        errors::AppResult,
-        validators::validate_email,
-    },
+    utils::{errors::AppResult, validators::validate_email},
 };
+use sqlx::PgPool;
 
 pub struct NewsletterService {
     db: PgPool,
@@ -34,21 +31,30 @@ impl NewsletterService {
     pub async fn subscribe(&self, req: &SubscribeRequest) -> AppResult<SubscribeOutcome> {
         validate_email(&req.email)?;
         let normalised = SubscribeRequest {
-            email:  req.email.trim().to_lowercase(),
+            email: req.email.trim().to_lowercase(),
             source: req.source.clone(),
         };
-        NewsletterRepository::new(self.db.clone()).subscribe(&normalised).await
+        NewsletterRepository::new(self.db.clone())
+            .subscribe(&normalised)
+            .await
     }
 
     /// Admin: list all subscribers.
-    pub async fn list_all(&self, status_filter: Option<&str>) -> AppResult<Vec<NewsletterSubscriber>> {
-        NewsletterRepository::new(self.db.clone()).list_all(status_filter).await
+    pub async fn list_all(
+        &self,
+        status_filter: Option<&str>,
+    ) -> AppResult<Vec<NewsletterSubscriber>> {
+        NewsletterRepository::new(self.db.clone())
+            .list_all(status_filter)
+            .await
     }
 
     /// Mark a subscriber as unsubscribed (triggered by unsubscribe link etc.)
     #[allow(dead_code)]
     pub async fn unsubscribe(&self, email: &str) -> AppResult<()> {
         validate_email(email)?;
-        NewsletterRepository::new(self.db.clone()).unsubscribe(email).await
+        NewsletterRepository::new(self.db.clone())
+            .unsubscribe(email)
+            .await
     }
 }

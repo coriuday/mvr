@@ -1,7 +1,7 @@
 use crate::utils::errors::AppError;
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
+    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
 
 /// Hashes a plaintext password using Argon2id (recommended variant).

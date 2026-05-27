@@ -1,11 +1,14 @@
-use axum::{extract::{Path, Query, State}, Json};
-use uuid::Uuid;
 use crate::{
     models::lead::{CreateLeadRequest, LeadFilter, UpdateLeadRequest},
     routes::AppState,
     services::lead_service::LeadService,
     utils::{errors::AppResult, response::MessageResponse},
 };
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
+use uuid::Uuid;
 
 // ─── POST /api/leads  (public — inquiry form) ────────────────────────────────
 pub async fn create_lead(

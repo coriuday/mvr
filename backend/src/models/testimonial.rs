@@ -10,7 +10,7 @@ pub struct Testimonial {
     pub student_name: String,
     pub review: String,
     pub image_url: Option<String>,
-    pub rating: i32,      // 1–5
+    pub rating: i32, // 1–5
     pub country: Option<String>,
     pub university: Option<String>,
     pub course: Option<String>,

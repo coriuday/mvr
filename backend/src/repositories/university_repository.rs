@@ -1,9 +1,9 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
     models::university::{CreateUniversityRequest, University, UniversityFilter},
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct UniversityRepository {
     pub db: PgPool,

@@ -1,9 +1,11 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
-    models::lead::{CreateLeadRequest, Lead, LeadFilter, LeadSource, LeadStatus, UpdateLeadRequest},
+    models::lead::{
+        CreateLeadRequest, Lead, LeadFilter, LeadSource, LeadStatus, UpdateLeadRequest,
+    },
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct LeadRepository {
     pub db: PgPool,
@@ -47,13 +49,13 @@ impl LeadRepository {
 
         // Apply status filter to both count and data queries
         let total: i64 = match &filter.status {
-            Some(status) => sqlx::query_scalar(
-                "SELECT COUNT(*)::bigint FROM leads WHERE status = $1",
-            )
-            .bind(status)
-            .fetch_one(&self.db)
-            .await
-            .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?,
+            Some(status) => {
+                sqlx::query_scalar("SELECT COUNT(*)::bigint FROM leads WHERE status = $1")
+                    .bind(status)
+                    .fetch_one(&self.db)
+                    .await
+                    .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?
+            }
             None => sqlx::query_scalar("SELECT COUNT(*)::bigint FROM leads")
                 .fetch_one(&self.db)
                 .await

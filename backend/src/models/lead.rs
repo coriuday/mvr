@@ -35,7 +35,7 @@ pub struct Lead {
     pub status: LeadStatus,
     pub source: LeadSource,
     pub country_interest: Option<String>,
-    pub assigned_to: Option<Uuid>,   // Counselor user ID
+    pub assigned_to: Option<Uuid>, // Counselor user ID
     pub notes: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

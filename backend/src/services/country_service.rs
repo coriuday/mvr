@@ -1,10 +1,12 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
-    models::country::{Country, CountryCard, CountryFilter, CreateCountryRequest, UpdateCountryRequest},
+    models::country::{
+        Country, CountryCard, CountryFilter, CreateCountryRequest, UpdateCountryRequest,
+    },
     repositories::country_repository::CountryRepository,
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct CountryService {
     db: PgPool,
@@ -22,12 +24,16 @@ impl CountryService {
 
     /// Public detail — full country data for a given slug.
     pub async fn get_by_slug(&self, slug: &str) -> AppResult<Country> {
-        CountryRepository::new(self.db.clone()).find_by_slug(slug).await
+        CountryRepository::new(self.db.clone())
+            .find_by_slug(slug)
+            .await
     }
 
     /// Admin: paginated list of all countries.
     pub async fn list_all(&self, filter: &CountryFilter) -> AppResult<(Vec<Country>, i64)> {
-        CountryRepository::new(self.db.clone()).find_all(filter).await
+        CountryRepository::new(self.db.clone())
+            .find_all(filter)
+            .await
     }
 
     /// Admin: create a new country with validation.
@@ -46,7 +52,9 @@ impl CountryService {
 
     /// Admin: update an existing country.
     pub async fn update(&self, id: Uuid, req: &UpdateCountryRequest) -> AppResult<Country> {
-        CountryRepository::new(self.db.clone()).update(id, req).await
+        CountryRepository::new(self.db.clone())
+            .update(id, req)
+            .await
     }
 
     /// Admin: delete a country.

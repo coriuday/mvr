@@ -1,8 +1,10 @@
-use sqlx::PgPool;
 use crate::{
-    models::newsletter::{NewsletterSubscriber, SubscribeRequest, SubscribeOutcome, SubscriberStatus},
+    models::newsletter::{
+        NewsletterSubscriber, SubscribeOutcome, SubscribeRequest, SubscriberStatus,
+    },
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
 
 pub struct NewsletterRepository {
     pub db: PgPool,
@@ -24,8 +26,8 @@ impl NewsletterRepository {
     /// We handle the conflict in Rust rather than relying on ON CONFLICT DO NOTHING
     /// so we can differentiate between case 2 and 3.
     pub async fn subscribe(&self, req: &SubscribeRequest) -> AppResult<SubscribeOutcome> {
-        let email   = req.email.trim().to_lowercase();
-        let source  = req.source.as_deref().unwrap_or("website");
+        let email = req.email.trim().to_lowercase();
+        let source = req.source.as_deref().unwrap_or("website");
 
         // Check for an existing row first (one cheap point-lookup by UNIQUE index)
         let existing: Option<NewsletterSubscriber> = sqlx::query_as(
@@ -85,7 +87,10 @@ impl NewsletterRepository {
     }
 
     /// Admin: list all subscribers with optional status filter.
-    pub async fn list_all(&self, status_filter: Option<&str>) -> AppResult<Vec<NewsletterSubscriber>> {
+    pub async fn list_all(
+        &self,
+        status_filter: Option<&str>,
+    ) -> AppResult<Vec<NewsletterSubscriber>> {
         sqlx::query_as(
             r#"
             SELECT id, email, status, source, confirmed_at,

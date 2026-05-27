@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::time::Duration;
 
 /// Creates a SQLx PostgreSQL connection pool connected to Supabase.

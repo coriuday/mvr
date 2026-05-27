@@ -1,10 +1,3 @@
-use axum::{
-    extract::State,
-    http::{header, HeaderValue},
-    response::AppendHeaders,
-    Json,
-};
-use uuid::Uuid;
 use crate::{
     models::user::{AuthTokenResponse, LoginRequest, RegisterRequest},
     repositories::auth_repository::AuthRepository,
@@ -17,6 +10,13 @@ use crate::{
         validators::validate_email,
     },
 };
+use axum::{
+    Json,
+    extract::State,
+    http::{HeaderValue, header},
+    response::AppendHeaders,
+};
+use uuid::Uuid;
 
 /// Request body for token refresh.
 /// The `refresh_token` field is OPTIONAL: if absent, the middleware
@@ -34,9 +34,7 @@ pub struct RefreshRequest {
 /// Secure flag is only set when the environment is production (HTTPS).
 fn access_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
     let secure = if is_prod { "; Secure" } else { "" };
-    format!(
-        "mvr_access={token}; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age={max_age_secs}"
-    )
+    format!("mvr_access={token}; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age={max_age_secs}")
 }
 
 /// Builds a Set-Cookie header value for the refresh token.
@@ -51,7 +49,8 @@ fn refresh_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
 fn clear_auth_cookies(is_prod: bool) -> [(header::HeaderName, HeaderValue); 2] {
     let secure = if is_prod { "; Secure" } else { "" };
     let access = format!("mvr_access=; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age=0");
-    let refresh = format!("mvr_refresh=; HttpOnly; SameSite=Lax{secure}; Path=/api/auth; Max-Age=0");
+    let refresh =
+        format!("mvr_refresh=; HttpOnly; SameSite=Lax{secure}; Path=/api/auth; Max-Age=0");
     [
         (header::SET_COOKIE, HeaderValue::from_str(&access).unwrap()),
         (header::SET_COOKIE, HeaderValue::from_str(&refresh).unwrap()),
@@ -89,8 +88,14 @@ pub async fn register(
     let repo = AuthRepository::new(state.db.clone());
 
     // Check existing email
-    if repo.find_by_email(&body.email.to_lowercase()).await?.is_some() {
-        return Err(AppError::Conflict("Email address is already registered".to_string()));
+    if repo
+        .find_by_email(&body.email.to_lowercase())
+        .await?
+        .is_some()
+    {
+        return Err(AppError::Conflict(
+            "Email address is already registered".to_string(),
+        ));
     }
 
     let password_hash = hash_password(&body.password)?;
@@ -109,10 +114,15 @@ pub async fn register(
 pub async fn login(
     State(state): State<AppState>,
     Json(body): Json<LoginRequest>,
-) -> AppResult<(AppendHeaders<[(header::HeaderName, HeaderValue); 2]>, Json<serde_json::Value>)> {
+) -> AppResult<(
+    AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
+    Json<serde_json::Value>,
+)> {
     validate_email(&body.email)?;
     if body.password.trim().is_empty() {
-        return Err(AppError::BadRequest("Email and password are required".to_string()));
+        return Err(AppError::BadRequest(
+            "Email and password are required".to_string(),
+        ));
     }
 
     let repo = AuthRepository::new(state.db.clone());
@@ -125,12 +135,16 @@ pub async fn login(
 
     // Check active status
     if !user.is_active {
-        return Err(AppError::Unauthorized("Account is deactivated. Contact admin.".to_string()));
+        return Err(AppError::Unauthorized(
+            "Account is deactivated. Contact admin.".to_string(),
+        ));
     }
 
     // Verify password
     if !verify_password(&body.password, &user.password_hash)? {
-        return Err(AppError::Unauthorized("Invalid email or password".to_string()));
+        return Err(AppError::Unauthorized(
+            "Invalid email or password".to_string(),
+        ));
     }
 
     let role_str = format!("{:?}", user.role).to_uppercase();
@@ -142,8 +156,15 @@ pub async fn login(
     let is_prod = state.config.is_production();
 
     let cookies = [
-        (header::SET_COOKIE, HeaderValue::from_str(&access_cookie(&access_token, access_max_age, is_prod)).unwrap()),
-        (header::SET_COOKIE, HeaderValue::from_str(&refresh_cookie(&refresh_token, refresh_max_age, is_prod)).unwrap()),
+        (
+            header::SET_COOKIE,
+            HeaderValue::from_str(&access_cookie(&access_token, access_max_age, is_prod)).unwrap(),
+        ),
+        (
+            header::SET_COOKIE,
+            HeaderValue::from_str(&refresh_cookie(&refresh_token, refresh_max_age, is_prod))
+                .unwrap(),
+        ),
     ];
 
     let response = AuthTokenResponse {
@@ -169,7 +190,10 @@ pub async fn login(
 // ─────────────────────────────────────────────
 pub async fn logout(
     State(state): State<AppState>,
-) -> AppResult<(AppendHeaders<[(header::HeaderName, HeaderValue); 2]>, Json<MessageResponse>)> {
+) -> AppResult<(
+    AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
+    Json<MessageResponse>,
+)> {
     // Clear both auth cookies by setting Max-Age=0
     let cookies = clear_auth_cookies(state.config.is_production());
     Ok((
@@ -186,7 +210,10 @@ pub async fn refresh_token(
     headers: axum::http::HeaderMap,
     // Body is optional — the refresh token can come from the cookie
     body: Option<Json<RefreshRequest>>,
-) -> AppResult<(AppendHeaders<[(header::HeaderName, HeaderValue); 2]>, Json<serde_json::Value>)> {
+) -> AppResult<(
+    AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
+    Json<serde_json::Value>,
+)> {
     // Priority: request body → httpOnly cookie
     let token_str = body
         .as_ref()
@@ -213,8 +240,19 @@ pub async fn refresh_token(
     let is_prod = state.config.is_production();
 
     let cookies = [
-        (header::SET_COOKIE, HeaderValue::from_str(&access_cookie(&access_token, access_max_age, is_prod)).unwrap()),
-        (header::SET_COOKIE, HeaderValue::from_str(&refresh_cookie(&new_refresh_token, refresh_max_age, is_prod)).unwrap()),
+        (
+            header::SET_COOKIE,
+            HeaderValue::from_str(&access_cookie(&access_token, access_max_age, is_prod)).unwrap(),
+        ),
+        (
+            header::SET_COOKIE,
+            HeaderValue::from_str(&refresh_cookie(
+                &new_refresh_token,
+                refresh_max_age,
+                is_prod,
+            ))
+            .unwrap(),
+        ),
     ];
 
     Ok((

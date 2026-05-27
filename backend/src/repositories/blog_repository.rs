@@ -1,9 +1,9 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
     models::blog::{Blog, BlogFilter, CreateBlogRequest, UpdateBlogRequest},
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct BlogRepository {
     pub db: PgPool,
@@ -78,7 +78,11 @@ impl BlogRepository {
         .ok_or_else(|| AppError::NotFound(format!("Blog {id} not found")))
     }
 
-    pub async fn create(&self, req: &CreateBlogRequest, author_id: Option<Uuid>) -> AppResult<Blog> {
+    pub async fn create(
+        &self,
+        req: &CreateBlogRequest,
+        author_id: Option<Uuid>,
+    ) -> AppResult<Blog> {
         let tags: Vec<String> = req.tags.clone().unwrap_or_default();
         sqlx::query_as::<_, Blog>(
             r#"

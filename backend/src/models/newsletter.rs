@@ -16,22 +16,22 @@ pub enum SubscriberStatus {
 
 #[derive(Debug, Clone, Serialize, FromRow)]
 pub struct NewsletterSubscriber {
-    pub id:              Uuid,
-    pub email:           String,
-    pub status:          SubscriberStatus,
-    pub source:          String,
-    pub confirmed_at:    Option<DateTime<Utc>>,
-    pub subscribed_at:   DateTime<Utc>,
+    pub id: Uuid,
+    pub email: String,
+    pub status: SubscriberStatus,
+    pub source: String,
+    pub confirmed_at: Option<DateTime<Utc>>,
+    pub subscribed_at: DateTime<Utc>,
     pub unsubscribed_at: Option<DateTime<Utc>>,
-    pub created_at:      DateTime<Utc>,
-    pub updated_at:      DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 // ── Request types ─────────────────────────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
 pub struct SubscribeRequest {
-    pub email:  String,
+    pub email: String,
     /// Optional: homepage | blog | contact — defaults to "website"
     pub source: Option<String>,
 }

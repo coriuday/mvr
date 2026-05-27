@@ -1,6 +1,6 @@
-use chrono::Datelike;
-use resend_rs::{types::CreateEmailBaseOptions, Resend};
 use crate::utils::errors::AppResult;
+use chrono::Datelike;
+use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
 pub struct EmailService {
     pub api_key: String,
@@ -10,7 +10,13 @@ pub struct EmailService {
 }
 
 impl EmailService {
-    pub fn new(api_key: &str, from_address: &str, from_name: &str, admin_email: &str, admin_email_guntur: &str) -> Self {
+    pub fn new(
+        api_key: &str,
+        from_address: &str,
+        from_name: &str,
+        admin_email: &str,
+        admin_email_guntur: &str,
+    ) -> Self {
         Self {
             api_key: api_key.to_string(),
             admin_email: admin_email.to_string(),
@@ -43,7 +49,8 @@ impl EmailService {
                    </div>"#, m))
             .unwrap_or_default();
 
-        let html = format!(r#"<!DOCTYPE html>
+        let html = format!(
+            r#"<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px;">
@@ -85,13 +92,9 @@ impl EmailService {
         let resend = Resend::new(&self.api_key);
 
         // Send to Hyderabad office (primary)
-        let email = CreateEmailBaseOptions::new(
-            &self.from,
-            [self.admin_email.as_str()],
-            &subject,
-        )
-        .with_html(&html)
-        .with_reply(lead_email);
+        let email = CreateEmailBaseOptions::new(&self.from, [self.admin_email.as_str()], &subject)
+            .with_html(&html)
+            .with_reply(lead_email);
 
         if let Err(e) = resend.emails.send(email).await {
             tracing::error!("Failed to send lead notification to HYD: {}", e);
@@ -122,7 +125,8 @@ impl EmailService {
         student_email: &str,
         student_name: &str,
     ) -> AppResult<()> {
-        let html = format!(r#"<!DOCTYPE html>
+        let html = format!(
+            r#"<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px;">
@@ -187,7 +191,11 @@ impl EmailService {
         .with_html(&html);
 
         if let Err(e) = resend.emails.send(email).await {
-            tracing::warn!("Failed to send inquiry confirmation to {}: {}", student_email, e);
+            tracing::warn!(
+                "Failed to send inquiry confirmation to {}: {}",
+                student_email,
+                e
+            );
             // Soft-fail
         }
 

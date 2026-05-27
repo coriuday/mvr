@@ -5,9 +5,7 @@ use axum::{
     response::Response,
 };
 
-use crate::{
-    utils::{errors::AppError, jwt::verify_access_token},
-};
+use crate::utils::{errors::AppError, jwt::verify_access_token};
 
 /// Extracts and validates JWT access token from either:
 /// 1. `Authorization: Bearer <token>` header  (legacy / API clients)

@@ -1,10 +1,10 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 use crate::{
     models::blog::{Blog, BlogFilter, CreateBlogRequest, UpdateBlogRequest},
     repositories::blog_repository::BlogRepository,
     utils::errors::{AppError, AppResult},
 };
+use sqlx::PgPool;
+use uuid::Uuid;
 
 pub struct BlogService {
     db: PgPool,
@@ -22,18 +22,26 @@ impl BlogService {
 
     /// Fetch a single published blog by slug (public).
     pub async fn get_by_slug(&self, slug: &str) -> AppResult<Blog> {
-        BlogRepository::new(self.db.clone()).find_by_slug(slug).await
+        BlogRepository::new(self.db.clone())
+            .find_by_slug(slug)
+            .await
     }
 
     /// Validate and create a new blog post (admin).
-    pub async fn create(&self, body: &CreateBlogRequest, author_id: Option<Uuid>) -> AppResult<Blog> {
+    pub async fn create(
+        &self,
+        body: &CreateBlogRequest,
+        author_id: Option<Uuid>,
+    ) -> AppResult<Blog> {
         if body.title.trim().is_empty() {
             return Err(AppError::BadRequest("Title is required".to_string()));
         }
         if body.slug.trim().is_empty() {
             return Err(AppError::BadRequest("Slug is required".to_string()));
         }
-        BlogRepository::new(self.db.clone()).create(body, author_id).await
+        BlogRepository::new(self.db.clone())
+            .create(body, author_id)
+            .await
     }
 
     /// Update an existing blog post (admin).

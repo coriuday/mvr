@@ -1,8 +1,8 @@
 /// Run with: cargo run --example hash_password -- "YourPasswordHere"
 /// Copy the printed hash into the Supabase SQL INSERT.
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
     Argon2,
+    password_hash::{PasswordHasher, SaltString, rand_core::OsRng},
 };
 
 fn main() {

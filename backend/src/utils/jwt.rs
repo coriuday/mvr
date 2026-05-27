@@ -1,18 +1,18 @@
 use crate::{config::env::Config, utils::errors::AppError};
 use chrono::{Duration, Utc};
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 /// JWT Claims for access tokens
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
-    pub sub: String,       // User ID (UUID as string)
-    pub email: String,     // User email
-    pub role: String,      // User role: ADMIN, EDITOR, COUNSELOR
-    pub exp: i64,          // Expiry timestamp (Unix)
-    pub iat: i64,          // Issued at (Unix)
-    pub jti: String,       // JWT ID (for revocation)
+    pub sub: String,        // User ID (UUID as string)
+    pub email: String,      // User email
+    pub role: String,       // User role: ADMIN, EDITOR, COUNSELOR
+    pub exp: i64,           // Expiry timestamp (Unix)
+    pub iat: i64,           // Issued at (Unix)
+    pub jti: String,        // JWT ID (for revocation)
     pub token_type: String, // "access" or "refresh"
 }
 

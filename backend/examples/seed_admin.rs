@@ -1,9 +1,9 @@
-/// Seed or reset the admin user with a freshly-generated Argon2 hash.
-/// Usage: cargo run --example seed_admin -- "YourPassword"
+//! Seed or reset the admin user with a freshly-generated Argon2 hash.
+//! Usage: cargo run --example seed_admin -- "YourPassword"
 
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
     Argon2,
+    password_hash::{PasswordHasher, SaltString, rand_core::OsRng},
 };
 use sqlx::postgres::PgPoolOptions;
 
@@ -17,7 +17,7 @@ async fn main() -> anyhow::Result<()> {
     });
 
     // Hash with the same Argon2id config the backend uses
-    let salt   = SaltString::generate(&mut OsRng);
+    let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
     let hash = argon2
         .hash_password(password.as_bytes(), &salt)
@@ -26,8 +26,7 @@ async fn main() -> anyhow::Result<()> {
 
     println!("Generated hash: {hash}");
 
-    let database_url = std::env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set in .env");
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set in .env");
 
     let pool = PgPoolOptions::new()
         .max_connections(1)

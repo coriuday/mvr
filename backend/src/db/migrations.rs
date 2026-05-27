@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{postgres::PgConnectOptions, Connection, PgConnection};
+use sqlx::{Connection, PgConnection, postgres::PgConnectOptions};
 
 /// Runs all pending SQLx migrations from the `migrations/` directory.
 ///
@@ -10,7 +10,8 @@ pub async fn run_migrations(_pool: &sqlx::PgPool, database_url: &str) -> Result<
         .parse()
         .map_err(|e| anyhow::anyhow!("Invalid DATABASE_URL: {}", e))?;
 
-    let mut direct = PgConnection::connect_with(&connect_opts).await
+    let mut direct = PgConnection::connect_with(&connect_opts)
+        .await
         .map_err(|e| anyhow::anyhow!("Migration connection failed: {}", e))?;
 
     sqlx::migrate!("./migrations")
@@ -20,4 +21,3 @@ pub async fn run_migrations(_pool: &sqlx::PgPool, database_url: &str) -> Result<
 
     Ok(())
 }
-

@@ -1,4 +1,3 @@
-use sqlx::PgPool;
 use crate::{
     config::env::Config,
     models::lead::CreateLeadRequest,
@@ -9,6 +8,7 @@ use crate::{
         validators::{validate_email, validate_length, validate_required},
     },
 };
+use sqlx::PgPool;
 
 /// The parsed contact form fields.
 /// Defined here so the route handler does not need to contain any validation logic.

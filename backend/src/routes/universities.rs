@@ -1,11 +1,14 @@
-use axum::{extract::{Path, Query, State}, Json};
-use uuid::Uuid;
 use crate::{
     models::university::{CreateUniversityRequest, UniversityFilter},
     routes::AppState,
     services::university_service::{UniversityService, UpdateUniversityRequest},
     utils::{errors::AppResult, response::MessageResponse},
 };
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
+use uuid::Uuid;
 
 // ─── GET /api/universities  (public) ─────────────────────────────────────────
 pub async fn get_all_universities(
@@ -43,7 +46,9 @@ pub async fn update_university(
     Path(id): Path<Uuid>,
     Json(body): Json<UpdateUniversityRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let uni = UniversityService::new(state.db).update_featured(id, &body).await?;
+    let uni = UniversityService::new(state.db)
+        .update_featured(id, &body)
+        .await?;
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
@@ -53,5 +58,7 @@ pub async fn delete_university(
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<MessageResponse>> {
     UniversityService::new(state.db).delete(id).await?;
-    Ok(Json(MessageResponse::new("University deleted successfully")))
+    Ok(Json(MessageResponse::new(
+        "University deleted successfully",
+    )))
 }

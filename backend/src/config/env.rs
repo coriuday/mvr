@@ -94,8 +94,7 @@ impl Config {
                 .unwrap_or_else(|_| "mvr_consultants".to_string()),
 
             // Resend
-            resend_api_key: std::env::var("RESEND_API_KEY")
-                .unwrap_or_else(|_| "".to_string()),
+            resend_api_key: std::env::var("RESEND_API_KEY").unwrap_or_else(|_| "".to_string()),
             email_from: std::env::var("EMAIL_FROM")
                 .unwrap_or_else(|_| "mvrconsultantshyd@gmail.com".to_string()),
             email_from_name: std::env::var("EMAIL_FROM_NAME")
@@ -106,8 +105,7 @@ impl Config {
                 .unwrap_or_else(|_| "mvroverseasconsultancy@gmail.com".to_string()),
 
             // AI — Gemini Flash (cheap, fast, sufficient for SOP review)
-            gemini_api_key: std::env::var("GEMINI_API_KEY")
-                .unwrap_or_else(|_| "".to_string()),
+            gemini_api_key: std::env::var("GEMINI_API_KEY").unwrap_or_else(|_| "".to_string()),
         })
     }
 

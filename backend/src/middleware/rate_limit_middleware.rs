@@ -70,9 +70,7 @@ impl RateLimiterState {
 
     fn is_allowed(&self, ip: IpAddr) -> bool {
         let mut map = self.buckets.lock().unwrap();
-        let bucket = map
-            .entry(ip)
-            .or_insert_with(|| Bucket::new(self.capacity));
+        let bucket = map.entry(ip).or_insert_with(|| Bucket::new(self.capacity));
         bucket.consume(self.capacity, self.refill_per_sec)
     }
 }
@@ -87,12 +85,10 @@ fn extract_ip(request: &Request) -> IpAddr {
         .headers()
         .get("X-Forwarded-For")
         .and_then(|v| v.to_str().ok())
+        && let Some(first) = forwarded.split(',').next()
+        && let Ok(ip) = first.trim().parse::<IpAddr>()
     {
-        if let Some(first) = forwarded.split(',').next() {
-            if let Ok(ip) = first.trim().parse::<IpAddr>() {
-                return ip;
-            }
-        }
+        return ip;
     }
 
     // Fall back to the TCP connect info (available in local dev / direct connections)
@@ -200,7 +196,6 @@ pub async fn rate_limit_sop(
     }
     next.run(request).await
 }
-
 
 /// Returns a limiter sized for login: 5-burst, 1 req / 10 s per IP.
 pub fn login_limiter() -> RateLimiterState {

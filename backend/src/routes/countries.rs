@@ -1,11 +1,14 @@
-use axum::{extract::{Path, Query, State}, Json};
-use uuid::Uuid;
 use crate::{
     models::country::{CountryFilter, CreateCountryRequest, UpdateCountryRequest},
     routes::AppState,
     services::country_service::CountryService,
     utils::{errors::AppResult, response::MessageResponse},
 };
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
+use uuid::Uuid;
 
 // ─── GET /api/countries  (public — card listing) ─────────────────────────────
 /// Returns lightweight card data: slug, name, flag, tagline, image_url.
@@ -39,11 +42,11 @@ pub async fn get_country_by_slug(
         "is_active":      country.is_active,
     });
     // Merge content JSONB fields — these can override scalar fields if present
-    if let serde_json::Value::Object(ref content_map) = *country.content {
-        if let serde_json::Value::Object(ref mut data_map) = data {
-            for (k, v) in content_map {
-                data_map.entry(k.clone()).or_insert_with(|| v.clone());
-            }
+    if let serde_json::Value::Object(ref content_map) = *country.content
+        && let serde_json::Value::Object(ref mut data_map) = data
+    {
+        for (k, v) in content_map {
+            data_map.entry(k.clone()).or_insert_with(|| v.clone());
         }
     }
     Ok(Json(serde_json::json!({ "success": true, "data": data })))
@@ -57,7 +60,7 @@ pub async fn admin_list_countries(
     Query(filter): Query<CountryFilter>,
 ) -> AppResult<Json<serde_json::Value>> {
     let (countries, total) = CountryService::new(state.db).list_all(&filter).await?;
-    let page     = filter.page.unwrap_or(1);
+    let page = filter.page.unwrap_or(1);
     let per_page = filter.per_page.unwrap_or(50);
     Ok(Json(serde_json::json!({
         "success": true,
@@ -77,7 +80,9 @@ pub async fn create_country(
     Json(body): Json<CreateCountryRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
     let country = CountryService::new(state.db).create(&body).await?;
-    Ok(Json(serde_json::json!({ "success": true, "data": country })))
+    Ok(Json(
+        serde_json::json!({ "success": true, "data": country }),
+    ))
 }
 
 /// PUT /api/admin/countries/:id
@@ -87,7 +92,9 @@ pub async fn update_country(
     Json(body): Json<UpdateCountryRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
     let country = CountryService::new(state.db).update(id, &body).await?;
-    Ok(Json(serde_json::json!({ "success": true, "data": country })))
+    Ok(Json(
+        serde_json::json!({ "success": true, "data": country }),
+    ))
 }
 
 /// DELETE /api/admin/countries/:id
