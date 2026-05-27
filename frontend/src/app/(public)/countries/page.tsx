@@ -26,6 +26,7 @@ async function fetchCountryCards(): Promise<CountryCard[]> {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const res = await fetch(`${apiUrl}/api/countries`, {
       next: { revalidate: 300 }, // ISR: re-fetch every 5 minutes
+      signal: AbortSignal.timeout(10_000), // fail fast → use static fallback
     });
     if (!res.ok) throw new Error(`API returned ${res.status}`);
     const json = await res.json();

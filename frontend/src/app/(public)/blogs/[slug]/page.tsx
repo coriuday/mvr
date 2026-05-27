@@ -115,7 +115,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`,
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60 }, signal: AbortSignal.timeout(10_000) }
     );
     const data = await res.json();
     if (data.success && data.data) {
@@ -162,7 +162,7 @@ export default async function BlogDetailPage({ params }: Props) {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`,
-      { next: { revalidate: 60 } }
+      { next: { revalidate: 60 }, signal: AbortSignal.timeout(10_000) }
     );
     const data = await res.json();
     if (data.success && data.data) {
