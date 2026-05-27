@@ -92,7 +92,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: https://www.mvrconsultants.org
+          NEXT_PUBLIC_API_URL: https://mvr-backend.onrender.com
           NEXT_PUBLIC_APP_URL: https://www.mvrconsultants.org
 
   # ── Summary job: PRs to main must pass all checks ────────────────────────────

@@ -99,10 +99,11 @@ Client Browser
 | Supabase | Hosted PostgreSQL (shared team DB) |
 | Vercel | Frontend hosting & edge deployment |
 | Render | Backend Docker-based hosting (Singapore region) |
+| Hostinger | Domain (DNS only — no VPS; CNAME → Vercel, business email) |
 | Cloudinary | Image uploads & CDN delivery |
 | Resend | Transactional email |
-| Docker + Compose | Local development orchestration |
-| Nginx | Local reverse proxy |
+| Docker + Compose | **Local development** orchestration only |
+| Nginx | **Local dev** reverse proxy only |
 
 ---
 
@@ -184,7 +185,7 @@ mvr/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-org/mvr.git
+git clone https://github.com/coriuday/mvr.git
 cd mvr
 ```
 

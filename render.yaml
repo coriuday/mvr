@@ -64,7 +64,7 @@ services:
       - key: EMAIL_FROM_NAME
         value: "MVR Consultants"
       - key: ADMIN_EMAIL
-        value: mvrconsultantshyd@gmail.com
+        value: admin@mvrconsultants.org
       - key: ADMIN_EMAIL_GUNTUR
         value: guntur@mvrconsultants.org
 
