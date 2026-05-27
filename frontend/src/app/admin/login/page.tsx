@@ -23,15 +23,16 @@ export default function AdminLoginPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ← receive httpOnly Set-Cookie from backend
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Invalid credentials");
+      if (!res.ok) throw new Error(data.error?.message || data.message || "Invalid credentials");
       if (data.data?.user?.role !== "ADMIN" && data.data?.user?.role !== "Admin") {
         throw new Error("Access denied. Admin role required.");
       }
-      localStorage.setItem("mvr_access_token", data.data.access_token);
-      localStorage.setItem("mvr_refresh_token", data.data.refresh_token);
+      // Store minimal user info for the admin shell display.
+      // The actual auth token lives in the httpOnly cookie — JS cannot read it.
       localStorage.setItem("mvr_user", JSON.stringify(data.data.user));
       router.replace("/admin");
     } catch (err: unknown) {
@@ -40,6 +41,7 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f1c3d] to-[#1a2f5e] flex items-center justify-center p-4">

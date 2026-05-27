@@ -30,6 +30,7 @@ export const NAV_LINKS = [
     ],
   },
   { label: "Blogs", href: "/blogs" },
+  { label: "SOP Reviewer", href: "/sop-reviewer" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -81,10 +82,12 @@ export const CONTACT_INFO = {
   addressGuntur: "D. No: 3-28-41/5, 1st Floor, 4th Line Brundavan Gardens, Y5 Mall Beside Road, Opp. Yaganti Pearls Apartment, Guntur – 522006",
 
   socialMedia: {
-    facebook: "https://facebook.com/mvrconsultants",
+    facebook:  "https://facebook.com/mvrconsultants",
     instagram: "https://instagram.com/mvrconsultants",
-    linkedin: "https://linkedin.com/company/mvrconsultants",
-    youtube: "https://youtube.com/mvrconsultants",
+    linkedin:  "https://linkedin.com/company/mvrconsultants",
+    youtube:   "https://youtube.com/mvrconsultants",
+    // WhatsApp — primary business number, digits-only for wa.me links
+    whatsapp:  "919966903884",
   },
 };
 

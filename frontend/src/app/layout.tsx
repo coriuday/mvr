@@ -3,7 +3,6 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import Preloader from "@/components/animations/Preloader";
-import QueryProvider from "@/components/providers/QueryProvider";
 
 // ---------------------------------------------------------------------------
 // Fonts
@@ -114,11 +113,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="antialiased min-h-screen bg-background font-sans">
-        <QueryProvider>
           <Preloader />
           {children}
           <Toaster richColors position="top-right" />
-        </QueryProvider>
       </body>
     </html>
   );

@@ -3,39 +3,46 @@
 import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import Link from "next/link";
-import { Globe, GraduationCap, Briefcase, ArrowRight, Search } from "lucide-react";
+import { Globe, ArrowRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ALL_COUNTRIES } from "@/constants/countries";
+import Image from "next/image";
+import type { CountryCard } from "./page";
 
-// Unsplash images per slug
-const COUNTRY_IMAGES: Record<string, string> = {
-  usa:         "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=800&q=80",
-  uk:          "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80",
-  canada:      "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=800&q=80",
-  australia:   "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=800&q=80",
-  germany:     "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80",
-  ireland:     "https://images.unsplash.com/photo-1590089415225-401ed6f9db8e?auto=format&fit=crop&w=800&q=80",
-  france:      "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80",
-  netherlands: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?auto=format&fit=crop&w=800&q=80",
-  sweden:      "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?auto=format&fit=crop&w=800&q=80",
+// ---------------------------------------------------------------------------
+// Fallback Unsplash thumbnail per slug.
+// Used when the DB row has no image_url set yet (before seeding/admin upload).
+// ---------------------------------------------------------------------------
+const FALLBACK_IMAGES: Record<string, string> = {
+  usa:          "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=800&q=80",
+  uk:           "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80",
+  canada:       "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?auto=format&fit=crop&w=800&q=80",
+  australia:    "https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=800&q=80",
+  germany:      "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80",
+  ireland:      "https://images.unsplash.com/photo-1590089415225-401ed6f9db8e?auto=format&fit=crop&w=800&q=80",
+  france:       "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80",
+  netherlands:  "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?auto=format&fit=crop&w=800&q=80",
+  sweden:       "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?auto=format&fit=crop&w=800&q=80",
   "new-zealand":"https://images.unsplash.com/photo-1507699622108-4be3abd695ad?auto=format&fit=crop&w=800&q=80",
-  singapore:   "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
-  switzerland: "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=800&q=80",
-  dubai:       "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80",
-  finland:     "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
-  denmark:     "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?auto=format&fit=crop&w=800&q=80",
-  austria:     "https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=800&q=80",
-  belgium:     "https://images.unsplash.com/photo-1491557345352-5929e343eb89?auto=format&fit=crop&w=800&q=80",
-  hungary:     "https://images.unsplash.com/photo-1551867633-194f125bddfa?auto=format&fit=crop&w=800&q=80",
-  malaysia:    "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80",
-  italy:       "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=800&q=80",
-  spain:       "https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=800&q=80",
-  japan:       "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80",
-  cyprus:      "https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&w=800&q=80",
-  lithuania:   "https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=800&q=80",
-  georgia:     "https://images.unsplash.com/photo-1565008576549-57569a49371d?auto=format&fit=crop&w=800&q=80",
-  russia:      "https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=800&q=80",
+  singapore:    "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=800&q=80",
+  switzerland:  "https://images.unsplash.com/photo-1527668752968-14dc70a27c95?auto=format&fit=crop&w=800&q=80",
+  dubai:        "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80",
+  finland:      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
+  denmark:      "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?auto=format&fit=crop&w=800&q=80",
+  austria:      "https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=800&q=80",
+  belgium:      "https://images.unsplash.com/photo-1491557345352-5929e343eb89?auto=format&fit=crop&w=800&q=80",
+  hungary:      "https://images.unsplash.com/photo-1551867633-194f125bddfa?auto=format&fit=crop&w=800&q=80",
+  malaysia:     "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80",
+  italy:        "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=800&q=80",
+  spain:        "https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=800&q=80",
+  japan:        "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80",
+  cyprus:       "https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&w=800&q=80",
+  lithuania:    "https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=800&q=80",
+  georgia:      "https://images.unsplash.com/photo-1565008576549-57569a49371d?auto=format&fit=crop&w=800&q=80",
+  russia:       "https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=800&q=80",
 };
+
+const DEFAULT_IMAGE =
+  "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -47,10 +54,17 @@ const itemVariants: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
 
-export default function CountriesPageClient() {
+// ---------------------------------------------------------------------------
+// Props — cards come from the SSR page (DB or static fallback)
+// ---------------------------------------------------------------------------
+interface Props {
+  cards: CountryCard[];
+}
+
+export default function CountriesPageClient({ cards }: Props) {
   const [search, setSearch] = useState("");
 
-  const filtered = ALL_COUNTRIES.filter(
+  const filtered = cards.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.tagline.toLowerCase().includes(search.toLowerCase())
@@ -67,7 +81,7 @@ export default function CountriesPageClient() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="inline-flex items-center gap-2 bg-[#c9a84c]/20 text-[#c9a84c] text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-full mb-6">
-              <Globe size={14} /> 26 Global Destinations
+              <Globe size={14} /> {cards.length} Global Destinations
             </span>
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
@@ -111,47 +125,57 @@ export default function CountriesPageClient() {
             animate="visible"
             className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
-            {filtered.map((country) => (
-              <motion.div key={country.id} variants={itemVariants} className="group">
-                <Link href={country.href}>
-                  <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full">
-                    {/* Image */}
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={COUNTRY_IMAGES[country.id] || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80"}
-                        alt={`Study in ${country.name}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1a2f5e]/90 via-[#1a2f5e]/20 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <p className="text-[#c9a84c] text-[10px] font-bold uppercase tracking-widest mb-0.5">
-                          {country.tagline}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{country.flag}</span>
-                          <h3
-                            className="text-white text-lg font-bold"
-                            style={{ fontFamily: "var(--font-playfair)" }}
-                          >
-                            {country.name}
-                          </h3>
+            {filtered.map((country) => {
+              // Use DB image_url if set, otherwise fall back to Unsplash map
+              const imgSrc =
+                country.image_url ||
+                FALLBACK_IMAGES[country.slug] ||
+                DEFAULT_IMAGE;
+
+              return (
+                <motion.div key={country.slug} variants={itemVariants} className="group">
+                  <Link href={`/countries/${country.slug}`}>
+                    <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full">
+                      {/* Image */}
+                      <div className="relative h-48 overflow-hidden">
+                        <Image
+                          src={imgSrc}
+                          alt={`Study in ${country.name}`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a2f5e]/90 via-[#1a2f5e]/20 to-transparent" />
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <p className="text-[#c9a84c] text-[10px] font-bold uppercase tracking-widest mb-0.5">
+                            {country.tagline}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{country.flag}</span>
+                            <h3
+                              className="text-white text-lg font-bold"
+                              style={{ fontFamily: "var(--font-playfair)" }}
+                            >
+                              {country.name}
+                            </h3>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Footer */}
-                    <div className="p-4 flex items-center justify-between mt-auto">
-                      <span className="text-gray-400 text-xs font-medium">
-                        Explore programs →
-                      </span>
-                      <span className="w-8 h-8 bg-[#1a2f5e]/5 rounded-full flex items-center justify-center group-hover:bg-[#c9a84c] transition-colors">
-                        <ArrowRight size={14} className="text-[#1a2f5e] group-hover:text-white transition-colors" />
-                      </span>
+                      {/* Footer */}
+                      <div className="p-4 flex items-center justify-between mt-auto">
+                        <span className="text-gray-400 text-xs font-medium">
+                          Explore programs →
+                        </span>
+                        <span className="w-8 h-8 bg-[#1a2f5e]/5 rounded-full flex items-center justify-center group-hover:bg-[#c9a84c] transition-colors">
+                          <ArrowRight size={14} className="text-[#1a2f5e] group-hover:text-white transition-colors" />
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                  </Link>
+                </motion.div>
+              );
+            })}
           </motion.div>
         )}
       </section>

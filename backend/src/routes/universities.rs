@@ -2,8 +2,8 @@ use axum::{extract::{Path, Query, State}, Json};
 use uuid::Uuid;
 use crate::{
     models::university::{CreateUniversityRequest, UniversityFilter},
-    repositories::university_repository::UniversityRepository,
     routes::AppState,
+    services::university_service::{UniversityService, UpdateUniversityRequest},
     utils::{errors::AppResult, response::MessageResponse},
 };
 
@@ -12,15 +12,18 @@ pub async fn get_all_universities(
     State(state): State<AppState>,
     Query(filter): Query<UniversityFilter>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = UniversityRepository::new(state.db.clone());
-    let (unis, total) = repo.find_all(&filter).await?;
+    let (unis, total) = UniversityService::new(state.db).list(&filter).await?;
     let page = filter.page.unwrap_or(1);
     let per_page = filter.per_page.unwrap_or(20);
     Ok(Json(serde_json::json!({
         "success": true,
         "data": unis,
-        "meta": { "total": total, "page": page, "per_page": per_page,
-                  "total_pages": (total as f64 / per_page as f64).ceil() as i64 }
+        "meta": {
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": (total as f64 / per_page as f64).ceil() as i64,
+        }
     })))
 }
 
@@ -29,25 +32,18 @@ pub async fn create_university(
     State(state): State<AppState>,
     Json(body): Json<CreateUniversityRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    if body.name.trim().is_empty() {
-        return Err(crate::utils::errors::AppError::BadRequest("University name is required".to_string()));
-    }
-    let repo = UniversityRepository::new(state.db.clone());
-    let uni = repo.create(&body).await?;
+    let uni = UniversityService::new(state.db).create(&body).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
 // ─── PUT /api/universities/:id  (admin) ──────────────────────────────────────
+// Uses a typed UpdateUniversityRequest instead of raw serde_json::Value.
 pub async fn update_university(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-    Json(body): Json<serde_json::Value>,
+    Json(body): Json<UpdateUniversityRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = UniversityRepository::new(state.db.clone());
-    let featured = body.get("is_featured")
-        .and_then(|v| v.as_bool())
-        .unwrap_or(false);
-    let uni = repo.update_featured(id, featured).await?;
+    let uni = UniversityService::new(state.db).update_featured(id, &body).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
@@ -56,7 +52,6 @@ pub async fn delete_university(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<MessageResponse>> {
-    let repo = UniversityRepository::new(state.db.clone());
-    repo.delete(id).await?;
+    UniversityService::new(state.db).delete(id).await?;
     Ok(Json(MessageResponse::new("University deleted successfully")))
 }

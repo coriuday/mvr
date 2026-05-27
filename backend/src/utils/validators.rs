@@ -1,23 +1,23 @@
 use crate::utils::errors::AppError;
+use validator::ValidateEmail;
 
-/// Validates an email address format
+/// Validates an email address using the `validator` crate's RFC-5321-compliant check.
+/// Rejects strings like "a@b", "user@", "@domain.com", and plain text without a TLD.
 pub fn validate_email(email: &str) -> Result<(), AppError> {
     let email = email.trim();
     if email.is_empty() {
         return Err(AppError::BadRequest("Email is required".to_string()));
     }
-
-    // Basic email validation: must contain @ with non-empty local and domain parts
-    let parts: Vec<&str> = email.splitn(2, '@').collect();
-    if parts.len() != 2 || parts[0].is_empty() || parts[1].is_empty() {
-        return Err(AppError::BadRequest("Invalid email address format".to_string()));
+    if email.len() > 254 {
+        return Err(AppError::BadRequest(
+            "Email address must not exceed 254 characters".to_string(),
+        ));
     }
-
-    // Domain must contain a dot
-    if !parts[1].contains('.') {
-        return Err(AppError::BadRequest("Invalid email domain".to_string()));
+    if !email.validate_email() {
+        return Err(AppError::BadRequest(
+            "Please provide a valid email address".to_string(),
+        ));
     }
-
     Ok(())
 }
 

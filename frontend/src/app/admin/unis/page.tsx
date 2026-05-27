@@ -50,7 +50,6 @@ export default function AdminUnisPage() {
     e.preventDefault();
     if (!editingUni?.name || !editingUni?.country) return;
 
-    const token = localStorage.getItem("admin_token");
     const isEditing = !!editingUni.id;
     const url = isEditing
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/universities/${editingUni.id}`
@@ -59,10 +58,8 @@ export default function AdminUnisPage() {
     try {
       const res = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // httpOnly cookie auth
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: editingUni.name,
           country: editingUni.country,
@@ -80,7 +77,7 @@ export default function AdminUnisPage() {
         fetchUnis();
       } else {
         const errorData = await res.json();
-        alert(`Error: ${errorData.message}`);
+        alert(`Error: ${errorData.error?.message || errorData.message || "Failed to save"}`);
       }
     } catch (error) {
       console.error("Failed to save university:", error);
@@ -91,15 +88,16 @@ export default function AdminUnisPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this university?")) return;
 
-    const token = localStorage.getItem("admin_token");
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/universities/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", // httpOnly cookie auth
       });
 
       if (res.ok) {
         fetchUnis();
+      } else {
+        alert("Failed to delete university.");
       }
     } catch (error) {
       console.error("Failed to delete university:", error);

@@ -1,7 +1,7 @@
 use axum::{extract::State, Json};
 use crate::{
-    repositories::{auth_repository::AuthRepository, lead_repository::LeadRepository},
     routes::AppState,
+    services::admin_service::AdminService,
     utils::errors::AppResult,
 };
 
@@ -9,37 +9,16 @@ use crate::{
 pub async fn get_stats(
     State(state): State<AppState>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let lead_repo = LeadRepository::new(state.db.clone());
-    let auth_repo = AuthRepository::new(state.db.clone());
-
-    // Run queries concurrently
-    let (leads_today, all_leads, staff_count) = tokio::try_join!(
-        lead_repo.count_today(),
-        async { lead_repo.find_all(&crate::models::lead::LeadFilter::default()).await },
-        auth_repo.list_all(),
-    )?;
-
-    let (all_leads_vec, total_leads) = all_leads;
-
-    // Count by status
-    let new_count = all_leads_vec.iter()
-        .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::New))
-        .count();
-    let converted_count = all_leads_vec.iter()
-        .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::Converted))
-        .count();
-
+    let stats = AdminService::new(state.db).get_dashboard_stats().await?;
     Ok(Json(serde_json::json!({
         "success": true,
         "data": {
-            "total_leads": total_leads,
-            "new_leads_today": leads_today,
-            "new_leads_total": new_count,
-            "converted_leads": converted_count,
-            "conversion_rate": if total_leads > 0 {
-                format!("{:.1}%", (converted_count as f64 / total_leads as f64) * 100.0)
-            } else { "0%".to_string() },
-            "staff_count": staff_count.len(),
+            "total_leads":      stats.total_leads,
+            "new_leads_today":  stats.new_leads_today,
+            "new_leads_total":  stats.new_leads_total,
+            "converted_leads":  stats.converted_leads,
+            "conversion_rate":  stats.conversion_rate,
+            "staff_count":      stats.staff_count,
         }
     })))
 }
@@ -48,12 +27,6 @@ pub async fn get_stats(
 pub async fn get_recent_leads(
     State(state): State<AppState>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let repo = LeadRepository::new(state.db.clone());
-    let filter = crate::models::lead::LeadFilter {
-        status: None,
-        page: Some(1),
-        per_page: Some(10),
-    };
-    let (leads, _) = repo.find_all(&filter).await?;
+    let leads = AdminService::new(state.db).get_recent_leads().await?;
     Ok(Json(serde_json::json!({ "success": true, "data": leads })))
 }

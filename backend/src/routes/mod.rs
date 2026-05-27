@@ -8,7 +8,13 @@ use tower_http::trace::TraceLayer;
 
 use crate::{
     config::env::Config,
-    middleware::{auth_middleware, cors_middleware},
+    middleware::{
+        auth_middleware, cors_middleware,
+        rate_limit_middleware::{
+            self, contact_limiter, leads_limiter, login_limiter,
+            newsletter_limiter, sop_limiter,
+        },
+    },
     utils::response::health_handler,
 };
 
@@ -16,8 +22,11 @@ pub mod admin;
 pub mod auth;
 pub mod blogs;
 pub mod contact;
+pub mod countries;
 pub mod leads;
+pub mod newsletter;
 pub mod scholarships;
+pub mod sop;
 pub mod testimonials;
 pub mod universities;
 
@@ -28,7 +37,9 @@ pub struct AppState {
     pub config: Config,
 }
 
-/// Assembles the full Axum router with all route groups
+/// Assembles the full Axum router with all route groups.
+/// Returns a `IntoMakeServiceWithConnectInfo<Router>` so that TCP socket
+/// addresses are available to the rate-limit middleware as an IP fallback.
 pub fn create_router(db: PgPool, config: Config) -> Router {
     let state = AppState {
         db,
@@ -36,11 +47,23 @@ pub fn create_router(db: PgPool, config: Config) -> Router {
     };
     let cors = cors_middleware::build_cors_layer(&config.allowed_origins);
 
+    // Build independent limiters and start the eviction background task
+    let login_lim      = login_limiter();
+    let contact_lim    = contact_limiter();
+    let leads_lim      = leads_limiter();
+    let newsletter_lim = newsletter_limiter();
+    let sop_lim        = sop_limiter();
+    rate_limit_middleware::spawn_eviction_task(login_lim.clone());
+    rate_limit_middleware::spawn_eviction_task(contact_lim.clone());
+    rate_limit_middleware::spawn_eviction_task(leads_lim.clone());
+    rate_limit_middleware::spawn_eviction_task(newsletter_lim.clone());
+    rate_limit_middleware::spawn_eviction_task(sop_lim.clone());
+
     Router::new()
         // Health check (public)
         .route("/health", get(health_handler))
         // Public API routes (no auth)
-        .merge(public_routes())
+        .merge(public_routes(login_lim, contact_lim, leads_lim, newsletter_lim, sop_lim))
         // Protected routes (JWT required)
         .merge(protected_routes(state.clone()))
         // Admin routes (ADMIN role required)
@@ -52,10 +75,21 @@ pub fn create_router(db: PgPool, config: Config) -> Router {
 }
 
 /// Public routes — no authentication required
-fn public_routes() -> Router<AppState> {
+fn public_routes(
+    login_lim:      rate_limit_middleware::RateLimiterState,
+    contact_lim:    rate_limit_middleware::RateLimiterState,
+    leads_lim:      rate_limit_middleware::RateLimiterState,
+    newsletter_lim: rate_limit_middleware::RateLimiterState,
+    sop_lim:        rate_limit_middleware::RateLimiterState,
+) -> Router<AppState> {
     Router::new()
-        // Auth
-        .route("/api/auth/login", post(auth::login))
+        // Auth — rate-limited (brute-force protection)
+        .route(
+            "/api/auth/login",
+            post(auth::login).route_layer(
+                middleware::from_fn_with_state(login_lim, rate_limit_middleware::rate_limit_login),
+            ),
+        )
         .route("/api/auth/refresh", post(auth::refresh_token))
         // Public blog routes
         .route("/api/blogs", get(blogs::get_all_blogs))
@@ -66,10 +100,49 @@ fn public_routes() -> Router<AppState> {
         .route("/api/scholarships", get(scholarships::get_all_scholarships))
         // Public testimonial routes
         .route("/api/testimonials", get(testimonials::get_all_testimonials))
-        // Contact form
-        .route("/api/contact", post(contact::send_contact))
-        // Public lead creation (inquiry form)
-        .route("/api/leads", post(leads::create_lead))
+        // Contact form — rate-limited (spam protection)
+        .route(
+            "/api/contact",
+            post(contact::send_contact).route_layer(
+                middleware::from_fn_with_state(
+                    contact_lim,
+                    rate_limit_middleware::rate_limit_contact,
+                ),
+            ),
+        )
+        // Public lead creation — rate-limited (bot protection)
+        .route(
+            "/api/leads",
+            post(leads::create_lead).route_layer(
+                middleware::from_fn_with_state(
+                    leads_lim,
+                    rate_limit_middleware::rate_limit_leads,
+                ),
+            ),
+        )
+        // Public countries listing and detail
+        .route("/api/countries", get(countries::get_all_countries))
+        .route("/api/countries/{slug}", get(countries::get_country_by_slug))
+        // Newsletter subscribe — rate-limited (spam protection)
+        .route(
+            "/api/newsletter/subscribe",
+            post(newsletter::subscribe).route_layer(
+                middleware::from_fn_with_state(
+                    newsletter_lim,
+                    rate_limit_middleware::rate_limit_newsletter,
+                ),
+            ),
+        )
+        // SOP AI review — rate-limited aggressively (AI calls cost money)
+        .route(
+            "/api/sop/review",
+            post(sop::review_sop).route_layer(
+                middleware::from_fn_with_state(
+                    sop_lim,
+                    rate_limit_middleware::rate_limit_sop,
+                ),
+            ),
+        )
 }
 
 /// Protected routes — require valid JWT (any role)
@@ -108,6 +181,13 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         // Testimonial management
         .route("/api/testimonials", post(testimonials::create_testimonial))
         .route("/api/testimonials/{id}", put(testimonials::update_testimonial))
+        // Country management (admin)
+        .route("/api/admin/countries", get(countries::admin_list_countries))
+        .route("/api/admin/countries", post(countries::create_country))
+        .route("/api/admin/countries/{id}", put(countries::update_country))
+        .route("/api/admin/countries/{id}", delete(countries::delete_country))
+        // Newsletter subscriber management (admin)
+        .route("/api/admin/newsletter", get(newsletter::list_subscribers))
         // User registration (admin creates accounts)
         .route("/api/auth/register", post(auth::register))
         .layer(middleware::from_fn_with_state(

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 import {
   ArrowLeft,
@@ -71,10 +72,13 @@ export default function CountryDetailClient({
       {/* ── Hero Section ──────────────────────────────────────────────── */}
       <section className="relative h-[65vh] min-h-[520px] flex items-end overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <Image
             src={country.heroImage}
             alt={`Study in ${country.name}`}
-            className="w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1a2f5e] via-[#1a2f5e]/50 to-[#1a2f5e]/10" />
         </div>
@@ -277,12 +281,14 @@ export default function CountryDetailClient({
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
                           transition={{ delay: i * 0.06 }}
-                          className={`overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 sm:col-span-2 row-span-2 h-56 sm:h-72" : "h-36 sm:h-44"}`}
+                          className={`relative overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 sm:col-span-2 row-span-2 h-56 sm:h-72" : "h-36 sm:h-44"}`}
                         >
-                          <img
+                          <Image
                             src={img}
                             alt={`${country.name} campus ${i + 1}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                            className="object-cover hover:scale-105 transition-transform duration-500"
                           />
                         </motion.div>
                       ))}

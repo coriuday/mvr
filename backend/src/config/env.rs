@@ -34,6 +34,9 @@ pub struct Config {
     pub email_from_name: String,
     pub admin_email: String,
     pub admin_email_guntur: String,
+
+    // AI — Gemini
+    pub gemini_api_key: String,
 }
 
 impl Config {
@@ -96,6 +99,10 @@ impl Config {
                 .unwrap_or_else(|_| "mvrconsultantshyd@gmail.com".to_string()),
             admin_email_guntur: std::env::var("ADMIN_EMAIL_GUNTUR")
                 .unwrap_or_else(|_| "mvroverseasconsultancy@gmail.com".to_string()),
+
+            // AI — Gemini Flash (cheap, fast, sufficient for SOP review)
+            gemini_api_key: std::env::var("GEMINI_API_KEY")
+                .unwrap_or_else(|_| "".to_string()),
         })
     }
 

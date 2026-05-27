@@ -4,18 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, FileText,
-  Award, LogOut, Menu, X,
+  Award, LogOut, Menu, X, LayoutGrid,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { AdminErrorBoundary } from "@/components/admin/AdminErrorBoundary";
 
 const NAV = [
-  { href: "/admin",       icon: LayoutDashboard, label: "Dashboard",    color: "text-sky-400"   },
-  { href: "/admin/leads", icon: Users,           label: "Leads",        color: "text-violet-400" },
-  { href: "/admin/users", icon: GraduationCap,   label: "Staff Users",  color: "text-emerald-400" },
-  { href: "/admin/blogs", icon: FileText,         label: "Blog Posts",   color: "text-amber-400"  },
-  { href: "/admin/unis",  icon: Award,            label: "Universities", color: "text-rose-400"   },
+  { href: "/admin",       icon: LayoutDashboard, label: "Dashboard",    color: "text-sky-400",     badge: null },
+  { href: "/admin/leads", icon: Users,           label: "Leads",        color: "text-violet-400",  badge: "Kanban" },
+  { href: "/admin/users", icon: GraduationCap,   label: "Staff Users",  color: "text-emerald-400", badge: null },
+  { href: "/admin/blogs", icon: FileText,         label: "Blog Posts",   color: "text-amber-400",   badge: null },
+  { href: "/admin/unis",  icon: Award,            label: "Universities", color: "text-rose-400",    badge: null },
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -70,7 +71,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
           <p className="text-white/25 text-[10px] font-semibold uppercase tracking-widest px-3 pb-3">Navigation</p>
-          {NAV.map(({ href, icon: Icon, label, color }) => {
+          {NAV.map(({ href, icon: Icon, label, color, badge }) => {
             const active = href === "/admin"
               ? pathname === "/admin"
               : pathname.startsWith(href);
@@ -95,6 +96,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   <Icon size={15} />
                 </span>
                 <span className="flex-1">{label}</span>
+                {badge && !active && (
+                  <span className="flex items-center gap-0.5 text-[9px] font-bold text-white/30 bg-white/[0.06] px-1.5 py-0.5 rounded-md">
+                    <LayoutGrid size={8} /> {badge}
+                  </span>
+                )}
                 {active && (
                   <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c]" />
                 )}
@@ -157,9 +163,12 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           </div>
         </header>
 
-        {/* Page content */}
+        {/* Page content — wrapped in an ErrorBoundary so a single
+            component crash never takes down the whole admin shell. */}
         <main className="flex-1 p-6">
-          {children}
+          <AdminErrorBoundary section="Admin Panel">
+            {children}
+          </AdminErrorBoundary>
         </main>
       </div>
     </div>

@@ -1,22 +1,26 @@
 use axum::{
     extract::{Request, State},
+    http::header,
     middleware::Next,
     response::Response,
 };
 
 use crate::{
-    config::env::Config,
     utils::{errors::AppError, jwt::verify_access_token},
 };
 
-/// Extracts and validates JWT access token from the Authorization: Bearer header.
-/// Injects verified `Claims` into request extensions for downstream handlers.
+/// Extracts and validates JWT access token from either:
+/// 1. `Authorization: Bearer <token>` header  (legacy / API clients)
+/// 2. `mvr_access` httpOnly cookie             (browser cookie auth)
+///
+/// Bearer header takes priority so that existing tooling and the current
+/// localStorage-based frontend continue to work during the migration.
 pub async fn require_auth(
     State(config): State<crate::routes::AppState>,
     mut request: Request,
     next: Next,
 ) -> Result<Response, AppError> {
-    let token = extract_bearer_token(&request)?;
+    let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &config.config)?;
     request.extensions_mut().insert(claims);
     Ok(next.run(request).await)
@@ -28,7 +32,7 @@ pub async fn require_admin(
     mut request: Request,
     next: Next,
 ) -> Result<Response, AppError> {
-    let token = extract_bearer_token(&request)?;
+    let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &state.config)?;
 
     if claims.role != "ADMIN" {
@@ -47,7 +51,7 @@ pub async fn require_counselor_or_admin(
     mut request: Request,
     next: Next,
 ) -> Result<Response, AppError> {
-    let token = extract_bearer_token(&request)?;
+    let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &state.config)?;
 
     if claims.role != "ADMIN" && claims.role != "COUNSELOR" {
@@ -60,19 +64,38 @@ pub async fn require_counselor_or_admin(
     Ok(next.run(request).await)
 }
 
-/// Helper: extracts Bearer token from Authorization header
-fn extract_bearer_token(request: &Request) -> Result<String, AppError> {
-    let auth_header = request
-        .headers()
-        .get("Authorization")
+/// Extracts a JWT from either the Authorization header OR the mvr_access cookie.
+/// Priority: Bearer header → cookie fallback.
+fn extract_token(headers: &axum::http::HeaderMap) -> Result<String, AppError> {
+    // 1. Try Authorization: Bearer <token>
+    if let Some(auth) = headers
+        .get(header::AUTHORIZATION)
         .and_then(|v| v.to_str().ok())
-        .ok_or_else(|| AppError::Unauthorized("Authorization header missing".to_string()))?;
-
-    if !auth_header.starts_with("Bearer ") {
+    {
+        if auth.starts_with("Bearer ") {
+            return Ok(auth.trim_start_matches("Bearer ").to_string());
+        }
         return Err(AppError::Unauthorized(
-            "Authorization header must be Bearer token".to_string(),
+            "Authorization header must be a Bearer token".to_string(),
         ));
     }
 
-    Ok(auth_header.trim_start_matches("Bearer ").to_string())
+    // 2. Fallback: read mvr_access httpOnly cookie
+    if let Some(cookie_val) = headers
+        .get(header::COOKIE)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|cookies| {
+            cookies
+                .split(';')
+                .map(|c| c.trim())
+                .find(|c| c.starts_with("mvr_access="))
+                .map(|c| c.trim_start_matches("mvr_access=").to_string())
+        })
+    {
+        return Ok(cookie_val);
+    }
+
+    Err(AppError::Unauthorized(
+        "Authentication required. Please log in.".to_string(),
+    ))
 }

@@ -23,15 +23,11 @@ export default function AdminUsersPage() {
     setSuccessMsg("");
     setErrorMsg("");
 
-    const token = localStorage.getItem("admin_token");
-
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // httpOnly cookie auth
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
@@ -40,7 +36,7 @@ export default function AdminUsersPage() {
         setSuccessMsg(`Successfully created account for ${formData.name}`);
         setFormData({ name: "", email: "", password: "", role: "COUNSELOR" });
       } else {
-        setErrorMsg(data.message || "Failed to create user");
+        setErrorMsg(data.error?.message || data.message || "Failed to create user");
       }
     } catch (err) {
       setErrorMsg("An error occurred while communicating with the server.");

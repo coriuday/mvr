@@ -4,19 +4,58 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+
 export default function NewsletterSection() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail]     = useState("");
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone]       = useState(false);
+  const [error, setError]     = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim()) return;
+
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setDone(true);
-    setLoading(false);
-    toast.success("Subscribed! Welcome to MVR Consultants.");
+    setError(null);
+
+    try {
+      const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email:  email.trim().toLowerCase(),
+          source: "homepage",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 429) {
+        // Rate limited
+        setError("Too many attempts. Please wait a moment before trying again.");
+        toast.error("Too many requests. Please wait a moment.");
+        return;
+      }
+
+      if (!res.ok || !data.success) {
+        const msg = data?.error?.message ?? "Something went wrong. Please try again.";
+        setError(msg);
+        toast.error(msg);
+        return;
+      }
+
+      // All three success outcomes (new, already subscribed, resubscribed)
+      // return success:true with a distinct message
+      setDone(true);
+      toast.success(data.message ?? "Subscribed! Welcome to MVR Consultants.");
+    } catch {
+      const msg = "Connection error. Please check your internet and try again.";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -47,7 +86,7 @@ export default function NewsletterSection() {
                 Stay Updated with the Latest
               </h2>
               <p className="text-gray-300 text-sm mt-0.5">
-                Scholarships, university updates, visa news & more.
+                Scholarships, university updates, visa news &amp; more.
               </p>
             </div>
           </div>
@@ -59,23 +98,34 @@ export default function NewsletterSection() {
                 ✓ Subscribed! Thank you.
               </p>
             ) : (
-              <form onSubmit={handleSubmit} className="flex gap-0">
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="flex-1 px-5 py-3.5 bg-white text-gray-700 placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9a84c] rounded-l-sm"
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white font-bold px-6 py-3.5 text-sm transition-all duration-200 shrink-0 rounded-r-sm disabled:opacity-60"
-                >
-                  {loading ? "..." : "SUBSCRIBE"}
-                </button>
-              </form>
+              <>
+                <form onSubmit={handleSubmit} className="flex gap-0">
+                  <input
+                    id="newsletter-email"
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (error) setError(null);
+                    }}
+                    required
+                    disabled={loading}
+                    className="flex-1 px-5 py-3.5 bg-white text-gray-700 placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#c9a84c] rounded-l-sm disabled:opacity-60"
+                  />
+                  <button
+                    type="submit"
+                    id="newsletter-submit"
+                    disabled={loading}
+                    className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white font-bold px-6 py-3.5 text-sm transition-all duration-200 shrink-0 rounded-r-sm disabled:opacity-60"
+                  >
+                    {loading ? "..." : "SUBSCRIBE"}
+                  </button>
+                </form>
+                {error && (
+                  <p className="text-red-300 text-xs mt-2 pl-1">{error}</p>
+                )}
+              </>
             )}
           </div>
         </motion.div>

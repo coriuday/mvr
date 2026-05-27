@@ -77,18 +77,28 @@ function Counter({ target }: { target: string }) {
 
   useEffect(() => {
     if (!inView) return;
+    
+    let isMounted = true;
     const num = parseFloat(target.replace(/[^0-9.]/g, ""));
     const suffix = target.replace(/[0-9.]/g, "");
     let start = 0;
     const step = num / 50;
+    
     const timer = setInterval(() => {
+      if (!isMounted) return;
       start = Math.min(start + step, num);
       setDisplay(
         (Number.isInteger(num) ? Math.round(start) : start.toFixed(1)) + suffix
       );
-      if (start >= num) clearInterval(timer);
+      if (start >= num) {
+        clearInterval(timer);
+      }
     }, 30);
-    return () => clearInterval(timer);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
   }, [inView, target]);
 
   return <span ref={ref}>{display}</span>;

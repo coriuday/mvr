@@ -1,4 +1,9 @@
-use axum::{extract::State, Json};
+use axum::{
+    extract::State,
+    http::{header, HeaderValue},
+    response::AppendHeaders,
+    Json,
+};
 use uuid::Uuid;
 use crate::{
     models::user::{AuthTokenResponse, LoginRequest, RegisterRequest},
@@ -9,13 +14,62 @@ use crate::{
         jwt::{generate_access_token, generate_refresh_token, verify_refresh_token},
         password::{hash_password, validate_password_strength, verify_password},
         response::MessageResponse,
+        validators::validate_email,
     },
 };
 
-/// Request body for token refresh
-#[derive(Debug, serde::Deserialize)]
+/// Request body for token refresh.
+/// The `refresh_token` field is OPTIONAL: if absent, the middleware
+/// will fall back to reading the `mvr_refresh` httpOnly cookie.
+#[derive(Debug, serde::Deserialize, Default)]
 pub struct RefreshRequest {
-    pub refresh_token: String,
+    pub refresh_token: Option<String>,
+}
+
+// ─────────────────────────────────────────────
+// Cookie helpers
+// ─────────────────────────────────────────────
+
+/// Builds a Set-Cookie header value for the access token.
+/// Secure flag is only set when the environment is production (HTTPS).
+fn access_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
+    let secure = if is_prod { "; Secure" } else { "" };
+    format!(
+        "mvr_access={token}; HttpOnly; SameSite=Strict{secure}; Path=/; Max-Age={max_age_secs}"
+    )
+}
+
+/// Builds a Set-Cookie header value for the refresh token.
+fn refresh_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
+    let secure = if is_prod { "; Secure" } else { "" };
+    format!(
+        "mvr_refresh={token}; HttpOnly; SameSite=Strict{secure}; Path=/api/auth; Max-Age={max_age_secs}"
+    )
+}
+
+/// Set-Cookie headers that immediately expire both auth cookies (logout).
+fn clear_auth_cookies(is_prod: bool) -> [(header::HeaderName, HeaderValue); 2] {
+    let secure = if is_prod { "; Secure" } else { "" };
+    let access = format!("mvr_access=; HttpOnly; SameSite=Strict{secure}; Path=/; Max-Age=0");
+    let refresh = format!("mvr_refresh=; HttpOnly; SameSite=Strict{secure}; Path=/api/auth; Max-Age=0");
+    [
+        (header::SET_COOKIE, HeaderValue::from_str(&access).unwrap()),
+        (header::SET_COOKIE, HeaderValue::from_str(&refresh).unwrap()),
+    ]
+}
+
+/// Extracts the `mvr_refresh` cookie from the Cookie header.
+fn extract_refresh_cookie(request_headers: &axum::http::HeaderMap) -> Option<String> {
+    request_headers
+        .get(header::COOKIE)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|cookies| {
+            cookies
+                .split(';')
+                .map(|c| c.trim())
+                .find(|c| c.starts_with("mvr_refresh="))
+                .map(|c| c.trim_start_matches("mvr_refresh=").to_string())
+        })
 }
 
 // ─────────────────────────────────────────────
@@ -29,10 +83,7 @@ pub async fn register(
     if body.name.trim().is_empty() {
         return Err(AppError::BadRequest("Name is required".to_string()));
     }
-    if body.email.trim().is_empty() {
-        return Err(AppError::BadRequest("Email is required".to_string()));
-    }
-
+    validate_email(&body.email)?;
     validate_password_strength(&body.password)?;
 
     let repo = AuthRepository::new(state.db.clone());
@@ -58,8 +109,9 @@ pub async fn register(
 pub async fn login(
     State(state): State<AppState>,
     Json(body): Json<LoginRequest>,
-) -> AppResult<Json<serde_json::Value>> {
-    if body.email.trim().is_empty() || body.password.trim().is_empty() {
+) -> AppResult<(AppendHeaders<[(header::HeaderName, HeaderValue); 2]>, Json<serde_json::Value>)> {
+    validate_email(&body.email)?;
+    if body.password.trim().is_empty() {
         return Err(AppError::BadRequest("Email and password are required".to_string()));
     }
 
@@ -85,30 +137,45 @@ pub async fn login(
     let access_token = generate_access_token(&user.id, &user.email, &role_str, &state.config)?;
     let refresh_token = generate_refresh_token(&user.id, &state.config)?;
 
+    let access_max_age = state.config.jwt_expiry_hours * 3600;
+    let refresh_max_age = state.config.jwt_refresh_expiry_days * 86400;
+    let is_prod = state.config.is_production();
+
+    let cookies = [
+        (header::SET_COOKIE, HeaderValue::from_str(&access_cookie(&access_token, access_max_age, is_prod)).unwrap()),
+        (header::SET_COOKIE, HeaderValue::from_str(&refresh_cookie(&refresh_token, refresh_max_age, is_prod)).unwrap()),
+    ];
+
     let response = AuthTokenResponse {
         access_token,
         refresh_token,
         token_type: "Bearer".to_string(),
-        expires_in: state.config.jwt_expiry_hours * 3600,
+        expires_in: access_max_age,
         user: user.into(),
     };
 
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "message": "Login successful",
-        "data": response,
-    })))
+    Ok((
+        AppendHeaders(cookies),
+        Json(serde_json::json!({
+            "success": true,
+            "message": "Login successful",
+            "data": response,
+        })),
+    ))
 }
 
 // ─────────────────────────────────────────────
 // POST /api/auth/logout  (requires auth)
 // ─────────────────────────────────────────────
 pub async fn logout(
-    State(_state): State<AppState>,
-) -> AppResult<Json<MessageResponse>> {
-    // Stateless JWT — client just discards tokens.
-    // Future: add token to a Redis denylist here.
-    Ok(Json(MessageResponse::new("Logged out successfully")))
+    State(state): State<AppState>,
+) -> AppResult<(AppendHeaders<[(header::HeaderName, HeaderValue); 2]>, Json<MessageResponse>)> {
+    // Clear both auth cookies by setting Max-Age=0
+    let cookies = clear_auth_cookies(state.config.is_production());
+    Ok((
+        AppendHeaders(cookies),
+        Json(MessageResponse::new("Logged out successfully")),
+    ))
 }
 
 // ─────────────────────────────────────────────
@@ -116,10 +183,19 @@ pub async fn logout(
 // ─────────────────────────────────────────────
 pub async fn refresh_token(
     State(state): State<AppState>,
-    Json(body): Json<RefreshRequest>,
-) -> AppResult<Json<serde_json::Value>> {
+    headers: axum::http::HeaderMap,
+    // Body is optional — the refresh token can come from the cookie
+    body: Option<Json<RefreshRequest>>,
+) -> AppResult<(AppendHeaders<[(header::HeaderName, HeaderValue); 2]>, Json<serde_json::Value>)> {
+    // Priority: request body → httpOnly cookie
+    let token_str = body
+        .as_ref()
+        .and_then(|b| b.refresh_token.clone())
+        .or_else(|| extract_refresh_cookie(&headers))
+        .ok_or_else(|| AppError::Unauthorized("Refresh token required".to_string()))?;
+
     // Verify the refresh token
-    let claims = verify_refresh_token(&body.refresh_token, &state.config)?;
+    let claims = verify_refresh_token(&token_str, &state.config)?;
 
     let user_id = Uuid::parse_str(&claims.sub)
         .map_err(|_| AppError::Unauthorized("Invalid token subject".to_string()))?;
@@ -132,16 +208,28 @@ pub async fn refresh_token(
     let access_token = generate_access_token(&user.id, &user.email, &role_str, &state.config)?;
     let new_refresh_token = generate_refresh_token(&user.id, &state.config)?;
 
-    Ok(Json(serde_json::json!({
-        "success": true,
-        "data": {
-            "access_token": access_token,
-            "refresh_token": new_refresh_token,
-            "token_type": "Bearer",
-            "expires_in": state.config.jwt_expiry_hours * 3600,
-            "user": user,
-        }
-    })))
+    let access_max_age = state.config.jwt_expiry_hours * 3600;
+    let refresh_max_age = state.config.jwt_refresh_expiry_days * 86400;
+    let is_prod = state.config.is_production();
+
+    let cookies = [
+        (header::SET_COOKIE, HeaderValue::from_str(&access_cookie(&access_token, access_max_age, is_prod)).unwrap()),
+        (header::SET_COOKIE, HeaderValue::from_str(&refresh_cookie(&new_refresh_token, refresh_max_age, is_prod)).unwrap()),
+    ];
+
+    Ok((
+        AppendHeaders(cookies),
+        Json(serde_json::json!({
+            "success": true,
+            "data": {
+                "access_token": access_token,
+                "refresh_token": new_refresh_token,
+                "token_type": "Bearer",
+                "expires_in": access_max_age,
+                "user": user,
+            }
+        })),
+    ))
 }
 
 // ─────────────────────────────────────────────

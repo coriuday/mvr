@@ -137,9 +137,9 @@
    MVR UTILITIES
    ============================================================================= */
 @layer utilities {
-  /* Text gradient */
+  /* Text gradients */
   .text-gradient-gold {
-    background: linear-gradient(135deg, #c9a84c 0%, #e4c97a 50%, #a07a2e 100%);
+    background: linear-gradient(135deg, #c9a84c 0%, #e8c97a 50%, #c9a84c 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -168,13 +168,13 @@
       radial-gradient(at 0% 50%, rgba(26, 47, 94, 0.05) 0px, transparent 50%);
   }
 
-  /* Section divider */
+  /* Section divider line under section titles */
   .section-divider {
-    width: 60px;
+    width: 56px;
     height: 4px;
-    background: linear-gradient(90deg, #c9a84c, #e4c97a);
-    border-radius: 2px;
-    margin: 0 auto 1.5rem;
+    background: linear-gradient(90deg, #c9a84c, #e8c97a);
+    border-radius: 999px;
+    margin: 0 auto;
   }
 
   /* Card hover lift */
@@ -194,28 +194,6 @@
 
   .border-t-gold {
     border-top: 3px solid #c9a84c;
-  }
-
-  /* Gold gradient text (hero headline) */
-  .text-gradient-gold {
-    background: linear-gradient(135deg, #c9a84c 0%, #e8c97a 50%, #c9a84c 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Navy gradient background (stats section) */
-  .bg-navy-gradient {
-    background: linear-gradient(135deg, #1a2f5e 0%, #0f1c3d 100%);
-  }
-
-  /* Gold divider line under section titles */
-  .section-divider {
-    width: 56px;
-    height: 4px;
-    background: linear-gradient(90deg, #c9a84c, #e8c97a);
-    border-radius: 999px;
-    margin: 0 auto;
   }
 }
 

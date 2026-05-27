@@ -51,7 +51,6 @@ export default function AdminBlogsPage() {
     e.preventDefault();
     if (!editingBlog?.title || !editingBlog?.content) return;
 
-    const token = localStorage.getItem("admin_token");
     const isEditing = !!editingBlog.id;
     const url = isEditing
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/blogs/${editingBlog.id}`
@@ -60,10 +59,8 @@ export default function AdminBlogsPage() {
     try {
       const res = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // httpOnly cookie auth
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: editingBlog.title,
           slug: editingBlog.slug || editingBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
@@ -81,7 +78,7 @@ export default function AdminBlogsPage() {
         fetchBlogs();
       } else {
         const errorData = await res.json();
-        alert(`Error: ${errorData.message}`);
+        alert(`Error: ${errorData.error?.message || errorData.message || "Failed to save"}`);
       }
     } catch (error) {
       console.error("Failed to save blog:", error);
@@ -92,15 +89,16 @@ export default function AdminBlogsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this blog post?")) return;
 
-    const token = localStorage.getItem("admin_token");
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include", // httpOnly cookie auth
       });
 
       if (res.ok) {
         fetchBlogs();
+      } else {
+        alert("Failed to delete blog post.");
       }
     } catch (error) {
       console.error("Failed to delete blog:", error);

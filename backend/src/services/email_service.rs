@@ -1,6 +1,6 @@
 use chrono::Datelike;
 use resend_rs::{types::CreateEmailBaseOptions, Resend};
-use crate::utils::errors::{AppError, AppResult};
+use crate::utils::errors::AppResult;
 
 pub struct EmailService {
     pub api_key: String,

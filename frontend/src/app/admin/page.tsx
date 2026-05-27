@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import api from "@/services/api";
 import { Users, TrendingUp, Award, RefreshCw, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface Stats {
@@ -33,36 +34,31 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentLeads, setRecentLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API = process.env.NEXT_PUBLIC_API_URL;
-
   const fetchData = async () => {
-    if (!token) return;
     setLoading(true);
     setError("");
     try {
-      const headers = { Authorization: `Bearer ${token}` };
       const [statsRes, leadsRes] = await Promise.all([
-        fetch(`${API}/api/admin/stats`, { headers }),
-        fetch(`${API}/api/admin/recent-leads`, { headers }),
+        api.get("/admin/stats"),
+        api.get("/admin/recent-leads"),
       ]);
-      if (!statsRes.ok || !leadsRes.ok) throw new Error("Failed to fetch dashboard data");
-      const [statsData, leadsData] = await Promise.all([statsRes.json(), leadsRes.json()]);
-      setStats(statsData.data);
-      setRecentLeads(leadsData.data ?? []);
+      setStats(statsRes.data.data);
+      setRecentLeads(leadsRes.data.data ?? []);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Unknown error");
+      const axiosErr = e as { response?: { data?: { error?: { message?: string } } } };
+      setError(axiosErr.response?.data?.error?.message ?? "Failed to fetch dashboard data");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { if (token) fetchData(); }, [token]);
+  useEffect(() => { if (user) fetchData(); }, [user]);
 
   const STAT_CARDS = stats ? [
     { icon: Users,       label: "Total Leads",       value: stats.total_leads,      color: "bg-blue-50 text-blue-600",    border: "border-blue-200" },

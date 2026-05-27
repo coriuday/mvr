@@ -1,7 +1,10 @@
-// Services will be implemented in Phase 2
-// Pattern: each service contains business logic, calls repositories
+pub mod admin_service;
 pub mod auth_service;
 pub mod blog_service;
+pub mod contact_service;
+pub mod country_service;
 pub mod email_service;
 pub mod lead_service;
+pub mod newsletter_service;
+pub mod sop_service;
 pub mod university_service;

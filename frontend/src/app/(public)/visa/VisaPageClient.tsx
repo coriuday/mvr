@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ShieldCheck, FileText, CalendarCheck, UserCheck, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const PROCESS_STEPS = [
   {
@@ -74,10 +75,13 @@ export default function VisaPageClient() {
             initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }}
             className="flex-1 relative hidden md:block"
           >
-            <img 
+            <Image 
               src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80" 
               alt="Visa Documents" 
-              className="rounded-3xl shadow-2xl border border-white/10"
+              width={800}
+              height={533}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="rounded-3xl shadow-2xl border border-white/10 w-full h-auto object-cover"
             />
             <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
               <p className="text-[#1a2f5e] font-bold text-3xl mb-1">50K+</p>

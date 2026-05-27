@@ -39,31 +39,59 @@ impl LeadRepository {
         Ok(lead)
     }
 
-    /// List all leads with pagination
+    /// List all leads with pagination and optional status filter
     pub async fn find_all(&self, filter: &LeadFilter) -> AppResult<(Vec<Lead>, i64)> {
         let page = filter.page.unwrap_or(1).max(1);
-        let per_page = filter.per_page.unwrap_or(20).min(100);
+        let per_page = filter.per_page.unwrap_or(20).min(500); // 500 max: Kanban board needs all leads
         let offset = (page - 1) * per_page;
 
-        let total: i64 = sqlx::query_scalar("SELECT COUNT(*)::bigint FROM leads")
+        // Apply status filter to both count and data queries
+        let total: i64 = match &filter.status {
+            Some(status) => sqlx::query_scalar(
+                "SELECT COUNT(*)::bigint FROM leads WHERE status = $1",
+            )
+            .bind(status)
             .fetch_one(&self.db)
             .await
-            .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
+            .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?,
+            None => sqlx::query_scalar("SELECT COUNT(*)::bigint FROM leads")
+                .fetch_one(&self.db)
+                .await
+                .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?,
+        };
 
-        let leads = sqlx::query_as::<_, Lead>(
-            r#"
-            SELECT id, name, email, phone, message, status, source,
-                   country_interest, assigned_to, notes, created_at, updated_at
-            FROM leads
-            ORDER BY created_at DESC
-            LIMIT $1 OFFSET $2
-            "#,
-        )
-        .bind(per_page)
-        .bind(offset)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
+        let leads = match &filter.status {
+            Some(status) => sqlx::query_as::<_, Lead>(
+                r#"
+                SELECT id, name, email, phone, message, status, source,
+                       country_interest, assigned_to, notes, created_at, updated_at
+                FROM leads
+                WHERE status = $1
+                ORDER BY created_at DESC
+                LIMIT $2 OFFSET $3
+                "#,
+            )
+            .bind(status)
+            .bind(per_page)
+            .bind(offset)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?,
+            None => sqlx::query_as::<_, Lead>(
+                r#"
+                SELECT id, name, email, phone, message, status, source,
+                       country_interest, assigned_to, notes, created_at, updated_at
+                FROM leads
+                ORDER BY created_at DESC
+                LIMIT $1 OFFSET $2
+                "#,
+            )
+            .bind(per_page)
+            .bind(offset)
+            .fetch_all(&self.db)
+            .await
+            .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?,
+        };
 
         Ok((leads, total))
     }
