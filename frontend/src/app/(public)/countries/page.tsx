@@ -23,7 +23,7 @@ export interface CountryCard {
  */
 async function fetchCountryCards(): Promise<CountryCard[]> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), 2000);
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const res = await fetch(`${apiUrl}/api/countries`, {

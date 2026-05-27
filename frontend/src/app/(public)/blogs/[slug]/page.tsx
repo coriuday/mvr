@@ -113,7 +113,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), 2000);
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, {
       signal: controller.signal,
@@ -131,6 +131,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   
   return { title: "Blog | MVR Consultants" };
+}
+
+export async function generateStaticParams() {
+  return Object.keys(MOCK_POSTS).map((slug) => ({ slug }));
 }
 
 // Simple markdown-to-html renderer (minimal, no dependencies)
@@ -162,7 +166,7 @@ export default async function BlogDetailPage({ params }: Props) {
   let post = null;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), 2000);
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, {
       next: { revalidate: 60 },
