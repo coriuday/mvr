@@ -112,8 +112,13 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
     const data = await res.json();
     if (data.success && data.data) {
       return {
@@ -121,7 +126,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: data.data.excerpt || data.data.title,
       };
     }
-  } catch (err) {}
+  } catch (err) {
+    clearTimeout(timeoutId);
+  }
   
   return { title: "Blog | MVR Consultants" };
 }
@@ -154,13 +161,20 @@ export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
   let post = null;
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, {
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
     const data = await res.json();
     if (data.success && data.data) {
       post = data.data;
     }
   } catch (error) {
+    clearTimeout(timeoutId);
     console.error("Failed to fetch blog post:", error);
   }
 

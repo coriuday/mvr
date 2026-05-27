@@ -22,17 +22,22 @@ export interface CountryCard {
  * page never returns a 500 during cold starts or DB downtime.
  */
 async function fetchCountryCards(): Promise<CountryCard[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
     const res = await fetch(`${apiUrl}/api/countries`, {
       next: { revalidate: 300 }, // ISR: re-fetch every 5 minutes
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
     if (!res.ok) throw new Error(`API returned ${res.status}`);
     const json = await res.json();
     const cards = json?.data as CountryCard[] | undefined;
     // If the table is empty (DB not seeded yet) fall through to static data
     if (Array.isArray(cards) && cards.length > 0) return cards;
   } catch (err) {
+    clearTimeout(timeoutId);
     console.warn("[countries/page] API unavailable — using static fallback:", err);
   }
 
