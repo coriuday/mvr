@@ -321,12 +321,22 @@ npm run build
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing & Branch Strategy
 
-1. Create a feature branch from `main`
-2. Follow conventional commits (`feat:`, `fix:`, `chore:`)
-3. Ensure `cargo clippy` and `npm run lint` pass
-4. Submit a pull request with a clear description
+We use a structured branch strategy with automated checks:
+- **`master`** — The production branch. Direct pushes are protected; only deployment-ready PRs from `dev` or critical `hotfix/*` branches are merged here.
+- **`dev`** — The integration/development branch.
+- **`feature/*`** — Individual feature development. Created from `dev` and merged back into `dev` via Pull Request.
+- **`hotfix/*`** — Emergency production fixes. Created from `master` and merged back into both `master` and `dev`.
+
+### Pull Request & CI/CD Guidelines
+1. Create a feature branch from `dev`: `git checkout -b feature/your-feature-name dev`.
+2. Follow conventional commits (`feat:`, `fix:`, `chore:`).
+3. Ensure local checks pass before submitting a PR:
+   - Backend: `cargo check` and `cargo clippy --all-targets -- -D warnings`
+   - Frontend: `npx tsc --noEmit`
+4. Submit a Pull Request targeting the `dev` branch. Our automated GitHub Action (`PR Checks`) will run clippy, tests, and build validation. Once approved and checks pass, it can be merged.
+5. Merging `dev` into `master` triggers the production deployment pipeline (`CI` workflow), which automatically runs all checks and deploys the backend to Render.
 
 ---
 
