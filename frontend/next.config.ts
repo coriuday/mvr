@@ -95,9 +95,10 @@ const nextConfig: NextConfig = {
 
       // ── API / Fetch connections ───────────────────────────────────────────────
       // localhost:8080 — local Rust backend (dev)
-      // *.mvrconsultants.com — production API subdomain
+      // *.mvrconsultants.com — production API subdomain (if custom domain set up)
+      // *.onrender.com — Render-hosted backend (mvr-backend.onrender.com)
       // ws: / wss: — Next.js HMR WebSocket (dev only, ignored in prod)
-      `connect-src 'self' http://localhost:8080 https://*.mvrconsultants.com ${isDev ? "ws://localhost:3000 ws://localhost:3001 http://localhost:3000" : ""}`,
+      `connect-src 'self' http://localhost:8080 https://*.mvrconsultants.com https://*.onrender.com ${isDev ? "ws://localhost:3000 ws://localhost:3001 http://localhost:3000" : ""}`,
 
       // ── Frames ───────────────────────────────────────────────────────────────
       // No iframes used on this site.  'none' also blocks clickjacking.

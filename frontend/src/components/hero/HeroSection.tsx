@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import type { Variants } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Users, CheckCircle, GraduationCap, BookOpen } from "lucide-react";
@@ -12,16 +10,6 @@ const stats = [
   { value: "98%", label: "Visa Success Rate", icon: CheckCircle },
   { value: "100+", label: "Partner Universities", icon: GraduationCap },
 ];
-
-const containerVariants: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.12 } },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
-};
 
 export default function HeroSection() {
   return (
@@ -82,48 +70,37 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-0 lg:pt-14">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* ── Left column ── */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-[#1a2f5e] pb-10 lg:pb-16"
-          >
+          <div className="text-[#1a2f5e] pb-10 lg:pb-16">
             {/* Tagline */}
-            <motion.p
-              variants={itemVariants}
-              className="text-sm font-semibold uppercase tracking-widest mb-3"
+            <p
+              className="hero-item-1 text-sm font-semibold uppercase tracking-widest mb-3"
               style={{ color: "#c9a84c" }}
             >
               Your Dream. Our Guidance.
-            </motion.p>
+            </p>
 
             {/* Main headline */}
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl sm:text-5xl xl:text-[3.6rem] font-bold leading-[1.08] mb-5"
+            <h1
+              className="hero-item-2 text-4xl sm:text-5xl xl:text-[3.6rem] font-bold leading-[1.08] mb-5"
               style={{ fontFamily: "var(--font-playfair)", color: "#1a2f5e" }}
             >
               Study Abroad.
               <br />
               Shape Your Future.
-            </motion.h1>
+            </h1>
 
             {/* Sub-description */}
-            <motion.p
-              variants={itemVariants}
-              className="text-base leading-relaxed mb-8 max-w-lg"
+            <p
+              className="hero-item-3 text-base leading-relaxed mb-8 max-w-lg"
               style={{ color: "#4b5563" }}
             >
               Expert guidance for admissions, visas, scholarships
               <br />
               and everything you need to succeed globally.
-            </motion.p>
+            </p>
 
             {/* CTA buttons */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap items-center gap-4 mb-10"
-            >
+            <div className="hero-item-4 flex flex-wrap items-center gap-4 mb-10">
               <Link href="/contact">
                 <button
                   className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-none transition-all duration-200 hover:opacity-90 hover:scale-105"
@@ -142,13 +119,10 @@ export default function HeroSection() {
                   <span className="ml-1">→</span>
                 </button>
               </Link>
-            </motion.div>
+            </div>
 
             {/* Stats row */}
-            <motion.div
-              variants={itemVariants}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-            >
+            <div className="hero-item-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
               {stats.map(({ value, label, icon: Icon }) => (
                 <div key={label} className="flex items-start gap-2">
                   <div
@@ -167,16 +141,11 @@ export default function HeroSection() {
                   </div>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* ── Right column — hero image in golden oval ── */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-            className="hidden lg:flex items-end justify-center relative"
-          >
+          <div className="hero-image hidden lg:flex items-end justify-center relative">
             {/* Outer golden ring / oval glow */}
             <div
               className="relative flex items-end justify-center"
@@ -214,19 +183,8 @@ export default function HeroSection() {
                   priority
                 />
               </div>
-
-              {/* World landmarks background watermark
-              <div
-                className="absolute inset-0 rounded-[50%] overflow-hidden opacity-15"
-                style={{
-                  background:
-                    "url('/Gemini_Generated_Image_whl9aywhl9aywhl9.png') center/cover no-repeat",
-                  transform: "scale(0.85)",
-                  filter: "blur(2px) sepia(1)",
-                }}
-              /> */}
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
