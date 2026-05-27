@@ -102,6 +102,7 @@ impl NewsletterRepository {
     }
 
     /// Mark a subscriber as unsubscribed (soft delete).
+    #[allow(dead_code)]
     pub async fn unsubscribe(&self, email: &str) -> AppResult<()> {
         sqlx::query(
             r#"

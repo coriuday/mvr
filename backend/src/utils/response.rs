@@ -3,6 +3,7 @@ use serde::Serialize;
 
 /// Standard JSON API response wrapper.
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct ApiResponse<T: Serialize> {
     pub success: bool,
     pub message: Option<String>,
@@ -10,6 +11,7 @@ pub struct ApiResponse<T: Serialize> {
 }
 
 impl<T: Serialize> ApiResponse<T> {
+    #[allow(dead_code)]
     pub fn success(data: T) -> Self {
         ApiResponse {
             success: true,
@@ -18,6 +20,7 @@ impl<T: Serialize> ApiResponse<T> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn success_with_message(data: T, message: impl Into<String>) -> Self {
         ApiResponse {
             success: true,
@@ -45,6 +48,7 @@ impl MessageResponse {
 
 /// Paginated response wrapper
 #[derive(Debug, Serialize)]
+#[allow(dead_code)]
 pub struct PaginatedResponse<T: Serialize> {
     pub success: bool,
     pub data: Vec<T>,
@@ -55,6 +59,7 @@ pub struct PaginatedResponse<T: Serialize> {
 }
 
 impl<T: Serialize> PaginatedResponse<T> {
+    #[allow(dead_code)]
     pub fn new(data: Vec<T>, total: i64, page: i64, per_page: i64) -> Self {
         let total_pages = (total + per_page - 1) / per_page;
         PaginatedResponse {

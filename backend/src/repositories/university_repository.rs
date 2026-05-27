@@ -53,6 +53,7 @@ impl UniversityRepository {
         Ok((unis, total))
     }
 
+    #[allow(dead_code)]
     pub async fn find_by_id(&self, id: Uuid) -> AppResult<University> {
         sqlx::query_as::<_, University>(
             "SELECT id, name, country, ranking, logo_url, description, website_url, is_featured, created_at, updated_at FROM universities WHERE id = $1",

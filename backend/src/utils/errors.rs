@@ -31,6 +31,7 @@ pub enum AppError {
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
 
+    #[allow(dead_code)]
     #[error("Validation error: {0}")]
     Validation(String),
 }

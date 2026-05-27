@@ -62,6 +62,7 @@ impl BlogRepository {
         .ok_or_else(|| AppError::NotFound(format!("Blog post '{}' not found", slug)))
     }
 
+    #[allow(dead_code)]
     pub async fn find_by_id(&self, id: Uuid) -> AppResult<Blog> {
         sqlx::query_as::<_, Blog>(
             r#"

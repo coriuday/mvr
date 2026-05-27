@@ -38,6 +38,7 @@ pub struct SubscribeRequest {
 
 /// The outcome of a subscribe attempt — used by the service to decide
 /// which response message to return.
+#[allow(dead_code)]
 pub enum SubscribeOutcome {
     /// New subscriber created
     Created(NewsletterSubscriber),

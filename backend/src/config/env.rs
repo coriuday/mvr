@@ -19,13 +19,18 @@ pub struct Config {
     pub jwt_refresh_expiry_days: u64,
 
     // CORS
+    #[allow(dead_code)]
     pub frontend_url: String,
     pub allowed_origins: Vec<String>,
 
     // Cloudinary
+    #[allow(dead_code)]
     pub cloudinary_cloud_name: String,
+    #[allow(dead_code)]
     pub cloudinary_api_key: String,
+    #[allow(dead_code)]
     pub cloudinary_api_secret: String,
+    #[allow(dead_code)]
     pub cloudinary_upload_preset: String,
 
     // Resend Email

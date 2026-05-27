@@ -46,6 +46,7 @@ impl NewsletterService {
     }
 
     /// Mark a subscriber as unsubscribed (triggered by unsubscribe link etc.)
+    #[allow(dead_code)]
     pub async fn unsubscribe(&self, email: &str) -> AppResult<()> {
         validate_email(email)?;
         NewsletterRepository::new(self.db.clone()).unsubscribe(email).await

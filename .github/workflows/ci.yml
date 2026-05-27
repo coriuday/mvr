@@ -1,0 +1,107 @@
+name: CI
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Architecture:
+#   Frontend → Vercel  (auto-deploys from GitHub on every push — no action needed)
+#   Backend  → Render  (Docker-based; triggered via deploy hook after CI passes)
+#   Domain   → Hostinger DNS (CNAME www → Vercel; backend served from Render URL)
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master, dev]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Rust Backend ─────────────────────────────────────────────────────────────
+  backend:
+    name: Backend (Rust)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo registry + build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            backend/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('backend/Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Compile check
+        run: cargo check --all-targets
+
+      - name: Clippy (treat warnings as errors in CI)
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Run tests
+        run: cargo test
+
+  # ── Next.js Frontend ─────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Next.js build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_APP_URL: https://www.mvrconsultants.org
+
+  # ── Deploy backend to Render (main branch only) ───────────────────────────────
+  # Vercel deploys the frontend automatically via its GitHub integration.
+  # We only need to explicitly trigger the Render backend deploy.
+  deploy-backend:
+    name: Deploy Backend → Render
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    environment: production
+
+    steps:
+      - name: Trigger Render deploy hook
+        run: |
+          echo "Triggering Render deploy for mvr-backend..."
+          curl -fsS --retry 3 \
+            "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            -o /dev/null \
+            -w "HTTP %{http_code}\n"
+          echo "✅ Render deploy triggered — monitor at https://dashboard.render.com"

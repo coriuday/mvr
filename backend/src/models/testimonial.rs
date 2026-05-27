@@ -4,6 +4,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, FromRow)]
+#[allow(dead_code)]
 pub struct Testimonial {
     pub id: Uuid,
     pub student_name: String,
@@ -18,6 +19,7 @@ pub struct Testimonial {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct CreateTestimonialRequest {
     pub student_name: String,
     pub review: String,

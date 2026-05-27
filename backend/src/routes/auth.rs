@@ -35,7 +35,7 @@ pub struct RefreshRequest {
 fn access_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
     let secure = if is_prod { "; Secure" } else { "" };
     format!(
-        "mvr_access={token}; HttpOnly; SameSite=Strict{secure}; Path=/; Max-Age={max_age_secs}"
+        "mvr_access={token}; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age={max_age_secs}"
     )
 }
 
@@ -43,15 +43,15 @@ fn access_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
 fn refresh_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
     let secure = if is_prod { "; Secure" } else { "" };
     format!(
-        "mvr_refresh={token}; HttpOnly; SameSite=Strict{secure}; Path=/api/auth; Max-Age={max_age_secs}"
+        "mvr_refresh={token}; HttpOnly; SameSite=Lax{secure}; Path=/api/auth; Max-Age={max_age_secs}"
     )
 }
 
 /// Set-Cookie headers that immediately expire both auth cookies (logout).
 fn clear_auth_cookies(is_prod: bool) -> [(header::HeaderName, HeaderValue); 2] {
     let secure = if is_prod { "; Secure" } else { "" };
-    let access = format!("mvr_access=; HttpOnly; SameSite=Strict{secure}; Path=/; Max-Age=0");
-    let refresh = format!("mvr_refresh=; HttpOnly; SameSite=Strict{secure}; Path=/api/auth; Max-Age=0");
+    let access = format!("mvr_access=; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age=0");
+    let refresh = format!("mvr_refresh=; HttpOnly; SameSite=Lax{secure}; Path=/api/auth; Max-Age=0");
     [
         (header::SET_COOKIE, HeaderValue::from_str(&access).unwrap()),
         (header::SET_COOKIE, HeaderValue::from_str(&refresh).unwrap()),

@@ -1,9 +1,18 @@
 version: "3.9"
 
 # =============================================================================
-# MVR Consultants — Production Docker Compose
-# Orchestrates: Rust backend + nginx reverse proxy
-# Next.js frontend is deployed to Vercel separately.
+# ⚠️  ARCHIVED — NOT IN USE
+# =============================================================================
+# Deployment architecture:
+#   Frontend → Vercel  (www.mvrconsultants.org, auto-deploy from GitHub)
+#   Backend  → Render  (uses render.yaml + Render's own Docker build pipeline)
+#   Domain   → Hostinger (DNS only — CNAME to Vercel, no VPS to manage)
+#
+# This file is kept for reference only. Use render.yaml for backend config.
+# =============================================================================
+
+# =============================================================================
+# MVR Consultants — Docker Compose (Reference / VPS Fallback Only)
 # =============================================================================
 
 services:

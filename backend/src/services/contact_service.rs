@@ -17,6 +17,7 @@ pub struct ContactRequest {
     pub name: String,
     pub email: String,
     pub phone: Option<String>,
+    #[allow(dead_code)]
     pub subject: Option<String>,
     pub message: String,
     pub country_interest: Option<String>,

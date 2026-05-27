@@ -46,6 +46,7 @@ pub async fn require_admin(
 }
 
 /// Requires the user to be ADMIN or COUNSELOR
+#[allow(dead_code)]
 pub async fn require_counselor_or_admin(
     State(state): State<crate::routes::AppState>,
     mut request: Request,

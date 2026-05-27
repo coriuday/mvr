@@ -21,6 +21,7 @@ pub struct User {
     pub role: UserRole,
     pub is_active: bool,
     pub created_at: DateTime<Utc>,
+    #[allow(dead_code)]
     pub updated_at: DateTime<Utc>,
 }
 

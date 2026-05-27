@@ -78,6 +78,7 @@ impl AuthRepository {
     }
 
     /// Deactivate a user (soft delete)
+    #[allow(dead_code)]
     pub async fn deactivate(&self, id: Uuid) -> AppResult<()> {
         sqlx::query("UPDATE users SET is_active = false, updated_at = NOW() WHERE id = $1")
             .bind(id)

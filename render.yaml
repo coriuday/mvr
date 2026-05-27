@@ -37,7 +37,10 @@ services:
         value: "30"
 
       # ── CORS ─────────────────────────────────────────────────────────────
-      # Update FRONTEND_URL and ALLOWED_ORIGINS once Vercel URL is known
+      # Set BOTH of these in Render dashboard → Environment:
+      #   FRONTEND_URL   = https://www.mvrconsultants.org
+      #   ALLOWED_ORIGINS = https://www.mvrconsultants.org
+      # (Must exactly match the Origin header browsers send from Vercel)
       - key: FRONTEND_URL
         sync: false
       - key: ALLOWED_ORIGINS
@@ -57,13 +60,13 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: EMAIL_FROM
-        value: mvrconsultantshyd@gmail.com
+        value: noreply@mvrconsultants.org
       - key: EMAIL_FROM_NAME
         value: "MVR Consultants"
       - key: ADMIN_EMAIL
         value: mvrconsultantshyd@gmail.com
       - key: ADMIN_EMAIL_GUNTUR
-        value: mvroverseasconsultancy@gmail.com
+        value: guntur@mvrconsultants.org
 
       # ── Logging ───────────────────────────────────────────────────────────
       - key: RUST_LOG

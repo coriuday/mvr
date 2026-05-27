@@ -46,12 +46,12 @@ export const metadata: Metadata = {
   creator: "MVR Consultants",
   publisher: "MVR Consultants",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://mvrconsultants.com"
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.mvrconsultants.org"
   ),
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://mvrconsultants.com",
+    url: "https://www.mvrconsultants.org",
     siteName: "MVR Consultants",
     title: "MVR Consultants — Study Abroad | Visa | Scholarships | Admissions",
     description:

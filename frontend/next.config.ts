@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_API_URL:
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
     NEXT_PUBLIC_APP_URL:
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      process.env.NEXT_PUBLIC_APP_URL || "https://www.mvrconsultants.org",
     NEXT_PUBLIC_APP_NAME: "MVR Consultants",
   },
 
@@ -95,9 +95,9 @@ const nextConfig: NextConfig = {
 
       // ── API / Fetch connections ───────────────────────────────────────────────
       // localhost:8080 — local Rust backend (dev)
-      // *.mvrconsultants.com — production API subdomain
+      // www.mvrconsultants.org — production API (same host, via nginx)
       // ws: / wss: — Next.js HMR WebSocket (dev only, ignored in prod)
-      `connect-src 'self' http://localhost:8080 https://*.mvrconsultants.com ${isDev ? "ws://localhost:3000 ws://localhost:3001 http://localhost:3000" : ""}`,
+      `connect-src 'self' http://localhost:8080 https://www.mvrconsultants.org https://*.mvrconsultants.org ${isDev ? "ws://localhost:3000 ws://localhost:3001 http://localhost:3000" : ""}`,
 
       // ── Frames ───────────────────────────────────────────────────────────────
       // No iframes used on this site.  'none' also blocks clickjacking.

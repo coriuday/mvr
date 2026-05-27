@@ -14,6 +14,7 @@ pub enum ScholarshipType {
 }
 
 #[derive(Debug, Clone, Serialize, FromRow)]
+#[allow(dead_code)]
 pub struct Scholarship {
     pub id: Uuid,
     pub name: String,
@@ -30,6 +31,7 @@ pub struct Scholarship {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct CreateScholarshipRequest {
     pub name: String,
     pub scholarship_type: ScholarshipType,

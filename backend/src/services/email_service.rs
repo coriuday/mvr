@@ -63,7 +63,7 @@ impl EmailService {
       </table>
       {}
       <div style="margin-top:28px;text-align:center;">
-        <a href="https://mvrconsultants.com/admin/leads"
+        <a href="https://www.mvrconsultants.org/admin/leads"
            style="display:inline-block;background:#1a2f5e;color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
           Open Admin Dashboard →
         </a>
@@ -139,11 +139,11 @@ impl EmailService {
       </p>
       <p style="color:#6b7280;font-size:14px;line-height:1.7;margin:0 0 28px 0;">
         In the meantime, explore our
-        <a href="https://mvrconsultants.com/universities" style="color:#c9a84c;font-weight:600;">partner universities</a>
+        <a href="https://www.mvrconsultants.org/universities" style="color:#c9a84c;font-weight:600;">partner universities</a>
         and
-        <a href="https://mvrconsultants.com/scholarships" style="color:#c9a84c;font-weight:600;">available scholarships</a>.
+        <a href="https://www.mvrconsultants.org/scholarships" style="color:#c9a84c;font-weight:600;">available scholarships</a>.
       </p>
-      <a href="https://mvrconsultants.com"
+      <a href="https://www.mvrconsultants.org"
          style="display:inline-block;background:#c9a84c;color:white;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
         Visit Our Website
       </a>
@@ -160,11 +160,11 @@ impl EmailService {
         </tr>
         <tr>
           <td style="padding:4px 0;">✉️ Email</td>
-          <td style="padding:4px 0;text-align:right;"><a href="mailto:mvroverseasconsultancy@gmail.com" style="color:#c9a84c;text-decoration:none;">mvroverseasconsultancy@gmail.com</a></td>
+          <td style="padding:4px 0;text-align:right;"><a href="mailto:guntur@mvrconsultants.org" style="color:#c9a84c;text-decoration:none;">guntur@mvrconsultants.org</a></td>
         </tr>
         <tr>
           <td style="padding:4px 0;">🌐 Web</td>
-          <td style="padding:4px 0;text-align:right;"><a href="https://mvrconsultants.com" style="color:#c9a84c;text-decoration:none;">www.mvrconsultants.com</a></td>
+          <td style="padding:4px 0;text-align:right;"><a href="https://www.mvrconsultants.org" style="color:#c9a84c;text-decoration:none;">www.mvrconsultants.org</a></td>
         </tr>
       </table>
     </div>
