@@ -146,9 +146,9 @@ export default function Navbar() {
           borderBottom: "1px solid rgba(201,168,76,0.18)",
           boxShadow: "0 2px 16px rgba(26,47,94,0.05)",
         }}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-[90px] lg:h-[100px]">
