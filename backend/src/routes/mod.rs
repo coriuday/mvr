@@ -1,7 +1,6 @@
 use axum::{
-    middleware,
+    Router, middleware,
     routing::{delete, get, post, put},
-    Router,
 };
 use sqlx::PgPool;
 use tower_http::trace::TraceLayer;
@@ -11,8 +10,7 @@ use crate::{
     middleware::{
         auth_middleware, cors_middleware,
         rate_limit_middleware::{
-            self, contact_limiter, leads_limiter, login_limiter,
-            newsletter_limiter, sop_limiter,
+            self, contact_limiter, leads_limiter, login_limiter, newsletter_limiter, sop_limiter,
         },
     },
     utils::response::health_handler,
@@ -48,11 +46,11 @@ pub fn create_router(db: PgPool, config: Config) -> Router {
     let cors = cors_middleware::build_cors_layer(&config.allowed_origins);
 
     // Build independent limiters and start the eviction background task
-    let login_lim      = login_limiter();
-    let contact_lim    = contact_limiter();
-    let leads_lim      = leads_limiter();
+    let login_lim = login_limiter();
+    let contact_lim = contact_limiter();
+    let leads_lim = leads_limiter();
     let newsletter_lim = newsletter_limiter();
-    let sop_lim        = sop_limiter();
+    let sop_lim = sop_limiter();
     rate_limit_middleware::spawn_eviction_task(login_lim.clone());
     rate_limit_middleware::spawn_eviction_task(contact_lim.clone());
     rate_limit_middleware::spawn_eviction_task(leads_lim.clone());
@@ -63,7 +61,13 @@ pub fn create_router(db: PgPool, config: Config) -> Router {
         // Health check (public)
         .route("/health", get(health_handler))
         // Public API routes (no auth)
-        .merge(public_routes(login_lim, contact_lim, leads_lim, newsletter_lim, sop_lim))
+        .merge(public_routes(
+            login_lim,
+            contact_lim,
+            leads_lim,
+            newsletter_lim,
+            sop_lim,
+        ))
         // Protected routes (JWT required)
         .merge(protected_routes(state.clone()))
         // Admin routes (ADMIN role required)
@@ -76,19 +80,20 @@ pub fn create_router(db: PgPool, config: Config) -> Router {
 
 /// Public routes — no authentication required
 fn public_routes(
-    login_lim:      rate_limit_middleware::RateLimiterState,
-    contact_lim:    rate_limit_middleware::RateLimiterState,
-    leads_lim:      rate_limit_middleware::RateLimiterState,
+    login_lim: rate_limit_middleware::RateLimiterState,
+    contact_lim: rate_limit_middleware::RateLimiterState,
+    leads_lim: rate_limit_middleware::RateLimiterState,
     newsletter_lim: rate_limit_middleware::RateLimiterState,
-    sop_lim:        rate_limit_middleware::RateLimiterState,
+    sop_lim: rate_limit_middleware::RateLimiterState,
 ) -> Router<AppState> {
     Router::new()
         // Auth — rate-limited (brute-force protection)
         .route(
             "/api/auth/login",
-            post(auth::login).route_layer(
-                middleware::from_fn_with_state(login_lim, rate_limit_middleware::rate_limit_login),
-            ),
+            post(auth::login).route_layer(middleware::from_fn_with_state(
+                login_lim,
+                rate_limit_middleware::rate_limit_login,
+            )),
         )
         .route("/api/auth/refresh", post(auth::refresh_token))
         // Public blog routes
@@ -103,22 +108,18 @@ fn public_routes(
         // Contact form — rate-limited (spam protection)
         .route(
             "/api/contact",
-            post(contact::send_contact).route_layer(
-                middleware::from_fn_with_state(
-                    contact_lim,
-                    rate_limit_middleware::rate_limit_contact,
-                ),
-            ),
+            post(contact::send_contact).route_layer(middleware::from_fn_with_state(
+                contact_lim,
+                rate_limit_middleware::rate_limit_contact,
+            )),
         )
         // Public lead creation — rate-limited (bot protection)
         .route(
             "/api/leads",
-            post(leads::create_lead).route_layer(
-                middleware::from_fn_with_state(
-                    leads_lim,
-                    rate_limit_middleware::rate_limit_leads,
-                ),
-            ),
+            post(leads::create_lead).route_layer(middleware::from_fn_with_state(
+                leads_lim,
+                rate_limit_middleware::rate_limit_leads,
+            )),
         )
         // Public countries listing and detail
         .route("/api/countries", get(countries::get_all_countries))
@@ -126,22 +127,18 @@ fn public_routes(
         // Newsletter subscribe — rate-limited (spam protection)
         .route(
             "/api/newsletter/subscribe",
-            post(newsletter::subscribe).route_layer(
-                middleware::from_fn_with_state(
-                    newsletter_lim,
-                    rate_limit_middleware::rate_limit_newsletter,
-                ),
-            ),
+            post(newsletter::subscribe).route_layer(middleware::from_fn_with_state(
+                newsletter_lim,
+                rate_limit_middleware::rate_limit_newsletter,
+            )),
         )
         // SOP AI review — rate-limited aggressively (AI calls cost money)
         .route(
             "/api/sop/review",
-            post(sop::review_sop).route_layer(
-                middleware::from_fn_with_state(
-                    sop_lim,
-                    rate_limit_middleware::rate_limit_sop,
-                ),
-            ),
+            post(sop::review_sop).route_layer(middleware::from_fn_with_state(
+                sop_lim,
+                rate_limit_middleware::rate_limit_sop,
+            )),
         )
 }
 
@@ -173,19 +170,34 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/blogs/:slug", delete(blogs::delete_blog))
         // University management
         .route("/api/universities", post(universities::create_university))
-        .route("/api/universities/:id", put(universities::update_university))
-        .route("/api/universities/:id", delete(universities::delete_university))
+        .route(
+            "/api/universities/:id",
+            put(universities::update_university),
+        )
+        .route(
+            "/api/universities/:id",
+            delete(universities::delete_university),
+        )
         // Scholarship management
         .route("/api/scholarships", post(scholarships::create_scholarship))
-        .route("/api/scholarships/:id", put(scholarships::update_scholarship))
+        .route(
+            "/api/scholarships/:id",
+            put(scholarships::update_scholarship),
+        )
         // Testimonial management
         .route("/api/testimonials", post(testimonials::create_testimonial))
-        .route("/api/testimonials/:id", put(testimonials::update_testimonial))
+        .route(
+            "/api/testimonials/:id",
+            put(testimonials::update_testimonial),
+        )
         // Country management (admin)
         .route("/api/admin/countries", get(countries::admin_list_countries))
         .route("/api/admin/countries", post(countries::create_country))
         .route("/api/admin/countries/:id", put(countries::update_country))
-        .route("/api/admin/countries/:id", delete(countries::delete_country))
+        .route(
+            "/api/admin/countries/:id",
+            delete(countries::delete_country),
+        )
         // Newsletter subscriber management (admin)
         .route("/api/admin/newsletter", get(newsletter::list_subscribers))
         // User registration (admin creates accounts)

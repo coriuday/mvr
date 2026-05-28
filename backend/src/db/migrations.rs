@@ -44,4 +44,3 @@ pub async fn run_migrations(_pool: &sqlx::PgPool, database_url: &str) -> Result<
 
     Ok(())
 }
-
