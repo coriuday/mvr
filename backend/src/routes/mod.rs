@@ -169,8 +169,8 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/leads/:id", delete(leads::delete_lead))
         // Blog management
         .route("/api/blogs", post(blogs::create_blog))
-        .route("/api/blogs/:id", put(blogs::update_blog))
-        .route("/api/blogs/:id", delete(blogs::delete_blog))
+        .route("/api/blogs/:slug", put(blogs::update_blog))
+        .route("/api/blogs/:slug", delete(blogs::delete_blog))
         // University management
         .route("/api/universities", post(universities::create_university))
         .route("/api/universities/:id", put(universities::update_university))
