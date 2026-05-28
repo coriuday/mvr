@@ -261,7 +261,7 @@ export default function SiteFooter() {
             <p className="text-white/55 text-sm leading-relaxed mb-6 max-w-sm">
               Empowering students to achieve their dream of studying abroad
               with expert guidance on admissions, visas, scholarships, and
-              more. 15+ years of trust.
+              more. 10 years of trust.
             </p>
 
             {/* Social media buttons — premium animated */}

@@ -7,9 +7,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "About Us — MVR Consultants | 15+ Years of Study Abroad Excellence",
+  title: "About Us — MVR Consultants | 10 Years of Study Abroad Excellence",
   description:
-    "Learn about MVR Consultants — 15+ years helping students study abroad. Our experienced team has guided 50,000+ students to universities in 25+ countries.",
+    "Learn about MVR Consultants — 10 years helping students study abroad. Our experienced team has guided 50,000+ students to universities in 25+ countries.",
 };
 
 const MILESTONES = [
@@ -24,7 +24,7 @@ const VALUES = [
   { icon: Heart,      title: "Student-First",   desc: "Every decision we make is centered on what's best for the student's future." },
   { icon: Shield,     title: "Transparency",    desc: "Honest guidance on costs, requirements, and realistic expectations." },
   { icon: Target,     title: "Results-Driven",  desc: "98% visa approval rate — we measure our success by your success." },
-  { icon: Lightbulb,  title: "Expert Advice",   desc: "Counselors with 5–15 years of international education experience." },
+  { icon: Lightbulb,  title: "Expert Advice",   desc: "Counselors with 5–10 years of international education experience." },
 ];
 
 const TEAM = [
@@ -47,7 +47,7 @@ export default function AboutPage() {
             <Users size={13} /> Our Story
           </span>
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6" style={{ fontFamily: "var(--font-playfair)" }}>
-            15 Years of Turning{" "}
+            10 Years of Turning{" "}
             <span className="text-gradient-gold">Dreams Into Degrees</span>
           </h1>
           <p className="text-white/70 text-lg leading-relaxed max-w-2xl mx-auto">
@@ -116,7 +116,7 @@ export default function AboutPage() {
           <div className="text-center mb-14">
             <p className="text-[#c9a84c] font-semibold text-sm uppercase tracking-wider mb-2">Our Journey</p>
             <h2 className="text-3xl font-bold text-[#1a2f5e]" style={{ fontFamily: "var(--font-playfair)" }}>
-              15 Years of Milestones
+              10 Years of Milestones
             </h2>
           </div>
           <div className="relative">
