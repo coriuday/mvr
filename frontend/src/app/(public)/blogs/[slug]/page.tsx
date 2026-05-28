@@ -110,26 +110,34 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+/** Shared fetcher — Next.js deduplicates identical fetch() calls within the same render. */
+async function fetchBlogPost(slug: string) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2000);
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 s — allows Render cold start
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, {
-      signal: controller.signal,
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`,
+      { next: { revalidate: 60 }, signal: controller.signal }
+    );
     clearTimeout(timeoutId);
+    if (!res.ok) return null;
     const data = await res.json();
-    if (data.success && data.data) {
-      return {
-        title: `${data.data.title} | MVR Consultants Blog`,
-        description: data.data.excerpt || data.data.title,
-      };
-    }
-  } catch (err) {
+    if (data.success && data.data) return data.data;
+  } catch {
     clearTimeout(timeoutId);
   }
-  
+  return null;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await fetchBlogPost(slug);
+  if (post) {
+    return {
+      title: `${post.title} | MVR Consultants Blog`,
+      description: post.excerpt || post.title,
+    };
+  }
   return { title: "Blog | MVR Consultants" };
 }
 
@@ -163,24 +171,7 @@ function renderContent(content: string) {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { slug } = await params;
-  let post = null;
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 2000);
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`, {
-      next: { revalidate: 60 },
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    const data = await res.json();
-    if (data.success && data.data) {
-      post = data.data;
-    }
-  } catch (error) {
-    clearTimeout(timeoutId);
-    console.error("Failed to fetch blog post:", error);
-  }
+  let post = await fetchBlogPost(slug);
 
   // Fallback to mock data if API is down or post not found
   if (!post) {
