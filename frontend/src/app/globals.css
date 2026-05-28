@@ -236,6 +236,52 @@
   animation: float 3s ease-in-out infinite;
 }
 
+/* Navbar slide-down — replaces Framer Motion initial={{ y: -100 }} in production */
+@keyframes navbar-slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.navbar-animate {
+  animation: navbar-slide-down 0.4s ease-out forwards;
+}
+
+/* Hero entry animations — replaces Framer Motion stagger in production */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-fade-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.hero-item-1 { animation: hero-fade-up 0.55s ease-out 0.00s both; }
+.hero-item-2 { animation: hero-fade-up 0.55s ease-out 0.12s both; }
+.hero-item-3 { animation: hero-fade-up 0.55s ease-out 0.24s both; }
+.hero-item-4 { animation: hero-fade-up 0.55s ease-out 0.36s both; }
+.hero-item-5 { animation: hero-fade-up 0.55s ease-out 0.48s both; }
+.hero-image  { animation: hero-fade-right 0.70s ease-out 0.20s both; }
+
 /* =============================================================================
    SCROLLBAR
    ============================================================================= */

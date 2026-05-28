@@ -169,10 +169,10 @@ const SITEMAP = [
     title: "Visa & Resources",
     links: [
       { label: "Visa Assistance", href: "/visa" },
-      { label: "Student Visa", href: "/visa/student" },
-      { label: "Visa Checklist", href: "/visa/checklist" },
-      { label: "Courses", href: "/courses" },
-      { label: "Student Resources", href: "/resources" },
+      { label: "Scholarships", href: "/scholarships" },
+      { label: "Student Resources", href: "/blogs" },
+      { label: "SOP Reviewer", href: "/sop-reviewer" },
+      { label: "FAQ", href: "/faq" },
     ],
   },
   {

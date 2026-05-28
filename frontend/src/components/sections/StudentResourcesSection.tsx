@@ -97,7 +97,7 @@ const RESOURCES = [
   {
     id: "blog",
     label: "Blog & News",
-    href: "/blog",
+    href: "/blogs",
     icon: (
       <svg viewBox="0 0 44 44" fill="none" className="w-9 h-9 mx-auto">
         <rect x="6" y="8" width="32" height="28" rx="3" stroke="#1a2f5e" strokeWidth="1.5"/>

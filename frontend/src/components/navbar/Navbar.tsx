@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ALL_COUNTRIES } from "@/constants/countries";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type NavChild = { label: string; href: string };
@@ -16,22 +16,19 @@ type NavItem = {
   children?: ReadonlyArray<NavChild>;
 };
 
-// Nav items matching target design
+// ─── Build nav items (Study Abroad children derived from ALL_COUNTRIES) ────────
+const STUDY_ABROAD_CHILDREN: NavChild[] = [
+  ...ALL_COUNTRIES.map((c) => ({ label: `${c.flag} ${c.name}`, href: c.href })),
+  { label: "🌍 All Destinations", href: "/countries" },
+];
+
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   {
     label: "Study Abroad",
     href: "/countries",
-    children: [
-      { label: "USA", href: "/countries/usa" },
-      { label: "UK", href: "/countries/uk" },
-      { label: "Canada", href: "/countries/canada" },
-      { label: "Australia", href: "/countries/australia" },
-      { label: "Germany", href: "/countries/germany" },
-      { label: "Ireland", href: "/countries/ireland" },
-      { label: "All Countries", href: "/countries" },
-    ],
+    children: STUDY_ABROAD_CHILDREN,
   },
   { label: "Services", href: "/services" },
   { label: "Scholarships", href: "/scholarships" },
@@ -49,24 +46,23 @@ function NavDropdown({
   onClose: () => void;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.96 }}
-      transition={{ duration: 0.18, ease: "easeOut" }}
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+      style={{ animation: "hero-fade-up 0.18s ease-out forwards" }}
     >
-      {item.children?.map((child) => (
-        <Link
-          key={child.href}
-          href={child.href}
-          onClick={onClose}
-          className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-[#fdf8ef] hover:text-[#1a2f5e] font-medium transition-colors duration-150 border-b border-gray-50 last:border-0"
-        >
-          {child.label}
-        </Link>
-      ))}
-    </motion.div>
+      {/* Scrollable list for large country sets */}
+      <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
+        {item.children?.map((child) => (
+          <Link
+            key={child.href}
+            href={child.href}
+            onClick={onClose}
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#fdf8ef] hover:text-[#1a2f5e] font-medium transition-colors duration-150 border-b border-gray-50 last:border-0"
+          >
+            {child.label}
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -113,11 +109,9 @@ function DesktopNavItem({ item }: { item: NavItem }) {
           )}
         />
       </button>
-      <AnimatePresence>
-        {open && (
-          <NavDropdown item={item} onClose={() => setOpen(false)} />
-        )}
-      </AnimatePresence>
+      {open && (
+        <NavDropdown item={item} onClose={() => setOpen(false)} />
+      )}
     </div>
   );
 }
@@ -138,17 +132,15 @@ export default function Navbar() {
   return (
     <>
       {/* ── Main navbar ── */}
-      <motion.header
-        className="sticky top-0 z-40"
+      {/* CSS navbar-slide-down animation replaces Framer Motion (blocked by prod CSP) */}
+      <header
+        className="navbar-animate sticky top-0 z-40"
         style={{
           background:
             "linear-gradient(135deg, #fdf8ef 0%, #fef9f0 40%, #fff8e8 100%)",
           borderBottom: "1px solid rgba(201,168,76,0.18)",
           boxShadow: "0 2px 16px rgba(26,47,94,0.05)",
         }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-[90px] lg:h-[100px]">
@@ -217,13 +209,8 @@ export default function Navbar() {
         </div>
 
         {/* ── Mobile menu ── */}
-        <AnimatePresence>
           {mobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
+            <div
               className="xl:hidden border-t overflow-y-auto max-h-[calc(100vh-70px)]"
               style={{
                 background:
@@ -254,13 +241,8 @@ export default function Navbar() {
                             )}
                           />
                         </button>
-                        <AnimatePresence>
-                          {mobileExpanded === item.label && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
+                        {mobileExpanded === item.label && (
+                            <div
                               className="overflow-hidden ml-3 border-l-2 pl-3"
                               style={{
                                 borderColor: "rgba(201,168,76,0.4)",
@@ -277,10 +259,9 @@ export default function Navbar() {
                                   {child.label}
                                 </Link>
                               ))}
-                            </motion.div>
+                            </div>
                           )}
-                        </AnimatePresence>
-                      </>
+                        </>
                     ) : (
                       <Link
                         href={item.href}
@@ -304,10 +285,9 @@ export default function Navbar() {
                   </Link>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
-      </motion.header>
+      </header>
     </>
   );
 }

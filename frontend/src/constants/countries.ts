@@ -83,7 +83,7 @@ export const ALL_COUNTRIES = [
 ] as const;
 
 export const STATS = [
-  { value: "15+",  label: "Years of Excellence",   icon: "Award" },
+  { value: "10",  label: "Years of Excellence",   icon: "Award" },
   { value: "50K+", label: "Students Guided",        icon: "Users" },
   { value: "98%",  label: "Visa Success Rate",      icon: "CheckCircle" },
   { value: "100+", label: "Partner Universities",   icon: "Building" },

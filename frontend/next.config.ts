@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_API_URL:
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
     NEXT_PUBLIC_APP_URL:
-      process.env.NEXT_PUBLIC_APP_URL || "https://www.mvrconsultants.org",
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
     NEXT_PUBLIC_APP_NAME: "MVR Consultants",
   },
 
@@ -48,81 +48,6 @@ const nextConfig: NextConfig = {
   // ---------------------------------------------------------------------------
   async headers() {
     const isDev = process.env.NODE_ENV !== "production";
-
-    // ── CSP directive builder ─────────────────────────────────────────────────
-    //
-    // next/font/google self-hosts font files under /_next/static at build time,
-    // so fonts.googleapis.com is NOT required at runtime.  fonts.gstatic.com is
-    // kept in font-src for the preload <link> hints Next.js emits.
-    //
-    // Framer Motion is fully bundled — no CDN, no eval() — so script-src can
-    // stay strict.  The 'unsafe-eval' below is gated to dev only (React DevTools
-    // and Next.js HMR both use Function() internally).
-    //
-    // 'unsafe-inline' in style-src is required: Next.js injects critical CSS via
-    // <style> tags during SSR for above-the-fold content, and removing it causes
-    // FOUC / broken Tailwind styles.
-    //
-    // dangerouslySetInnerHTML in the blog page renders plain HTML from our own
-    // backend (no <script> tags) — it is safe under a strict script-src.
-    const scriptSrc = isDev
-      ? `'self' 'unsafe-eval' 'unsafe-inline'`  // HMR + React DevTools
-      : `'self'`;                                 // strict in production
-
-    const csp = [
-      `default-src 'self'`,
-
-      // ── Scripts ──────────────────────────────────────────────────────────────
-      `script-src ${scriptSrc}`,
-
-      // ── Styles ───────────────────────────────────────────────────────────────
-      // 'unsafe-inline' required for Next.js SSR critical CSS injection.
-      // fonts.googleapis.com is needed only when next/font emits a <link> preload
-      // pointing to the Fonts API stylesheet (rare, but keep it safe).
-      `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-
-      // ── Fonts ────────────────────────────────────────────────────────────────
-      // next/font downloads and serves font files locally at build time.
-      // fonts.gstatic.com covers the rare case where a preload hint resolves
-      // to the CDN before the local copy is in cache.
-      `font-src 'self' https://fonts.gstatic.com`,
-
-      // ── Images ───────────────────────────────────────────────────────────────
-      // data: required for SVG data-URIs used by Lucide React icons and Next.js
-      // blurred placeholder base64 images.
-      // blob: required for Next.js <Image /> progressive loading.
-      `img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com`,
-
-      // ── API / Fetch connections ───────────────────────────────────────────────
-      // localhost:8080 — local Rust backend (dev)
-      // www.mvrconsultants.org — production API (same host, via nginx)
-      // ws: / wss: — Next.js HMR WebSocket (dev only, ignored in prod)
-      `connect-src 'self' http://localhost:8080 https://www.mvrconsultants.org https://*.mvrconsultants.org ${isDev ? "ws://localhost:3000 ws://localhost:3001 http://localhost:3000" : ""}`,
-
-      // ── Frames ───────────────────────────────────────────────────────────────
-      // No iframes used on this site.  'none' also blocks clickjacking.
-      `frame-src 'none'`,
-
-      // ── Objects / Embeds ─────────────────────────────────────────────────────
-      `object-src 'none'`,
-
-      // ── Workers ──────────────────────────────────────────────────────────────
-      // Next.js may use blob: workers for prefetch chunks.
-      `worker-src 'self' blob:`,
-
-      // ── Base URI ─────────────────────────────────────────────────────────────
-      // Prevents <base> tag injection attacks.
-      `base-uri 'self'`,
-
-      // ── Form actions ─────────────────────────────────────────────────────────
-      // All forms POST to our own backend; block redirects to foreign origins.
-      `form-action 'self'`,
-
-      // ── Manifest ─────────────────────────────────────────────────────────────
-      `manifest-src 'self'`,
-    ]
-      .map((d) => d.trim())
-      .join("; ");
 
     return [
       {
@@ -146,30 +71,11 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains; preload",
           }]),
-          // ── Content Security Policy ───────────────────────────────────────
-          {
-            key: "Content-Security-Policy",
-            value: csp,
-          },
         ],
       },
-      // Cache static assets ONLY in production — in dev this breaks HMR
-      // because browsers permanently cache chunks and ignore server updates
-      ...(process.env.NODE_ENV === "production"
-        ? [
-            {
-              source: "/_next/static/(.*)",
-              headers: [
-                {
-                  key: "Cache-Control",
-                  value: "public, max-age=31536000, immutable",
-                },
-              ],
-            },
-          ]
-        : []),
     ];
   },
+
 
 
   // ---------------------------------------------------------------------------
