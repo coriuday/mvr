@@ -194,14 +194,11 @@ export default function CurrencyConverter() {
             ? `1 ${fromCurrency} = ₹${(rates.INR ?? FALLBACK_RATES[fromCurrency] ?? 0).toFixed(2)}`
             : `1 ${fromCurrency} = ${(rates[cur.code] ?? 0).toFixed(4)} ${cur.code}`;
 
-          const isHighlighted = cur.code === "GBP" || cur.code === "USD" || cur.code === "EUR";
 
           return (
             <div
               key={cur.code}
-              className={`rounded-2xl border p-5 flex items-center justify-between transition-all hover:shadow-sm ${
-                isHighlighted ? "border-[#c9a84c]/30 bg-[#fef9f0]" : "border-gray-100 bg-white"
-              }`}
+              className="rounded-2xl border border-gray-100 bg-white p-5 flex items-center justify-between transition-all hover:shadow-sm hover:border-[#c9a84c]/40"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{cur.flag}</span>
