@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | MVR Consultants",
   },
   description:
-    "Expert guidance for study abroad, visa applications, scholarships, and university admissions. 15+ years of experience. 50,000+ students guided. 98% visa success rate.",
+    "Expert guidance for study abroad, visa applications, scholarships, and university admissions. 10 years of experience. 50,000+ students guided. 98% visa success rate.",
   keywords: [
     "study abroad consultants",
     "visa guidance India",

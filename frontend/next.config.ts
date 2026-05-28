@@ -73,23 +73,9 @@ const nextConfig: NextConfig = {
           }]),
         ],
       },
-      // Cache static assets ONLY in production — in dev this breaks HMR
-      // because browsers permanently cache chunks and ignore server updates
-      ...(process.env.NODE_ENV === "production"
-        ? [
-            {
-              source: "/_next/static/(.*)",
-              headers: [
-                {
-                  key: "Cache-Control",
-                  value: "public, max-age=31536000, immutable",
-                },
-              ],
-            },
-          ]
-        : []),
     ];
   },
+
 
 
   // ---------------------------------------------------------------------------

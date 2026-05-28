@@ -13,7 +13,7 @@ const STATS = [
         <circle cx="20" cy="20" r="6" fill="#c9a84c" fillOpacity="0.2"/>
       </svg>
     ),
-    value: "15+",
+    value: "10",
     label: "Years of Experience",
   },
   {

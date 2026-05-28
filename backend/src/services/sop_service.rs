@@ -152,7 +152,7 @@ fn build_prompt(req: &SopReviewRequest) -> String {
     let program_ctx = req.program.as_deref().unwrap_or("not specified");
     let word_count  = req.sop_text.split_whitespace().count();
 
-    format!(r#"You are a senior admissions consultant with 15+ years of experience reviewing Statements of Purpose (SOPs) for international students applying to universities in {country_ctx}. You have deep knowledge of what admissions committees at top universities look for.
+    format!(r#"You are a senior admissions consultant with  years of experience reviewing Statements of Purpose (SOPs) for international students applying to universities in {country_ctx}. You have deep knowledge of what admissions committees at top universities look for.
 
 ## Task
 Review the following SOP for a {degree_ctx} application in {program_ctx}. The SOP has {word_count} words.

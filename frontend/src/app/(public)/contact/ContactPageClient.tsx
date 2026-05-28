@@ -65,7 +65,7 @@ const cardVariants: Variants = {
   hidden: {}, visible: { transition: { staggerChildren: 0.1 } },
 };
 const itemVariants: Variants = {
-  hidden:  { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
@@ -276,7 +276,7 @@ export default function ContactPageClient() {
                 </h3>
                 <ul className="space-y-4">
                   {[
-                    "15+ years of dedicated study abroad expertise",
+                    "10 years of dedicated study abroad expertise",
                     "98% student visa approval rate",
                     "Direct tie-ups with 200+ global universities",
                     "End-to-end support from shortlisting to arrival",

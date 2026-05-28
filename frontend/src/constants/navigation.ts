@@ -24,10 +24,6 @@ export const NAV_LINKS = [
   {
     label: "Visa",
     href: "/visa",
-    children: [
-      { label: "Student Visa", href: "/visa/student" },
-      { label: "Visa Checklist", href: "/visa/checklist" },
-    ],
   },
   { label: "Blogs", href: "/blogs" },
   { label: "SOP Reviewer", href: "/sop-reviewer" },
@@ -47,9 +43,8 @@ export const FOOTER_STUDY_ABROAD = [
   { label: "Countries", href: "/countries" },
   { label: "USA", href: "/countries/usa" },
   { label: "Canada", href: "/countries/canada" },
-  { label: "Courses", href: "/courses" },
   { label: "Scholarships", href: "/scholarships" },
-  { label: "Student Resources", href: "/resources" },
+  { label: "Student Resources", href: "/blogs" },
   { label: "Blogs", href: "/blogs" },
 ];
 

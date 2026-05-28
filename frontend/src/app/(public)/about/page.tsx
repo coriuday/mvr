@@ -7,9 +7,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "About Us — MVR Consultants | 15+ Years of Study Abroad Excellence",
+  title: "About Us — MVR Consultants | 10 years of Study Abroad Excellence",
   description:
-    "Learn about MVR Consultants — 15+ years helping students study abroad. Our experienced team has guided 50,000+ students to universities in 25+ countries.",
+    "Learn about MVR Consultants — 10 years helping students study abroad. Our experienced team has guided 50,000+ students to universities in 25+ countries.",
 };
 
 const MILESTONES = [

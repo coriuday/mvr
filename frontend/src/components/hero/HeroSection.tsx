@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Users, CheckCircle, GraduationCap, BookOpen } from "lucide-react";
 
 const stats = [
-  { value: "15+", label: "Years of Excellence", icon: BookOpen },
+  { value: "10", label: "Years of Excellence", icon: BookOpen },
   { value: "50K+", label: "Students Guided", icon: Users },
   { value: "98%", label: "Visa Success Rate", icon: CheckCircle },
   { value: "100+", label: "Partner Universities", icon: GraduationCap },

@@ -38,7 +38,7 @@ const NewsletterSection = dynamic(() => import("@/components/sections/Newsletter
 export const metadata: Metadata = {
   title: "MVR Consultants — Study Abroad | Visa | Scholarships | Admissions",
   description:
-    "Expert guidance for study abroad, visa applications, scholarships, and university admissions. 15+ years of experience. 50,000+ students guided. 98% visa success rate.",
+    "Expert guidance for study abroad, visa applications, scholarships, and university admissions. 10 years of experience. 50,000+ students guided. 98% visa success rate.",
 };
 
 export default function HomePage() {
