@@ -97,11 +97,25 @@ jobs:
     environment: production
 
     steps:
+      - name: Validate deploy hook secret
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "❌ RENDER_DEPLOY_HOOK_URL secret is not set."
+            echo "Go to: https://github.com/coriuday/mvr/settings/secrets/actions"
+            echo "Add secret: RENDER_DEPLOY_HOOK_URL"
+            echo "Get the URL from: Render Dashboard → mvr-backend → Settings → Deploy Hook"
+            exit 1
+          fi
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+
       - name: Trigger Render deploy hook
         run: |
           echo "Triggering Render deploy for mvr-backend..."
           curl -fsS --retry 3 \
-            "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            "$RENDER_DEPLOY_HOOK_URL" \
             -o /dev/null \
             -w "HTTP %{http_code}\n"
           echo "✅ Render deploy triggered — monitor at https://dashboard.render.com"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
