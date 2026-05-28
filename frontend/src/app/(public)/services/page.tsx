@@ -13,14 +13,14 @@ export const metadata: Metadata = {
 };
 
 const SERVICES = [
-  { icon: Search,       color: "bg-blue-50 text-blue-600",    title: "University Shortlisting",    desc: "Personalised university lists based on your profile, budget, and career goals.",             features: ["Profile evaluation", "Course matching", "Ranking analysis", "Deadline tracking"] },
-  { icon: FileText,     color: "bg-emerald-50 text-emerald-600", title: "Admissions Assistance",   desc: "SOP writing, LOR guidance, and complete application management.",                          features: ["SOP writing & review", "LOR guidance", "Application submission", "Interview prep"] },
-  { icon: Globe,        color: "bg-purple-50 text-purple-600", title: "Student Visa Guidance",     desc: "98% visa success rate. Complete documentation support and mock interviews.",               features: ["Visa type selection", "Document checklist", "Bank statement guidance", "Mock interviews"] },
-  { icon: DollarSign,   color: "bg-amber-50 text-amber-600",   title: "Scholarship Assistance",    desc: "Identify and apply for scholarships, grants, and financial aid.",                          features: ["Scholarship discovery", "Essay support", "Financial aid apps", "Education loans"] },
-  { icon: ClipboardList,color: "bg-rose-50 text-rose-600",     title: "Test Preparation",          desc: "IELTS, TOEFL, GRE, GMAT — score planning and test center registration.",                 features: ["Score planning", "Test registration", "Study material", "Practice tests"] },
-  { icon: Home,         color: "bg-indigo-50 text-indigo-600", title: "Accommodation Support",     desc: "On-campus housing, homestays, and private accommodation guidance.",                        features: ["Campus housing", "Homestay matching", "Apartment search", "Safety guidance"] },
-  { icon: Users,        color: "bg-teal-50 text-teal-600",     title: "Pre-Departure Orientation", desc: "Cultural adaptation, banking, health insurance, and packing essentials.",                  features: ["Cultural prep", "Banking & SIM", "Health insurance", "Packing guide"] },
-  { icon: GraduationCap,color: "bg-orange-50 text-orange-600", title: "Post-Arrival Support",      desc: "Airport coordination, bank setup, and ongoing counseling after you land.",                 features: ["Airport coordination", "Bank setup", "Community access", "Ongoing support"] },
+  { slug: "career",        icon: Search,       color: "bg-blue-50 text-blue-600",       title: "University Shortlisting",    desc: "Personalised university lists based on your profile, budget, and career goals.",             features: ["Profile evaluation", "Course matching", "Ranking analysis", "Deadline tracking"] },
+  { slug: "application",  icon: FileText,     color: "bg-emerald-50 text-emerald-600", title: "Admissions Assistance",      desc: "SOP writing, LOR guidance, and complete application management.",                          features: ["SOP writing & review", "LOR guidance", "Application submission", "Interview prep"] },
+  { slug: "visa",         icon: Globe,        color: "bg-purple-50 text-purple-600",   title: "Student Visa Guidance",      desc: "98% visa success rate. Complete documentation support and mock interviews.",               features: ["Visa type selection", "Document checklist", "Bank statement guidance", "Mock interviews"] },
+  { slug: "scholarship",  icon: DollarSign,   color: "bg-amber-50 text-amber-600",     title: "Scholarship Assistance",     desc: "Identify and apply for scholarships, grants, and financial aid.",                          features: ["Scholarship discovery", "Essay support", "Financial aid apps", "Education loans"] },
+  { slug: "application",  icon: ClipboardList,color: "bg-rose-50 text-rose-600",       title: "Test Preparation",           desc: "IELTS, TOEFL, GRE, GMAT — score planning and test center registration.",                 features: ["Score planning", "Test registration", "Study material", "Practice tests"] },
+  { slug: "accommodation",icon: Home,         color: "bg-indigo-50 text-indigo-600",   title: "Accommodation Support",      desc: "On-campus housing, homestays, and private accommodation guidance.",                        features: ["Campus housing", "Homestay matching", "Apartment search", "Safety guidance"] },
+  { slug: "pre-departure",icon: Users,        color: "bg-teal-50 text-teal-600",       title: "Pre-Departure Orientation",  desc: "Cultural adaptation, banking, health insurance, and packing essentials.",                  features: ["Cultural prep", "Banking & SIM", "Health insurance", "Packing guide"] },
+  { slug: "pre-departure",icon: GraduationCap,color: "bg-orange-50 text-orange-600",   title: "Post-Arrival Support",       desc: "Airport coordination, bank setup, and ongoing counseling after you land.",                 features: ["Airport coordination", "Bank setup", "Community access", "Ongoing support"] },
 ];
 
 const PROCESS = [
@@ -58,20 +58,23 @@ export default function ServicesPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {SERVICES.map((s) => (
-              <div key={s.title} className="rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200 group">
-                <div className={`w-11 h-11 ${s.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <s.icon size={20} />
+              <Link key={`${s.slug}-${s.title}`} href={`/services/${s.slug}`} className="group block">
+                <div className="rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200 h-full bg-white">
+                  <div className={`w-11 h-11 ${s.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <s.icon size={20} />
+                  </div>
+                  <h3 className="font-bold text-[#1a2f5e] mb-2">{s.title}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mb-4">{s.desc}</p>
+                  <ul className="space-y-1.5">
+                    {s.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-gray-600 text-xs">
+                        <CheckCircle2 size={12} className="text-[#c9a84c] shrink-0" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-4 text-[#c9a84c] text-xs font-semibold group-hover:underline">Learn more →</p>
                 </div>
-                <h3 className="font-bold text-[#1a2f5e] mb-2">{s.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-4">{s.desc}</p>
-                <ul className="space-y-1.5">
-                  {s.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-gray-600 text-xs">
-                      <CheckCircle2 size={12} className="text-[#c9a84c] shrink-0" /> {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

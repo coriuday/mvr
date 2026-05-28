@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ALL_COUNTRIES } from "@/constants/countries";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type NavChild = { label: string; href: string };
@@ -15,22 +16,19 @@ type NavItem = {
   children?: ReadonlyArray<NavChild>;
 };
 
-// Nav items matching target design
+// ─── Build nav items (Study Abroad children derived from ALL_COUNTRIES) ────────
+const STUDY_ABROAD_CHILDREN: NavChild[] = [
+  ...ALL_COUNTRIES.map((c) => ({ label: `${c.flag} ${c.name}`, href: c.href })),
+  { label: "🌍 All Destinations", href: "/countries" },
+];
+
 const NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   {
     label: "Study Abroad",
     href: "/countries",
-    children: [
-      { label: "USA", href: "/countries/usa" },
-      { label: "UK", href: "/countries/uk" },
-      { label: "Canada", href: "/countries/canada" },
-      { label: "Australia", href: "/countries/australia" },
-      { label: "Germany", href: "/countries/germany" },
-      { label: "Ireland", href: "/countries/ireland" },
-      { label: "All Countries", href: "/countries" },
-    ],
+    children: STUDY_ABROAD_CHILDREN,
   },
   { label: "Services", href: "/services" },
   { label: "Scholarships", href: "/scholarships" },
@@ -48,19 +46,22 @@ function NavDropdown({
   onClose: () => void;
 }) {
   return (
-    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50"
       style={{ animation: "hero-fade-up 0.18s ease-out forwards" }}
     >
-      {item.children?.map((child) => (
-        <Link
-          key={child.href}
-          href={child.href}
-          onClick={onClose}
-          className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-[#fdf8ef] hover:text-[#1a2f5e] font-medium transition-colors duration-150 border-b border-gray-50 last:border-0"
-        >
-          {child.label}
-        </Link>
-      ))}
+      {/* Scrollable list for large country sets */}
+      <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
+        {item.children?.map((child) => (
+          <Link
+            key={child.href}
+            href={child.href}
+            onClick={onClose}
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#fdf8ef] hover:text-[#1a2f5e] font-medium transition-colors duration-150 border-b border-gray-50 last:border-0"
+          >
+            {child.label}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

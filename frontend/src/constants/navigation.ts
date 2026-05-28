@@ -40,12 +40,15 @@ export const FOOTER_QUICK_LINKS = [
 ];
 
 export const FOOTER_STUDY_ABROAD = [
-  { label: "Countries", href: "/countries" },
-  { label: "USA", href: "/countries/usa" },
-  { label: "Canada", href: "/countries/canada" },
+  { label: "All Countries", href: "/countries" },
+  { label: "🇺🇸 USA", href: "/countries/usa" },
+  { label: "🇬🇧 UK", href: "/countries/uk" },
+  { label: "🇨🇦 Canada", href: "/countries/canada" },
+  { label: "🇦🇺 Australia", href: "/countries/australia" },
+  { label: "🇩🇪 Germany", href: "/countries/germany" },
+  { label: "🇮🇪 Ireland", href: "/countries/ireland" },
   { label: "Scholarships", href: "/scholarships" },
-  { label: "Student Resources", href: "/blogs" },
-  { label: "Blogs", href: "/blogs" },
+  { label: "Blogs & Guides", href: "/blogs" },
 ];
 
 export const FOOTER_SUPPORT = [

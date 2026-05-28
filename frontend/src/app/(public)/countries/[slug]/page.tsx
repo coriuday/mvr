@@ -2,17 +2,14 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CountryDetailClient from "./CountryDetailClient";
 import type { CountryData } from "@/types/country";
+import { ALL_COUNTRIES } from "@/constants/countries";
 
 type Props = { params: Promise<{ slug: string }> };
 
-// All 26 country slugs
-const ALL_SLUGS = [
-  "australia", "austria", "belgium", "canada", "cyprus", "denmark",
-  "dubai", "finland", "france", "georgia", "germany", "hungary",
-  "ireland", "italy", "japan", "lithuania", "malaysia", "netherlands",
-  "new-zealand", "russia", "singapore", "spain", "switzerland", "sweden",
-  "uk", "usa",
-];
+// Derived dynamically — add a new country to ALL_COUNTRIES and it's automatically
+// included in routing, metadata, static params, and the country detail page.
+const ALL_SLUGS = ALL_COUNTRIES.map((c) => c.id) as string[];
+
 
 async function getCountryData(slug: string): Promise<CountryData | null> {
   if (!ALL_SLUGS.includes(slug)) return null;

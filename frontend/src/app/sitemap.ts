@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { ALL_COUNTRIES } from "@/constants/countries";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -7,15 +8,10 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
   "https://mvrconsultants.com";
 
-// Re-use the exact same slug list as the country detail page so that adding
-// a new JSON file + slug is the only thing needed to include it in the sitemap.
-const COUNTRY_SLUGS = [
-  "australia", "austria", "belgium", "canada", "cyprus", "denmark",
-  "dubai", "finland", "france", "georgia", "germany", "hungary",
-  "ireland", "italy", "japan", "lithuania", "malaysia", "netherlands",
-  "new-zealand", "russia", "singapore", "spain", "switzerland", "sweden",
-  "uk", "usa",
-] as const;
+// Derived from ALL_COUNTRIES — single source of truth.
+// Adding a country to constants/countries.ts auto-includes it in the sitemap.
+const COUNTRY_SLUGS = ALL_COUNTRIES.map((c) => c.id);
+
 
 // Mock blog slugs used as a fallback when the API is unreachable
 const MOCK_BLOG_SLUGS = [
