@@ -10,31 +10,49 @@ interface Currency {
 }
 
 const CURRENCIES: Currency[] = [
-  { code: "USD", name: "US Dollar", flag: "🇺🇸" },
-  { code: "GBP", name: "British Pound", flag: "🇬🇧" },
-  { code: "EUR", name: "Euro", flag: "🇪🇺" },
-  { code: "AUD", name: "Australian Dollar", flag: "🇦🇺" },
-  { code: "CAD", name: "Canadian Dollar", flag: "🇨🇦" },
-  { code: "SGD", name: "Singapore Dollar", flag: "🇸🇬" },
-  { code: "JPY", name: "Japanese Yen", flag: "🇯🇵" },
-  { code: "AED", name: "UAE Dirham", flag: "🇦🇪" },
+  // Anglophone / major destinations
+  { code: "USD", name: "US Dollar",          flag: "🇺🇸" },
+  { code: "GBP", name: "British Pound",      flag: "🇬🇧" },
+  { code: "CAD", name: "Canadian Dollar",    flag: "🇨🇦" },
+  { code: "AUD", name: "Australian Dollar",  flag: "🇦🇺" },
   { code: "NZD", name: "New Zealand Dollar", flag: "🇳🇿" },
-  { code: "CHF", name: "Swiss Franc", flag: "🇨🇭" },
+  // Eurozone
+  { code: "EUR", name: "Euro",               flag: "🇪🇺" },
+  // Non-euro Europe
+  { code: "CHF", name: "Swiss Franc",        flag: "🇨🇭" },
+  { code: "SEK", name: "Swedish Krona",      flag: "🇸🇪" },
+  { code: "DKK", name: "Danish Krone",       flag: "🇩🇰" },
+  { code: "HUF", name: "Hungarian Forint",   flag: "🇭🇺" },
+  { code: "RUB", name: "Russian Ruble",      flag: "🇷🇺" },
+  { code: "GEL", name: "Georgian Lari",      flag: "🇬🇪" },
+  // Asia-Pacific
+  { code: "SGD", name: "Singapore Dollar",   flag: "🇸🇬" },
+  { code: "MYR", name: "Malaysian Ringgit",  flag: "🇲🇾" },
+  { code: "JPY", name: "Japanese Yen",       flag: "🇯🇵" },
+  // Middle East
+  { code: "AED", name: "UAE Dirham",         flag: "🇦🇪" },
 ];
 
-// Static fallback rates (INR per 1 unit of foreign currency)
+// Static fallback rates (INR per 1 unit of foreign currency — approx. May 2026)
 const FALLBACK_RATES: Record<string, number> = {
   USD: 83.5,
   GBP: 106.5,
-  EUR: 90.2,
-  AUD: 54.3,
   CAD: 61.8,
-  SGD: 62.1,
-  JPY: 0.55,
-  AED: 22.7,
+  AUD: 54.3,
   NZD: 50.1,
+  EUR: 90.2,
   CHF: 94.8,
+  SEK:  7.9,
+  DKK: 12.1,
+  HUF:  0.23,
+  RUB:  0.93,
+  GEL: 30.5,
+  SGD: 62.1,
+  MYR: 18.7,
+  JPY:  0.55,
+  AED: 22.7,
 };
+
 
 export default function CurrencyConverter() {
   const [amount, setAmount] = useState<string>("100000");
