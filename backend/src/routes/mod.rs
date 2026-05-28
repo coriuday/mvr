@@ -98,7 +98,7 @@ fn public_routes(
         .route("/api/auth/refresh", post(auth::refresh_token))
         // Public blog routes
         .route("/api/blogs", get(blogs::get_all_blogs))
-        .route("/api/blogs/{slug}", get(blogs::get_blog_by_slug))
+        .route("/api/blogs/:id", get(blogs::get_blog_by_slug))
         // Public university routes
         .route("/api/universities", get(universities::get_all_universities))
         // Public scholarship routes
@@ -123,7 +123,7 @@ fn public_routes(
         )
         // Public countries listing and detail
         .route("/api/countries", get(countries::get_all_countries))
-        .route("/api/countries/{slug}", get(countries::get_country_by_slug))
+        .route("/api/countries/:slug", get(countries::get_country_by_slug))
         // Newsletter subscribe — rate-limited (spam protection)
         .route(
             "/api/newsletter/subscribe",
@@ -161,41 +161,41 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/admin/recent-leads", get(admin::get_recent_leads))
         // Lead management
         .route("/api/leads", get(leads::get_all_leads))
-        .route("/api/leads/{id}", get(leads::get_lead))
-        .route("/api/leads/{id}", put(leads::update_lead))
-        .route("/api/leads/{id}", delete(leads::delete_lead))
+        .route("/api/leads/:id", get(leads::get_lead))
+        .route("/api/leads/:id", put(leads::update_lead))
+        .route("/api/leads/:id", delete(leads::delete_lead))
         // Blog management
         .route("/api/blogs", post(blogs::create_blog))
-        .route("/api/blogs/{id}", put(blogs::update_blog))
-        .route("/api/blogs/{id}", delete(blogs::delete_blog))
+        .route("/api/blogs/:id", put(blogs::update_blog))
+        .route("/api/blogs/:id", delete(blogs::delete_blog))
         // University management
         .route("/api/universities", post(universities::create_university))
         .route(
-            "/api/universities/{id}",
+            "/api/universities/:id",
             put(universities::update_university),
         )
         .route(
-            "/api/universities/{id}",
+            "/api/universities/:id",
             delete(universities::delete_university),
         )
         // Scholarship management
         .route("/api/scholarships", post(scholarships::create_scholarship))
         .route(
-            "/api/scholarships/{id}",
+            "/api/scholarships/:id",
             put(scholarships::update_scholarship),
         )
         // Testimonial management
         .route("/api/testimonials", post(testimonials::create_testimonial))
         .route(
-            "/api/testimonials/{id}",
+            "/api/testimonials/:id",
             put(testimonials::update_testimonial),
         )
         // Country management (admin)
         .route("/api/admin/countries", get(countries::admin_list_countries))
         .route("/api/admin/countries", post(countries::create_country))
-        .route("/api/admin/countries/{id}", put(countries::update_country))
+        .route("/api/admin/countries/:id", put(countries::update_country))
         .route(
-            "/api/admin/countries/{id}",
+            "/api/admin/countries/:id",
             delete(countries::delete_country),
         )
         // Newsletter subscriber management (admin)
