@@ -1,0 +1,31 @@
+# .gitattributes — normalize line endings for the MVR project
+# Forces SQL migration files to always use LF (Unix) line endings,
+# regardless of the OS or core.autocrlf setting. This ensures that
+# SQLx checksum computation is identical on Windows (local dev) and
+# Linux (Docker/Render production build).
+
+# Default: auto-detect text files and normalize to LF in the repo
+* text=auto eol=lf
+
+# Explicitly force LF for SQL migrations (critical — SQLx checksums depend on bytes)
+*.sql text eol=lf
+
+# Rust source files — LF in repo, native line endings on checkout
+*.rs text eol=lf
+*.toml text eol=lf
+
+# Web / config files
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.env text eol=lf
+
+# Windows-specific binaries — keep as binary
+*.exe binary
+*.dll binary
+*.pdb binary
