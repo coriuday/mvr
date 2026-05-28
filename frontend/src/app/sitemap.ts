@@ -8,10 +8,14 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
   "https://mvrconsultants.com";
 
+import { UNIVERSITIES } from "@/data/universities";
+
 // Derived from ALL_COUNTRIES — single source of truth.
 // Adding a country to constants/countries.ts auto-includes it in the sitemap.
 const COUNTRY_SLUGS = ALL_COUNTRIES.map((c) => c.id);
 
+// Dynamic course slugs matching the homepage links
+const COURSE_DISCIPLINE_SLUGS = ["engineering", "business", "cs", "medicine", "law", "design"];
 
 // Mock blog slugs used as a fallback when the API is unreachable
 const MOCK_BLOG_SLUGS = [
@@ -81,6 +85,8 @@ const STATIC_ROUTES: StaticRoute[] = [
   { path: "/services",    priority: 0.8, changeFrequency: "monthly" },
   { path: "/contact",     priority: 0.8, changeFrequency: "monthly" },
   { path: "/countries",   priority: 0.8, changeFrequency: "weekly"  },
+  { path: "/courses",     priority: 0.8, changeFrequency: "weekly"  },
+  { path: "/eligibility", priority: 0.8, changeFrequency: "weekly"  },
   { path: "/blogs",       priority: 0.8, changeFrequency: "daily"   },
 
   // ── Service detail pages (0.75) ─────────────────────────────────────────
@@ -148,8 +154,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // ── 4. Merge & deduplicate by URL ─────────────────────────────────────────
-  const allEntries = [...staticEntries, ...countryEntries, ...blogEntries];
+  // ── 4. University profile pages (/universities/[slug]) — dynamic ─────────
+  const universityEntries: MetadataRoute.Sitemap = UNIVERSITIES.map((uni) => ({
+    url: `${BASE_URL}/universities/${uni.id}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // ── 5. Course discipline guides (/courses/[slug]) — dynamic ──────────────
+  const courseDisciplineEntries: MetadataRoute.Sitemap = COURSE_DISCIPLINE_SLUGS.map((slug) => ({
+    url: `${BASE_URL}/courses/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // ── 6. Merge & deduplicate by URL ─────────────────────────────────────────
+  const allEntries = [
+    ...staticEntries,
+    ...countryEntries,
+    ...blogEntries,
+    ...universityEntries,
+    ...courseDisciplineEntries,
+  ];
 
   const seen = new Set<string>();
   const deduped = allEntries.filter(({ url }) => {
@@ -160,3 +188,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return deduped;
 }
+
