@@ -16,7 +16,13 @@ async fn main() -> anyhow::Result<()> {
     // ---------------------------------------------------------------------------
     // Load environment variables from .env file
     // ---------------------------------------------------------------------------
-    dotenvy::dotenv().ok();
+    // Load environment variables from .env file (local dev only).
+    // In production, env vars are set by the hosting platform (Render/Docker).
+    // We use `.ok()` so a missing .env never crashes production, but we emit
+    // an eprintln so a misconfigured local dev environment is visible.
+    if let Err(e) = dotenvy::dotenv() {
+        eprintln!("⚠️  .env not loaded: {e} (OK in production, check file exists in dev)");
+    }
 
     // ---------------------------------------------------------------------------
     // Initialize structured logging
