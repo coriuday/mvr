@@ -85,10 +85,18 @@ impl Config {
                 .collect(),
 
             // Cloudinary (H-2 fix: all optional — signed upload enabled when all three are set)
-            cloudinary_cloud_name: std::env::var("CLOUDINARY_CLOUD_NAME").ok().filter(|s| !s.is_empty()),
-            cloudinary_api_key: std::env::var("CLOUDINARY_API_KEY").ok().filter(|s| !s.is_empty()),
-            cloudinary_api_secret: std::env::var("CLOUDINARY_API_SECRET").ok().filter(|s| !s.is_empty()),
-            cloudinary_upload_preset: std::env::var("CLOUDINARY_UPLOAD_PRESET").ok().filter(|s| !s.is_empty()),
+            cloudinary_cloud_name: std::env::var("CLOUDINARY_CLOUD_NAME")
+                .ok()
+                .filter(|s| !s.is_empty()),
+            cloudinary_api_key: std::env::var("CLOUDINARY_API_KEY")
+                .ok()
+                .filter(|s| !s.is_empty()),
+            cloudinary_api_secret: std::env::var("CLOUDINARY_API_SECRET")
+                .ok()
+                .filter(|s| !s.is_empty()),
+            cloudinary_upload_preset: std::env::var("CLOUDINARY_UPLOAD_PRESET")
+                .ok()
+                .filter(|s| !s.is_empty()),
 
             // Resend
             resend_api_key: std::env::var("RESEND_API_KEY").unwrap_or_else(|_| "".to_string()),

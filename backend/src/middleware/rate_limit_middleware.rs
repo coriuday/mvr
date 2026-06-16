@@ -85,7 +85,7 @@ fn is_trusted_proxy(ip: &IpAddr) -> bool {
         IpAddr::V4(v4) => {
             v4.is_loopback()       // 127.0.0.0/8
             || v4.is_private()     // 10.x, 172.16-31.x, 192.168.x
-            || v4.is_link_local()  // 169.254.x.x
+            || v4.is_link_local() // 169.254.x.x
         }
         IpAddr::V6(v6) => v6.is_loopback(),
     }

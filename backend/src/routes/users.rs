@@ -1,8 +1,6 @@
 use crate::{
-    models::user::UpdateUserRoleRequest,
-    repositories::auth_repository::AuthRepository,
-    routes::AppState,
-    utils::errors::AppResult,
+    models::user::UpdateUserRoleRequest, repositories::auth_repository::AuthRepository,
+    routes::AppState, utils::errors::AppResult,
 };
 use axum::{
     Json,
@@ -12,9 +10,7 @@ use uuid::Uuid;
 
 // ─── GET /api/admin/users ─────────────────────────────────────────────────────
 /// List all staff users (admin only).
-pub async fn list_users(
-    State(state): State<AppState>,
-) -> AppResult<Json<serde_json::Value>> {
+pub async fn list_users(State(state): State<AppState>) -> AppResult<Json<serde_json::Value>> {
     let repo = AuthRepository::new(state.db);
     let users = repo.list_all().await?;
     let total = users.len();

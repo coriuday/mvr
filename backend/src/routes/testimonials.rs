@@ -29,7 +29,9 @@ pub async fn create_testimonial(
     Json(body): Json<CreateTestimonialRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
     let testimonial = TestimonialRepository::new(state.db).create(&body).await?;
-    Ok(Json(serde_json::json!({ "success": true, "data": testimonial })))
+    Ok(Json(
+        serde_json::json!({ "success": true, "data": testimonial }),
+    ))
 }
 
 /// PUT /api/testimonials/:id  (admin only)
@@ -38,8 +40,12 @@ pub async fn update_testimonial(
     Path(id): Path<Uuid>,
     Json(body): Json<serde_json::Value>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let testimonial = TestimonialRepository::new(state.db).update(id, &body).await?;
-    Ok(Json(serde_json::json!({ "success": true, "data": testimonial })))
+    let testimonial = TestimonialRepository::new(state.db)
+        .update(id, &body)
+        .await?;
+    Ok(Json(
+        serde_json::json!({ "success": true, "data": testimonial }),
+    ))
 }
 
 /// DELETE /api/testimonials/:id  (admin only)
@@ -48,5 +54,7 @@ pub async fn delete_testimonial(
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<MessageResponse>> {
     TestimonialRepository::new(state.db).delete(id).await?;
-    Ok(Json(MessageResponse::new("Testimonial deleted successfully")))
+    Ok(Json(MessageResponse::new(
+        "Testimonial deleted successfully",
+    )))
 }

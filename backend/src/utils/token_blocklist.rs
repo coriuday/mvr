@@ -31,7 +31,9 @@ impl TokenBlocklist {
                 let client = redis::Client::open(url)?;
                 let manager = redis::aio::ConnectionManager::new(client).await?;
                 tracing::info!("✅ Token blocklist: Redis backend active (C-1 fix)");
-                Ok(TokenBlocklist::Redis(RedisBlocklist { manager: Arc::new(tokio::sync::Mutex::new(manager)) }))
+                Ok(TokenBlocklist::Redis(RedisBlocklist {
+                    manager: Arc::new(tokio::sync::Mutex::new(manager)),
+                }))
             }
             None => {
                 tracing::warn!(
@@ -115,10 +117,8 @@ impl RedisBlocklist {
     async fn is_blocked(&self, jti: &str) -> bool {
         let key = format!("mvr:blocked_jti:{jti}");
         let mut conn = self.manager.lock().await;
-        let result: redis::RedisResult<bool> = redis::cmd("EXISTS")
-            .arg(&key)
-            .query_async(&mut *conn)
-            .await;
+        let result: redis::RedisResult<bool> =
+            redis::cmd("EXISTS").arg(&key).query_async(&mut *conn).await;
 
         match result {
             Ok(exists) => exists,

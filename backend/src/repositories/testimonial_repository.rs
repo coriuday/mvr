@@ -72,7 +72,11 @@ impl TestimonialRepository {
         .bind(body.get("student_name").and_then(|v| v.as_str()))
         .bind(body.get("review").and_then(|v| v.as_str()))
         .bind(body.get("image_url").and_then(|v| v.as_str()))
-        .bind(body.get("rating").and_then(|v| v.as_i64()).map(|r| r as i32))
+        .bind(
+            body.get("rating")
+                .and_then(|v| v.as_i64())
+                .map(|r| r as i32),
+        )
         .bind(body.get("country").and_then(|v| v.as_str()))
         .bind(body.get("university").and_then(|v| v.as_str()))
         .bind(body.get("course").and_then(|v| v.as_str()))

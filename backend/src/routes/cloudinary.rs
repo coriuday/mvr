@@ -37,15 +37,11 @@ pub async fn sign_upload(
         || body.folder.contains("..")
         || body.folder.contains('\0')
     {
-        return Err(AppError::BadRequest(
-            "Invalid folder name".to_string(),
-        ));
+        return Err(AppError::BadRequest("Invalid folder name".to_string()));
     }
 
     let svc = CloudinaryService::from_config(&state.config).ok_or_else(|| {
-        AppError::InternalServerError(
-            "Cloudinary is not configured on this server".to_string(),
-        )
+        AppError::InternalServerError("Cloudinary is not configured on this server".to_string())
     })?;
 
     let signature = svc.sign_upload(&state.config, &body.folder)?;

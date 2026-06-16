@@ -8,12 +8,12 @@ use resend_rs::{Resend, types::CreateEmailBaseOptions};
 fn html_escape(s: &str) -> String {
     s.chars()
         .map(|c| match c {
-            '&'  => "&amp;".to_string(),
-            '<'  => "&lt;".to_string(),
-            '>'  => "&gt;".to_string(),
-            '"'  => "&quot;".to_string(),
+            '&' => "&amp;".to_string(),
+            '<' => "&lt;".to_string(),
+            '>' => "&gt;".to_string(),
+            '"' => "&quot;".to_string(),
             '\'' => "&#x27;".to_string(),
-            c    => c.to_string(),
+            c => c.to_string(),
         })
         .collect()
 }
@@ -51,9 +51,9 @@ impl EmailService {
         country_interest: Option<&str>,
     ) -> AppResult<()> {
         // H-8: Escape all user-controlled values before HTML interpolation
-        let safe_name    = html_escape(lead_name);
-        let safe_email   = html_escape(lead_email);
-        let safe_phone   = lead_phone.map(html_escape);
+        let safe_name = html_escape(lead_name);
+        let safe_email = html_escape(lead_email);
+        let safe_phone = lead_phone.map(html_escape);
         let safe_message = lead_message.map(html_escape);
         let safe_country = country_interest.map(html_escape);
 

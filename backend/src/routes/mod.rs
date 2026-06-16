@@ -201,12 +201,24 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         )
         // Scholarship management
         .route("/api/scholarships", post(scholarships::create_scholarship))
-        .route("/api/scholarships/:id", put(scholarships::update_scholarship))
-        .route("/api/scholarships/:id", delete(scholarships::delete_scholarship))
+        .route(
+            "/api/scholarships/:id",
+            put(scholarships::update_scholarship),
+        )
+        .route(
+            "/api/scholarships/:id",
+            delete(scholarships::delete_scholarship),
+        )
         // Testimonial management
         .route("/api/testimonials", post(testimonials::create_testimonial))
-        .route("/api/testimonials/:id", put(testimonials::update_testimonial))
-        .route("/api/testimonials/:id", delete(testimonials::delete_testimonial))
+        .route(
+            "/api/testimonials/:id",
+            put(testimonials::update_testimonial),
+        )
+        .route(
+            "/api/testimonials/:id",
+            delete(testimonials::delete_testimonial),
+        )
         // Country management (admin)
         .route("/api/admin/countries", get(countries::admin_list_countries))
         .route("/api/admin/countries", post(countries::create_country))

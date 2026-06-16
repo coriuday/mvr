@@ -29,7 +29,9 @@ pub async fn create_scholarship(
     Json(body): Json<CreateScholarshipRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
     let scholarship = ScholarshipRepository::new(state.db).create(&body).await?;
-    Ok(Json(serde_json::json!({ "success": true, "data": scholarship })))
+    Ok(Json(
+        serde_json::json!({ "success": true, "data": scholarship }),
+    ))
 }
 
 /// PUT /api/scholarships/:id  (admin only)
@@ -38,8 +40,12 @@ pub async fn update_scholarship(
     Path(id): Path<Uuid>,
     Json(body): Json<serde_json::Value>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let scholarship = ScholarshipRepository::new(state.db).update(id, &body).await?;
-    Ok(Json(serde_json::json!({ "success": true, "data": scholarship })))
+    let scholarship = ScholarshipRepository::new(state.db)
+        .update(id, &body)
+        .await?;
+    Ok(Json(
+        serde_json::json!({ "success": true, "data": scholarship }),
+    ))
 }
 
 /// DELETE /api/scholarships/:id  (admin only)
@@ -48,5 +54,7 @@ pub async fn delete_scholarship(
     Path(id): Path<Uuid>,
 ) -> AppResult<Json<MessageResponse>> {
     ScholarshipRepository::new(state.db).delete(id).await?;
-    Ok(Json(MessageResponse::new("Scholarship deleted successfully")))
+    Ok(Json(MessageResponse::new(
+        "Scholarship deleted successfully",
+    )))
 }

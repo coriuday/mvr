@@ -1,4 +1,7 @@
-use crate::{config::env::Config, utils::errors::{AppError, AppResult}};
+use crate::{
+    config::env::Config,
+    utils::errors::{AppError, AppResult},
+};
 use std::collections::BTreeMap;
 
 /// H-2 security fix: Cloudinary signed upload service.
@@ -43,7 +46,10 @@ impl CloudinaryService {
         if api_secret.is_empty() || cloud_name.is_empty() {
             return None;
         }
-        Some(Self { api_secret, cloud_name })
+        Some(Self {
+            api_secret,
+            cloud_name,
+        })
     }
 
     /// Generate a signed upload signature for the given folder.
@@ -53,12 +59,13 @@ impl CloudinaryService {
     ///
     /// where sorted_param_string is the alphabetically sorted, URL-encoded
     /// key=value pairs joined by `&`.
-    pub fn sign_upload(
-        &self,
-        config: &Config,
-        folder: &str,
-    ) -> AppResult<UploadSignature> {
-        if config.cloudinary_api_key.as_deref().unwrap_or("").is_empty() {
+    pub fn sign_upload(&self, config: &Config, folder: &str) -> AppResult<UploadSignature> {
+        if config
+            .cloudinary_api_key
+            .as_deref()
+            .unwrap_or("")
+            .is_empty()
+        {
             return Err(AppError::InternalServerError(
                 "Cloudinary is not configured on this server".to_string(),
             ));
@@ -92,7 +99,6 @@ impl CloudinaryService {
         // Cloudinary uses raw SHA-256 (not HMAC) for upload signatures.
         // The signature is SHA256(sorted_param_string + api_secret).
         let signature = sha256_hex(&to_sign);
-
 
         Ok(UploadSignature {
             signature,

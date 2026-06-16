@@ -78,7 +78,11 @@ impl AuthRepository {
     /// Update a staff user's role.
     /// C-2 security fix: role assignment is a privileged admin-only operation,
     /// separate from account creation.
-    pub async fn update_role(&self, id: Uuid, req: &UpdateUserRoleRequest) -> AppResult<UserResponse> {
+    pub async fn update_role(
+        &self,
+        id: Uuid,
+        req: &UpdateUserRoleRequest,
+    ) -> AppResult<UserResponse> {
         sqlx::query_as::<_, UserResponse>(
             r#"
             UPDATE users

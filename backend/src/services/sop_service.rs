@@ -169,21 +169,42 @@ fn sanitize_for_prompt(text: &str, max_chars: usize) -> String {
             let trimmed = line.trim_start();
             // Neutralise markdown headings that could inject new sections
             if trimmed.starts_with("##") || trimmed.starts_with("# ") {
-                return format!("[heading removed] {}", trimmed.trim_start_matches('#').trim());
+                return format!(
+                    "[heading removed] {}",
+                    trimmed.trim_start_matches('#').trim()
+                );
             }
             // Neutralise horizontal rules that would break the --- delimiter
-            if trimmed.starts_with("---") || trimmed.starts_with("___") || trimmed.starts_with("***") {
+            if trimmed.starts_with("---")
+                || trimmed.starts_with("___")
+                || trimmed.starts_with("***")
+            {
                 return "[separator removed]".to_string();
             }
             // M-2 extended injection keyword list (checked after NFKD normalization)
             let lower = trimmed.to_lowercase();
             let injection_prefixes = [
-                "ignore ", "disregard ", "forget ", "override ", "bypass ",
-                "new instruction", "system prompt", "you are now", "act as",
-                "pretend you", "your new role", "stop being", "jailbreak",
-                "do anything now", "dan mode", "developer mode",
+                "ignore ",
+                "disregard ",
+                "forget ",
+                "override ",
+                "bypass ",
+                "new instruction",
+                "system prompt",
+                "you are now",
+                "act as",
+                "pretend you",
+                "your new role",
+                "stop being",
+                "jailbreak",
+                "do anything now",
+                "dan mode",
+                "developer mode",
             ];
-            if injection_prefixes.iter().any(|p| lower.starts_with(p) || lower.contains(p)) {
+            if injection_prefixes
+                .iter()
+                .any(|p| lower.starts_with(p) || lower.contains(p))
+            {
                 return format!("Note: {trimmed}");
             }
             line.to_string()
@@ -209,11 +230,11 @@ fn normalize_unicode_ascii(text: &str) -> String {
             'ɳ' | 'ɴ' => 'n',
             'ᵒ' | 'ᴏ' | 'ο' | 'о' => 'o', // Greek/Cyrillic o
             'ʀ' | 'ɾ' => 'r',
-            'ᴇ' | 'е' => 'e',               // Cyrillic е
-            'ᴀ' | 'а' => 'a',               // Cyrillic а
-            'ᴄ' | 'с' => 'c',               // Cyrillic с
-            'ᴘ' | 'р' => 'p',               // Cyrillic р looks like p
-            'ʏ' | 'у' => 'y',               // Cyrillic у
+            'ᴇ' | 'е' => 'e', // Cyrillic е
+            'ᴀ' | 'а' => 'a', // Cyrillic а
+            'ᴄ' | 'с' => 'c', // Cyrillic с
+            'ᴘ' | 'р' => 'p', // Cyrillic р looks like p
+            'ʏ' | 'у' => 'y', // Cyrillic у
             'ᴅ' | 'ᴆ' => 'd',
             'ꜰ' => 'f',
             'ʜ' | 'н' => 'h',
@@ -225,9 +246,9 @@ fn normalize_unicode_ascii(text: &str) -> String {
             'ꜱ' | 'ѕ' => 's',
             'ᴛ' | 'т' => 't',
             'ᴜ' => 'u',
-            'ᴠ' | 'ν' => 'v',               // Greek nu
+            'ᴠ' | 'ν' => 'v', // Greek nu
             'ᴡ' => 'w',
-            'х' | 'χ' => 'x',               // Cyrillic/Greek x
+            'х' | 'χ' => 'x', // Cyrillic/Greek x
             'ᴢ' | 'ᴣ' => 'z',
             _ => c,
         })

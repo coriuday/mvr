@@ -78,11 +78,10 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               // Scripts: self + Next.js inline hydration
-              // H-6 security fix: 'unsafe-eval' has been REMOVED.
-              // React 19 / Next.js 15 do not require unsafe-eval in production builds.
-              // 'unsafe-inline' is kept for now for Next.js hydration (tracked in BUG-027:
-              // migrate to nonce-based CSP when inline script hashes are available).
-              "script-src 'self' 'unsafe-inline'",
+              // 'unsafe-eval' is required in development by Turbopack (Next.js 16 default bundler)
+              // for hot-reload, error overlays, and React debug features.
+              // In production it is intentionally omitted (React never uses eval() in prod).
+              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
               // Styles: self + inline (Tailwind) + Google Fonts
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Fonts: self + Google Fonts CDN
@@ -92,7 +91,7 @@ const nextConfig: NextConfig = {
               // API connections: backend + currency API + Cloudinary upload API (H-2 signed uploads)
               // L-8 security fix: Removed generativelanguage.googleapis.com — the frontend
               // never calls Gemini directly. All AI requests go through the Rust backend.
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"} https://open.er-api.com https://api.cloudinary.com`,
+              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"} https://open.er-api.com https://api.cloudinary.com`,
               // Frames: none
               "frame-src 'none'",
               // Objects: none
