@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
               <Input
                 id="admin-email"
                 type="email"
-                placeholder="admin@mvrconsultants.com"
+                placeholder="Enter your Admin Mail"
                 value={form.email}
                 onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                 required
