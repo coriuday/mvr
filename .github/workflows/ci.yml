@@ -27,7 +27,9 @@ jobs:
         working-directory: backend
 
     steps:
-      - uses: actions/checkout@v4
+      # L-5 fix: Pinned to a specific commit SHA to prevent supply-chain attacks
+      # (a tag like @v4 can be silently moved to a malicious commit)
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -35,7 +37,7 @@ jobs:
           components: clippy, rustfmt
 
       - name: Cache cargo registry + build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: |
             ~/.cargo/registry
@@ -53,6 +55,13 @@ jobs:
       - name: Clippy (treat warnings as errors in CI)
         run: cargo clippy --all-targets -- -D warnings
 
+      # L-6 fix: Audit Rust dependencies for known CVEs
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Audit Rust dependencies
+        run: cargo audit
+
       - name: Run tests
         run: cargo test
 
@@ -65,10 +74,10 @@ jobs:
         working-directory: frontend
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
         with:
           node-version: "22"
           cache: "npm"
@@ -76,6 +85,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # L-6 fix: Fail CI on high-severity npm vulnerabilities
+      - name: Audit npm dependencies
+        run: npm audit --audit-level=high
 
       - name: TypeScript type check
         run: npx tsc --noEmit
@@ -119,3 +132,4 @@ jobs:
           echo "✅ Render deploy triggered — monitor at https://dashboard.render.com"
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { X, ChevronDown } from "lucide-react";
 import { UNIVERSITIES, COUNTRIES_FILTER, type University } from "@/data/universities";
 
@@ -18,9 +19,18 @@ const COMPARE_FIELDS = [
 
 
 export default function UniversityCompare() {
-  const [selected, setSelected] = useState<string[]>([]);
+  const searchParams = useSearchParams();
+
+  // Seed initial selection from URL params: ?uni1=id&uni2=id&uni3=id
+  const [selected, setSelected] = useState<string[]>(() => {
+    const ids = ["uni1", "uni2", "uni3"]
+      .map((key) => searchParams.get(key))
+      .filter((id): id is string => !!id && UNIVERSITIES.some((u) => u.id === id));
+    return [...new Set(ids)].slice(0, 3);
+  });
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
+
 
   const filtered = UNIVERSITIES.filter(
     (u) =>

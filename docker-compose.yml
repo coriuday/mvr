@@ -55,14 +55,20 @@ services:
       - CLOUDINARY_UPLOAD_PRESET=${CLOUDINARY_UPLOAD_PRESET:-mvr_consultants}
       - RESEND_API_KEY=${RESEND_API_KEY}
       - EMAIL_FROM=${EMAIL_FROM}
-      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-MVR Consultants}
+      # Admin notification recipients (BUG-005: previously missing)
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_EMAIL_GUNTUR=${ADMIN_EMAIL_GUNTUR}
+      # NOTE: REDIS_URL removed — Rust backend has no Redis config (BUG-006)
       - RUST_LOG=${RUST_LOG:-info}
       - ENVIRONMENT=${ENVIRONMENT:-production}
       - BACKEND_HOST=0.0.0.0
       - BACKEND_PORT=8080
-    ports:
-      - "8080:8080"
+    # M-10 security fix: Backend port is NOT published to the host.
+    # Only nginx (in the same Docker network) can reach it.
+    # Direct access to port 8080 from outside the host is blocked.
+    expose:
+      - "8080"
     networks:
       - mvr-network
     healthcheck:
@@ -102,9 +108,13 @@ services:
     restart: unless-stopped
     profiles:
       - cache
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-changeme}
-    ports:
-      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    # M-11 security fix: Redis port is NOT published to the host.
+    # Redis must only be reachable within the mvr-network Docker bridge.
+    # Remove this comment and add `ports: - "127.0.0.1:6379:6379"` ONLY
+    # if you need local debug access, and only temporarily.
+    expose:
+      - "6379"
     volumes:
       - redis-data:/data
     networks:

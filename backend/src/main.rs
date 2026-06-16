@@ -24,7 +24,10 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "mvr_backend=debug,tower_http=debug,axum=trace".into()),
+                // M-9 security fix: default avoids axum=trace which logs full request
+                // headers (including auth cookies/tokens) to stdout.
+                // In production, RUST_LOG=mvr_backend=info is sufficient.
+                .unwrap_or_else(|_| "mvr_backend=info,tower_http=warn".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();

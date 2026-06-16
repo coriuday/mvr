@@ -28,15 +28,17 @@ export default function AdminLoginPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || data.message || "Invalid credentials");
-      if (data.data?.user?.role !== "ADMIN" && data.data?.user?.role !== "Admin") {
-        throw new Error("Access denied. Admin role required.");
-      }
-      // Store minimal user info for the admin shell display.
-      // The actual auth token lives in the httpOnly cookie — JS cannot read it.
-      localStorage.setItem("mvr_user", JSON.stringify(data.data.user));
+
+      // C-4 fix: Role validation is enforced server-side by the backend's /api/auth/me endpoint.
+      // The useAdminAuth hook will redirect to this page if the session doesn't have ADMIN role.
+      // We never trust client-side role data as a security boundary.
+      localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
       router.replace("/admin");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      // L-7 fix: Show a generic message — never echo server internals to the UI
+      const raw = err instanceof Error ? err.message : "";
+      const isSafe = raw.length < 120 && !raw.includes("stack") && !raw.includes("DB error");
+      setError(isSafe ? raw : "Login failed. Please check your credentials and try again.");
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import Link from "next/link";
 import api from "@/services/api";
 import { Users, TrendingUp, Award, RefreshCw, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -116,10 +117,10 @@ export default function AdminDashboard() {
             <h2 className="font-bold text-[#1a2f5e]">Recent Leads</h2>
             <p className="text-gray-400 text-xs mt-0.5">Last 10 inquiries received</p>
           </div>
-          <a href="/admin/leads"
+          <Link href="/admin/leads"
             className="text-[#c9a84c] text-sm font-semibold hover:underline">
             View all →
-          </a>
+          </Link>
         </div>
 
         {recentLeads.length === 0 ? (
@@ -172,14 +173,14 @@ export default function AdminDashboard() {
           { href: "/admin/blogs",   label: "Write a Blog Post",   desc: "Publish student success stories",       icon: CheckCircle2,color: "bg-emerald-600" },
           { href: "/admin/unis",    label: "Add a University",    desc: "Expand your partner network",           icon: Award,       color: "bg-purple-600"  },
         ].map(({ href, label, desc, icon: Icon, color }) => (
-          <a key={href} href={href}
+          <Link key={href} href={href}
             className="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group">
             <div className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
               <Icon size={18} className="text-white" />
             </div>
             <h3 className="font-bold text-[#1a2f5e] mb-1">{label}</h3>
             <p className="text-gray-400 text-sm">{desc}</p>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

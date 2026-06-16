@@ -6,7 +6,7 @@ import { ALL_COUNTRIES } from "@/constants/countries";
 // ---------------------------------------------------------------------------
 const BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-  "https://mvrconsultants.com";
+  "https://www.mvrconsultants.org";
 
 import { UNIVERSITIES } from "@/data/universities";
 
@@ -32,7 +32,7 @@ async function getBlogSlugs(): Promise<string[]> {
   try {
     const apiUrl =
       process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-      "http://localhost:8081";
+      "http://localhost:8080";
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);

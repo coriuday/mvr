@@ -2,6 +2,22 @@ use crate::utils::errors::AppResult;
 use chrono::Datelike;
 use resend_rs::{Resend, types::CreateEmailBaseOptions};
 
+/// H-8 security fix: HTML-escapes all characters that have special meaning in HTML.
+/// Must be applied to EVERY user-controlled value before embedding it in an HTML email body.
+/// Prevents HTML injection and potential XSS in email clients.
+fn html_escape(s: &str) -> String {
+    s.chars()
+        .map(|c| match c {
+            '&'  => "&amp;".to_string(),
+            '<'  => "&lt;".to_string(),
+            '>'  => "&gt;".to_string(),
+            '"'  => "&quot;".to_string(),
+            '\'' => "&#x27;".to_string(),
+            c    => c.to_string(),
+        })
+        .collect()
+}
+
 pub struct EmailService {
     pub api_key: String,
     pub admin_email: String,
@@ -34,13 +50,23 @@ impl EmailService {
         lead_message: Option<&str>,
         country_interest: Option<&str>,
     ) -> AppResult<()> {
-        let phone_row = lead_phone
+        // H-8: Escape all user-controlled values before HTML interpolation
+        let safe_name    = html_escape(lead_name);
+        let safe_email   = html_escape(lead_email);
+        let safe_phone   = lead_phone.map(html_escape);
+        let safe_message = lead_message.map(html_escape);
+        let safe_country = country_interest.map(html_escape);
+
+        let phone_row = safe_phone
+            .as_deref()
             .map(|p| format!("<tr><td style='padding:8px 0;color:#6b7280;font-weight:600;width:140px;vertical-align:top;'>Phone</td><td style='padding:8px 0;color:#111827;'>{}</td></tr>", p))
             .unwrap_or_default();
-        let country_row = country_interest
+        let country_row = safe_country
+            .as_deref()
             .map(|c| format!("<tr><td style='padding:8px 0;color:#6b7280;font-weight:600;vertical-align:top;'>Country Interest</td><td style='padding:8px 0;color:#111827;'>{}</td></tr>", c))
             .unwrap_or_default();
-        let message_block = lead_message
+        let message_block = safe_message
+            .as_deref()
             .filter(|m| !m.trim().is_empty())
             .map(|m| format!(
                 r#"<div style="background:#f9fafb;border-radius:8px;padding:16px;margin-top:16px;">
@@ -49,6 +75,10 @@ impl EmailService {
                    </div>"#, m))
             .unwrap_or_default();
 
+        let subject = format!("🎓 New Lead: {} — MVR Consultants", safe_name);
+        let resend = Resend::new(&self.api_key);
+
+        // Build email body with escaped values
         let html = format!(
             r#"<!DOCTYPE html>
 <html lang="en">
@@ -63,33 +93,34 @@ impl EmailService {
       <p style="color:#374151;margin:0 0 4px 0;font-weight:600;">🎓 New Lead Received</p>
       <p style="color:#6b7280;font-size:14px;margin:0 0 20px 0;">A new inquiry was submitted via the MVR Consultants website.</p>
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
-        <tr><td style="padding:8px 0;color:#6b7280;font-weight:600;width:140px;vertical-align:top;">Full Name</td><td style="padding:8px 0;color:#111827;font-weight:700;">{}</td></tr>
-        <tr><td style="padding:8px 0;color:#6b7280;font-weight:600;vertical-align:top;">Email</td><td style="padding:8px 0;"><a href="mailto:{}" style="color:#c9a84c;font-weight:600;">{}</a></td></tr>
-        {}
-        {}
+        <tr><td style="padding:8px 0;color:#6b7280;font-weight:600;width:140px;vertical-align:top;">Full Name</td><td style="padding:8px 0;color:#111827;font-weight:700;">{safe_name}</td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280;font-weight:600;vertical-align:top;">Email</td><td style="padding:8px 0;"><a href="mailto:{safe_email}" style="color:#c9a84c;font-weight:600;">{safe_email}</a></td></tr>
+        {phone_row}
+        {country_row}
       </table>
-      {}
+      {message_block}
       <div style="margin-top:28px;text-align:center;">
         <a href="https://www.mvrconsultants.org/admin/leads"
            style="display:inline-block;background:#1a2f5e;color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
-          Open Admin Dashboard →
+          Open Admin Dashboard &rarr;
         </a>
       </div>
     </div>
     <div style="background:#f9fafb;padding:16px 32px;text-align:center;border-top:1px solid #f3f4f6;">
       <p style="color:#9ca3af;font-size:11px;margin:0;">
-        MVR Consultants · Hyderabad: +91 99669 03884 · Guntur: +91 85999 99331
+        MVR Consultants &middot; Hyderabad: +91 99669 03884 &middot; Guntur: +91 85999 99331
       </p>
-      <p style="color:#d1d5db;font-size:10px;margin:4px 0 0 0;">Automated lead notification — do not reply to this email</p>
+      <p style="color:#d1d5db;font-size:10px;margin:4px 0 0 0;">Automated lead notification &mdash; do not reply to this email</p>
     </div>
   </div>
 </body>
 </html>"#,
-            lead_name, lead_email, lead_email, phone_row, country_row, message_block
+            safe_name = safe_name,
+            safe_email = safe_email,
+            phone_row = phone_row,
+            country_row = country_row,
+            message_block = message_block,
         );
-
-        let subject = format!("🎓 New Lead: {} — MVR Consultants", lead_name);
-        let resend = Resend::new(&self.api_key);
 
         // Send to Hyderabad office (primary)
         let email = CreateEmailBaseOptions::new(&self.from, [self.admin_email.as_str()], &subject)
@@ -160,11 +191,11 @@ impl EmailService {
         </tr>
         <tr>
           <td style="padding:4px 0;">📞 Guntur</td>
-          <td style="padding:4px 0;text-align:right;"><a href="tel:+919966903884" style="color:#c9a84c;text-decoration:none;">+91 99669 03884</a></td>
+          <td style="padding:4px 0;text-align:right;"><a href="tel:+918599999331" style="color:#c9a84c;text-decoration:none;">+91 85999 99331</a></td>
         </tr>
         <tr>
           <td style="padding:4px 0;">✉️ Email</td>
-          <td style="padding:4px 0;text-align:right;"><a href="mailto:guntur@mvrconsultants.org" style="color:#c9a84c;text-decoration:none;">guntur@mvrconsultants.org</a></td>
+          <td style="padding:4px 0;text-align:right;"><a href="mailto:{}" style="color:#c9a84c;text-decoration:none;">{}</a></td>
         </tr>
         <tr>
           <td style="padding:4px 0;">🌐 Web</td>
@@ -179,6 +210,8 @@ impl EmailService {
 </body>
 </html>"#,
             student_name,
+            self.admin_email_guntur,
+            self.admin_email_guntur,
             chrono::Utc::now().year()
         );
 

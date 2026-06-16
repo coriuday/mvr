@@ -65,12 +65,7 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-/// Auth token response
-#[derive(Debug, Serialize)]
-pub struct AuthTokenResponse {
-    pub access_token: String,
-    pub refresh_token: String,
-    pub token_type: String,
-    pub expires_in: u64,
-    pub user: UserResponse,
-}
+// AuthTokenResponse has been intentionally removed (security fix C-2).
+// Tokens are set exclusively via httpOnly Set-Cookie headers and are
+// never returned in the JSON response body.
+// See routes/auth.rs for the login/refresh response format.

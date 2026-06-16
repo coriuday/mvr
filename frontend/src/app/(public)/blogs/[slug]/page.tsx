@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock, Tag, BookOpen, Share2 } from "lucide-react";
+import { ArrowLeft, Clock, Tag, BookOpen } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 
 // Same mockup data — will be replaced by API call once DB is live
 const MOCK_POSTS: Record<string, {
@@ -146,27 +147,66 @@ export async function generateStaticParams() {
 }
 
 // Simple markdown-to-html renderer (minimal, no dependencies)
+// BUG-014: sanitizeHref blocks javascript: and data: URIs in markdown links
+function sanitizeHref(url: string): string {
+  const trimmed = url.trim().toLowerCase();
+  // Allow only http/https/relative paths — block javascript:/data:/vbscript: etc.
+  if (trimmed.startsWith("javascript:") || trimmed.startsWith("data:") || trimmed.startsWith("vbscript:")) {
+    return "#";
+  }
+  return url;
+}
+
+/** HTML-encodes dangerous characters in a plain-text string before it is
+ * embedded inside HTML tag content. Prevents raw < > & from DB content
+ * being interpreted as HTML tags (M-8 fix). */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function renderContent(content: string) {
-  return content
+  const rawHtml = content
     .split("\n")
     .map((line) => {
-      if (line.startsWith("## ")) return `<h2 class="text-2xl font-bold text-[#1a2f5e] mt-10 mb-4" style="font-family:var(--font-playfair)">${line.slice(3)}</h2>`;
-      if (line.startsWith("## ")) return `<h3 class="text-xl font-bold text-[#1a2f5e] mt-8 mb-3">${line.slice(3)}</h3>`;
-      if (line.startsWith("**") && line.endsWith("**")) return `<strong class="text-[#1a2f5e]">${line.slice(2, -2)}</strong>`;
-      if (line.startsWith("1. ") || line.startsWith("2. ") || line.startsWith("3. ")) {
-        return `<li class="text-gray-600 leading-relaxed mb-1">${line.replace(/^\d+\. /, "")}</li>`;
+      const escaped = escapeHtml(line);
+      if (escaped.startsWith("## ")) return `<h2 class="text-2xl font-bold text-[#1a2f5e] mt-10 mb-4" style="font-family:var(--font-playfair)">${escaped.slice(3)}</h2>`;
+      if (escaped.startsWith("### ")) return `<h3 class="text-xl font-bold text-[#1a2f5e] mt-8 mb-3">${escaped.slice(4)}</h3>`;
+      if (escaped.startsWith("**") && escaped.endsWith("**")) return `<strong class="text-[#1a2f5e]">${escaped.slice(2, -2)}</strong>`;
+      if (/^\d+\. /.test(escaped)) {
+        return `<li class="text-gray-600 leading-relaxed mb-1">${escaped.replace(/^\d+\.\s+/, "")}</li>`;
       }
-      if (line.startsWith("- ") || line.startsWith("* ")) {
-        return `<li class="text-gray-600 leading-relaxed mb-1">${line.slice(2)}</li>`;
+      if (escaped.startsWith("- ") || escaped.startsWith("* ")) {
+        return `<li class="text-gray-600 leading-relaxed mb-1">${escaped.slice(2)}</li>`;
       }
-      if (line.startsWith("---")) return `<hr class="my-8 border-gray-200" />`;
-      if (line.startsWith("*") && line.endsWith("*")) return `<em class="text-gray-500 text-sm">${line.slice(1, -1)}</em>`;
-      if (line.trim() === "") return `<br />`;
-      // Replace [text](/link)
-      const linkMatch = line.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#c9a84c] font-semibold hover:underline">$1</a>');
-      return `<p class="text-gray-600 leading-relaxed mb-3">${linkMatch}</p>`;
+      if (escaped.startsWith("---")) return `<hr class="my-8 border-gray-200" />`;
+      if (escaped.startsWith("*") && escaped.endsWith("*")) return `<em class="text-gray-500 text-sm">${escaped.slice(1, -1)}</em>`;
+      if (escaped.trim() === "") return `<br />`;
+      // Replace [text](/link) — sanitize href to block XSS
+      const withLinks = escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, text, url) => {
+        const safeUrl = sanitizeHref(decodeURIComponent(url));
+        return `<a href="${safeUrl}" class="text-[#c9a84c] font-semibold hover:underline" rel="noopener noreferrer">${text}</a>`;
+      });
+      return `<p class="text-gray-600 leading-relaxed mb-3">${withLinks}</p>`;
     })
     .join("\n");
+
+  // C-3 security fix: sanitize the generated HTML with DOMPurify.
+  // This is the last line of defence — even if renderContent produces
+  // something unsafe (e.g. due to a bug), DOMPurify strips it here.
+  return DOMPurify.sanitize(rawHtml, {
+    ALLOWED_TAGS: [
+      "p", "h2", "h3", "strong", "em", "a", "li", "ul", "ol",
+      "hr", "br", "span",
+    ],
+    ALLOWED_ATTR: ["href", "class", "style", "rel", "target"],
+    ALLOW_DATA_ATTR: false,
+    FORBID_TAGS: ["script", "iframe", "object", "embed", "form", "input"],
+    FORBID_ATTR: ["onerror", "onclick", "onload", "onmouseover"],
+  });
 }
 
 export default async function BlogDetailPage({ params }: Props) {

@@ -77,31 +77,60 @@ impl RateLimiterState {
 
 // ── IP extraction helper ─────────────────────────────────────────────────────
 
-/// Extracts the real client IP.
-/// Prefers the first value in `X-Forwarded-For` (set by Nginx in production)
-/// and falls back to the TCP socket address (useful in local dev).
-fn extract_ip(request: &Request) -> IpAddr {
-    if let Some(forwarded) = request
-        .headers()
-        .get("X-Forwarded-For")
-        .and_then(|v| v.to_str().ok())
-        && let Some(first) = forwarded.split(',').next()
-        && let Ok(ip) = first.trim().parse::<IpAddr>()
-    {
-        return ip;
+/// Returns true if the given IP is a private/loopback address that we trust
+/// to be a legitimate reverse proxy (nginx, Render's load balancer, etc.).
+/// Public IPs should never be trusted as proxies.
+fn is_trusted_proxy(ip: &IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(v4) => {
+            v4.is_loopback()       // 127.0.0.0/8
+            || v4.is_private()     // 10.x, 172.16-31.x, 192.168.x
+            || v4.is_link_local()  // 169.254.x.x
+        }
+        IpAddr::V6(v6) => v6.is_loopback(),
     }
+}
 
-    // Fall back to the TCP connect info (available in local dev / direct connections)
-    request
+/// Extracts the real client IP.
+///
+/// C-5 security fix: `X-Forwarded-For` is only trusted when the TCP peer is
+/// a known private/loopback address. If an attacker connects directly from a
+/// public IP, they cannot spoof their address via this header.
+fn extract_ip(request: &Request) -> IpAddr {
+    // Get the TCP peer address first
+    let peer_ip = request
         .extensions()
         .get::<ConnectInfo<std::net::SocketAddr>>()
-        .map(|ci| ci.0.ip())
-        .unwrap_or(IpAddr::from([127, 0, 0, 1]))
+        .map(|ci| ci.0.ip());
+
+    // Only honour X-Forwarded-For if the connection came from a trusted proxy
+    if let Some(peer) = peer_ip {
+        if is_trusted_proxy(&peer) {
+            if let Some(forwarded) = request
+                .headers()
+                .get("X-Forwarded-For")
+                .and_then(|v| v.to_str().ok())
+            {
+                // Take the LAST entry set by our trusted proxy, not the first
+                // (the first can be spoofed by the client).
+                if let Some(ip) = forwarded.split(',').next_back()
+                    && let Ok(parsed) = ip.trim().parse::<IpAddr>()
+                {
+                    return parsed;
+                }
+            }
+        }
+        // Untrusted or direct connection — use TCP peer IP directly
+        return peer;
+    }
+
+    // Last resort fallback (should not happen in practice)
+    IpAddr::from([127, 0, 0, 1])
 }
 
 // ── 429 response ─────────────────────────────────────────────────────────────
 
-fn too_many_requests(endpoint: &str) -> Response {
+fn too_many_requests(endpoint: &str, retry_after_secs: u64) -> Response {
     let body = axum::Json(json!({
         "success": false,
         "error": {
@@ -112,7 +141,14 @@ fn too_many_requests(endpoint: &str) -> Response {
             )
         }
     }));
-    (StatusCode::TOO_MANY_REQUESTS, body).into_response()
+    // M-12: Include Retry-After so well-behaved clients back off correctly
+    let retry_after_val = axum::http::HeaderValue::from_str(&retry_after_secs.to_string())
+        .unwrap_or_else(|_| axum::http::HeaderValue::from_static("60"));
+    let mut response = (StatusCode::TOO_MANY_REQUESTS, body).into_response();
+    response
+        .headers_mut()
+        .insert("Retry-After", retry_after_val);
+    response
 }
 
 // ── Middleware functions ─────────────────────────────────────────────────────
@@ -127,8 +163,8 @@ pub async fn rate_limit_login(
 ) -> Response {
     let ip = extract_ip(&request);
     if !limiter.is_allowed(ip) {
-        tracing::warn!("Rate limit hit on /api/auth/login from {ip}");
-        return too_many_requests("/api/auth/login");
+        tracing::warn!(ip = %ip, "Rate limit hit on /api/auth/login");
+        return too_many_requests("/api/auth/login", 10);
     }
     next.run(request).await
 }
@@ -143,8 +179,8 @@ pub async fn rate_limit_contact(
 ) -> Response {
     let ip = extract_ip(&request);
     if !limiter.is_allowed(ip) {
-        tracing::warn!("Rate limit hit on /api/contact from {ip}");
-        return too_many_requests("/api/contact");
+        tracing::warn!(ip = %ip, "Rate limit hit on /api/contact");
+        return too_many_requests("/api/contact", 30);
     }
     next.run(request).await
 }
@@ -160,8 +196,8 @@ pub async fn rate_limit_leads(
 ) -> Response {
     let ip = extract_ip(&request);
     if !limiter.is_allowed(ip) {
-        tracing::warn!("Rate limit hit on /api/leads from {ip}");
-        return too_many_requests("/api/leads");
+        tracing::warn!(ip = %ip, "Rate limit hit on /api/leads");
+        return too_many_requests("/api/leads", 20);
     }
     next.run(request).await
 }
@@ -175,8 +211,8 @@ pub async fn rate_limit_newsletter(
 ) -> Response {
     let ip = extract_ip(&request);
     if !limiter.is_allowed(ip) {
-        tracing::warn!("Rate limit hit on /api/newsletter/subscribe from {ip}");
-        return too_many_requests("/api/newsletter/subscribe");
+        tracing::warn!(ip = %ip, "Rate limit hit on /api/newsletter/subscribe");
+        return too_many_requests("/api/newsletter/subscribe", 60);
     }
     next.run(request).await
 }
@@ -191,8 +227,8 @@ pub async fn rate_limit_sop(
 ) -> Response {
     let ip = extract_ip(&request);
     if !limiter.is_allowed(ip) {
-        tracing::warn!("Rate limit hit on /api/sop/review from {ip}");
-        return too_many_requests("/api/sop/review");
+        tracing::warn!(ip = %ip, "Rate limit hit on /api/sop/review");
+        return too_many_requests("/api/sop/review", 120);
     }
     next.run(request).await
 }

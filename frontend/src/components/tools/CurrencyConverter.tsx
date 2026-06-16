@@ -166,7 +166,10 @@ export default function CurrencyConverter() {
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
           <div className="flex items-center gap-2 text-xs text-gray-400">
             {error ? (
-              <><AlertCircle size={12} className="text-amber-500" /> Using offline rates (rates may not be current)</>
+              <span className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200">
+                <AlertCircle size={12} className="shrink-0" />
+                Live rates unavailable — showing <strong className="mx-0.5">estimated May 2026</strong> rates. Figures may be inaccurate.
+              </span>
             ) : lastUpdated ? (
               <><span className="w-2 h-2 bg-emerald-400 rounded-full inline-block" /> Live rates · Updated {lastUpdated}</>
             ) : (
@@ -176,10 +179,14 @@ export default function CurrencyConverter() {
           <button
             onClick={fetchRates}
             disabled={loading}
-            className="flex items-center gap-1.5 text-xs text-[#c9a84c] font-semibold hover:text-[#a07a2e] disabled:opacity-50 transition-colors"
+            className={`flex items-center gap-1.5 text-xs font-semibold disabled:opacity-50 transition-colors ${
+              error
+                ? "text-amber-700 bg-amber-50 border border-amber-300 px-2.5 py-1.5 rounded-lg hover:bg-amber-100"
+                : "text-[#c9a84c] hover:text-[#a07a2e]"
+            }`}
           >
             <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
-            Refresh
+            {error ? "Retry" : "Refresh"}
           </button>
         </div>
       </div>

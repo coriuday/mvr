@@ -20,16 +20,20 @@ const NAV = [
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAdminAuth();
+  const { user, loading, logout } = useAdminAuth();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   if (pathname === "/admin/login") return <>{children}</>;
 
-  if (!user) {
+  // Show spinner while the server auth check is in flight (BUG-003)
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-[#0b1628] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+          <p className="text-white/30 text-xs">Verifying session…</p>
+        </div>
       </div>
     );
   }

@@ -68,6 +68,10 @@ services:
       - key: ADMIN_EMAIL_GUNTUR
         value: guntur@mvrconsultants.org
 
+      # ── AI / Gemini (used by SOP Reviewer) ────────────────────────────────
+      - key: GEMINI_API_KEY
+        sync: false   # Set manually in Render Dashboard → Environment
+
       # ── Logging ───────────────────────────────────────────────────────────
       - key: RUST_LOG
         value: info

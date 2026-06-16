@@ -11,15 +11,26 @@ use crate::utils::{errors::AppError, jwt::verify_access_token};
 /// 1. `Authorization: Bearer <token>` header  (legacy / API clients)
 /// 2. `mvr_access` httpOnly cookie             (browser cookie auth)
 ///
+/// After signature verification, checks the JTI blocklist to reject
+/// tokens that were revoked by a prior logout call (H-1).
+///
 /// Bearer header takes priority so that existing tooling and the current
 /// localStorage-based frontend continue to work during the migration.
 pub async fn require_auth(
-    State(config): State<crate::routes::AppState>,
+    State(state): State<crate::routes::AppState>,
     mut request: Request,
     next: Next,
 ) -> Result<Response, AppError> {
     let token = extract_token(request.headers())?;
-    let claims = verify_access_token(&token, &config.config)?;
+    let claims = verify_access_token(&token, &state.config)?;
+
+    // H-1: reject revoked tokens (logged-out sessions)
+    if state.blocklist.is_blocked(&claims.jti) {
+        return Err(AppError::Unauthorized(
+            "Session has been invalidated. Please log in again.".to_string(),
+        ));
+    }
+
     request.extensions_mut().insert(claims);
     Ok(next.run(request).await)
 }
@@ -32,6 +43,13 @@ pub async fn require_admin(
 ) -> Result<Response, AppError> {
     let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &state.config)?;
+
+    // H-1: reject revoked tokens
+    if state.blocklist.is_blocked(&claims.jti) {
+        return Err(AppError::Unauthorized(
+            "Session has been invalidated. Please log in again.".to_string(),
+        ));
+    }
 
     if claims.role != "ADMIN" {
         return Err(AppError::Forbidden(
@@ -52,6 +70,13 @@ pub async fn require_counselor_or_admin(
 ) -> Result<Response, AppError> {
     let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &state.config)?;
+
+    // H-1: reject revoked tokens
+    if state.blocklist.is_blocked(&claims.jti) {
+        return Err(AppError::Unauthorized(
+            "Session has been invalidated. Please log in again.".to_string(),
+        ));
+    }
 
     if claims.role != "ADMIN" && claims.role != "COUNSELOR" {
         return Err(AppError::Forbidden(
@@ -98,3 +123,4 @@ fn extract_token(headers: &axum::http::HeaderMap) -> Result<String, AppError> {
         "Authentication required. Please log in.".to_string(),
     ))
 }
+

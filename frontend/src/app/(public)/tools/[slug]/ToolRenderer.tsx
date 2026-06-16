@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
+import { Suspense } from "react";
 
 const Loading = () => (
   <div className="flex items-center justify-center py-20">
@@ -30,5 +31,11 @@ const MAP: Record<string, React.ComponentType> = {
 export default function ToolRenderer({ slug }: { slug: string }) {
   const Tool = MAP[slug];
   if (!Tool) return null;
-  return <Tool />;
+  // Suspense boundary required for useSearchParams() in UniversityCompare (BUG-021)
+  return (
+    <Suspense fallback={<Loading />}>
+      <Tool />
+    </Suspense>
+  );
 }
+

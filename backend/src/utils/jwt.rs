@@ -75,11 +75,12 @@ pub fn generate_refresh_token(user_id: &Uuid, config: &Config) -> Result<String,
     .map_err(|e| AppError::InternalServerError(format!("Refresh token generation failed: {}", e)))
 }
 
-/// Validates and decodes an access token
+/// Validates and decodes an access token.
+/// Rejects tokens that were issued as refresh tokens (M-3 — token type confusion).
 pub fn verify_access_token(token: &str, config: &Config) -> Result<Claims, AppError> {
     let validation = Validation::new(Algorithm::HS256);
 
-    decode::<Claims>(
+    let claims = decode::<Claims>(
         token,
         &DecodingKey::from_secret(config.jwt_secret.as_bytes()),
         &validation,
@@ -89,15 +90,23 @@ pub fn verify_access_token(token: &str, config: &Config) -> Result<Claims, AppEr
         jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
             AppError::Unauthorized("Token has expired".to_string())
         }
-        _ => AppError::Unauthorized(format!("Invalid token: {}", e)),
-    })
+        _ => AppError::Unauthorized("Invalid token".to_string()),
+    })?;
+
+    // M-3: Prevent refresh tokens from being used as access tokens
+    if claims.token_type != "access" {
+        return Err(AppError::Unauthorized("Invalid token type".to_string()));
+    }
+
+    Ok(claims)
 }
 
-/// Validates and decodes a refresh token
+/// Validates and decodes a refresh token.
+/// Rejects tokens that were issued as access tokens (M-3 — token type confusion).
 pub fn verify_refresh_token(token: &str, config: &Config) -> Result<RefreshClaims, AppError> {
     let validation = Validation::new(Algorithm::HS256);
 
-    decode::<RefreshClaims>(
+    let claims = decode::<RefreshClaims>(
         token,
         &DecodingKey::from_secret(config.jwt_refresh_secret.as_bytes()),
         &validation,
@@ -107,6 +116,13 @@ pub fn verify_refresh_token(token: &str, config: &Config) -> Result<RefreshClaim
         jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
             AppError::Unauthorized("Refresh token has expired. Please log in again.".to_string())
         }
-        _ => AppError::Unauthorized(format!("Invalid refresh token: {}", e)),
-    })
+        _ => AppError::Unauthorized("Invalid refresh token".to_string()),
+    })?;
+
+    // M-3: Prevent access tokens from being used as refresh tokens
+    if claims.token_type != "refresh" {
+        return Err(AppError::Unauthorized("Invalid token type".to_string()));
+    }
+
+    Ok(claims)
 }

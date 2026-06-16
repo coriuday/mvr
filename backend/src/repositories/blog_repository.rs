@@ -5,6 +5,17 @@ use crate::{
 use sqlx::PgPool;
 use uuid::Uuid;
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/// Compute "N min read" string from raw content (average 200 WPM).
+fn compute_read_time(content: &str) -> String {
+    let words = content.split_whitespace().count();
+    let minutes = (words as f32 / 200.0).ceil().max(1.0) as u32;
+    format!("{} min read", minutes)
+}
+
+// ── Repository ────────────────────────────────────────────────────────────────
+
 pub struct BlogRepository {
     pub db: PgPool,
 }
@@ -29,17 +40,25 @@ impl BlogRepository {
 
         let blogs = sqlx::query_as::<_, Blog>(
             r#"
-            SELECT id, title, slug, content, excerpt, image_url, published,
-                   author_id, meta_title, meta_description, tags, created_at, updated_at
-            FROM blogs
-            WHERE ($1::boolean IS NULL OR published = $1)
-            ORDER BY created_at DESC
+            SELECT
+                b.id, b.title, b.slug, b.content, b.excerpt, b.image_url, b.published,
+                b.author_id,
+                u.name AS author_name,
+                b.meta_title, b.meta_description, b.tags,
+                b.category,
+                COALESCE(b.read_time, $4) AS read_time,
+                b.created_at, b.updated_at
+            FROM blogs b
+            LEFT JOIN users u ON u.id = b.author_id
+            WHERE ($1::boolean IS NULL OR b.published = $1)
+            ORDER BY b.created_at DESC
             LIMIT $2 OFFSET $3
             "#,
         )
         .bind(filter.published)
         .bind(per_page)
         .bind(offset)
+        .bind("5 min read") // fallback read_time for rows without content
         .fetch_all(&self.db)
         .await
         .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
@@ -50,9 +69,17 @@ impl BlogRepository {
     pub async fn find_by_slug(&self, slug: &str) -> AppResult<Blog> {
         sqlx::query_as::<_, Blog>(
             r#"
-            SELECT id, title, slug, content, excerpt, image_url, published,
-                   author_id, meta_title, meta_description, tags, created_at, updated_at
-            FROM blogs WHERE slug = $1 AND published = true
+            SELECT
+                b.id, b.title, b.slug, b.content, b.excerpt, b.image_url, b.published,
+                b.author_id,
+                u.name AS author_name,
+                b.meta_title, b.meta_description, b.tags,
+                b.category,
+                COALESCE(b.read_time, '5 min read') AS read_time,
+                b.created_at, b.updated_at
+            FROM blogs b
+            LEFT JOIN users u ON u.id = b.author_id
+            WHERE b.slug = $1 AND b.published = true
             "#,
         )
         .bind(slug)
@@ -66,9 +93,17 @@ impl BlogRepository {
     pub async fn find_by_id(&self, id: Uuid) -> AppResult<Blog> {
         sqlx::query_as::<_, Blog>(
             r#"
-            SELECT id, title, slug, content, excerpt, image_url, published,
-                   author_id, meta_title, meta_description, tags, created_at, updated_at
-            FROM blogs WHERE id = $1
+            SELECT
+                b.id, b.title, b.slug, b.content, b.excerpt, b.image_url, b.published,
+                b.author_id,
+                u.name AS author_name,
+                b.meta_title, b.meta_description, b.tags,
+                b.category,
+                COALESCE(b.read_time, '5 min read') AS read_time,
+                b.created_at, b.updated_at
+            FROM blogs b
+            LEFT JOIN users u ON u.id = b.author_id
+            WHERE b.id = $1
             "#,
         )
         .bind(id)
@@ -84,13 +119,20 @@ impl BlogRepository {
         author_id: Option<Uuid>,
     ) -> AppResult<Blog> {
         let tags: Vec<String> = req.tags.clone().unwrap_or_default();
+        let read_time = compute_read_time(&req.content);
         sqlx::query_as::<_, Blog>(
             r#"
             INSERT INTO blogs (title, slug, content, excerpt, image_url, published,
-                               author_id, meta_title, meta_description, tags)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            RETURNING id, title, slug, content, excerpt, image_url, published,
-                      author_id, meta_title, meta_description, tags, created_at, updated_at
+                               author_id, meta_title, meta_description, tags, category, read_time)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            RETURNING
+                id, title, slug, content, excerpt, image_url, published,
+                author_id,
+                NULL::text AS author_name,
+                meta_title, meta_description, tags,
+                category,
+                COALESCE(read_time, '5 min read') AS read_time,
+                created_at, updated_at
             "#,
         )
         .bind(&req.title)
@@ -103,6 +145,8 @@ impl BlogRepository {
         .bind(&req.meta_title)
         .bind(&req.meta_description)
         .bind(&tags)
+        .bind(&req.category)
+        .bind(&read_time)
         .fetch_one(&self.db)
         .await
         .map_err(|e| {
@@ -116,6 +160,8 @@ impl BlogRepository {
     }
 
     pub async fn update(&self, id: Uuid, req: &UpdateBlogRequest) -> AppResult<Blog> {
+        // Recompute read_time if content is being updated
+        let new_read_time: Option<String> = req.content.as_deref().map(compute_read_time);
         sqlx::query_as::<_, Blog>(
             r#"
             UPDATE blogs SET
@@ -128,10 +174,18 @@ impl BlogRepository {
                 meta_title       = COALESCE($8, meta_title),
                 meta_description = COALESCE($9, meta_description),
                 tags             = COALESCE($10, tags),
+                category         = COALESCE($11, category),
+                read_time        = COALESCE($12, read_time),
                 updated_at       = NOW()
             WHERE id = $1
-            RETURNING id, title, slug, content, excerpt, image_url, published,
-                      author_id, meta_title, meta_description, tags, created_at, updated_at
+            RETURNING
+                id, title, slug, content, excerpt, image_url, published,
+                author_id,
+                NULL::text AS author_name,
+                meta_title, meta_description, tags,
+                category,
+                COALESCE(read_time, '5 min read') AS read_time,
+                created_at, updated_at
             "#,
         )
         .bind(id)
@@ -144,6 +198,8 @@ impl BlogRepository {
         .bind(&req.meta_title)
         .bind(&req.meta_description)
         .bind(&req.tags)
+        .bind(&req.category)
+        .bind(&new_read_time)
         .fetch_optional(&self.db)
         .await
         .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?

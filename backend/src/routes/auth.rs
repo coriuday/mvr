@@ -1,5 +1,5 @@
 use crate::{
-    models::user::{AuthTokenResponse, LoginRequest, RegisterRequest},
+    models::user::{LoginRequest, RegisterRequest},
     repositories::auth_repository::AuthRepository,
     routes::AppState,
     utils::{
@@ -167,20 +167,21 @@ pub async fn login(
         ),
     ];
 
-    let response = AuthTokenResponse {
-        access_token,
-        refresh_token,
-        token_type: "Bearer".to_string(),
-        expires_in: access_max_age,
-        user: user.into(),
-    };
+    let user_response: crate::models::user::UserResponse = user.into();
 
+    // C-2 security fix: tokens are in httpOnly cookies only — never in the JSON body.
+    // The body carries only safe, non-secret metadata so the frontend can display
+    // the user's name/role without needing to read the cookie.
     Ok((
         AppendHeaders(cookies),
         Json(serde_json::json!({
             "success": true,
             "message": "Login successful",
-            "data": response,
+            "data": {
+                "token_type": "Bearer",
+                "expires_in": access_max_age,
+                "user": user_response,
+            },
         })),
     ))
 }
@@ -190,10 +191,43 @@ pub async fn login(
 // ─────────────────────────────────────────────
 pub async fn logout(
     State(state): State<AppState>,
+    headers: axum::http::HeaderMap,
 ) -> AppResult<(
     AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
     Json<MessageResponse>,
 )> {
+    // H-1: Revoke the access token immediately by blocking its JTI.
+    // The middleware has already verified the token before this handler runs,
+    // so we can read the claims from the extension OR re-verify from cookie.
+    // We re-extract from cookie here to be explicit and avoid Extension errors
+    // when logout is called from non-standard clients.
+    if let Some(token) = extract_refresh_cookie(&headers)
+        .map(|_| ()) // ignore refresh cookie here
+        .and_then(|_| None::<String>)
+        .or_else(|| {
+            // Try to get the access token from the cookie
+            headers
+                .get(header::COOKIE)
+                .and_then(|v| v.to_str().ok())
+                .and_then(|cookies| {
+                    cookies
+                        .split(';')
+                        .map(|c| c.trim())
+                        .find(|c| c.starts_with("mvr_access="))
+                        .map(|c| c.trim_start_matches("mvr_access=").to_string())
+                })
+        })
+    {
+        // Verify and revoke — ignore errors (token may already be expired)
+        if let Ok(claims) = crate::utils::jwt::verify_access_token(&token, &state.config) {
+            state.blocklist.block(claims.jti, claims.exp);
+            tracing::info!(
+                user.email = %claims.email,
+                "User logged out — access token revoked"
+            );
+        }
+    }
+
     // Clear both auth cookies by setting Max-Age=0
     let cookies = clear_auth_cookies(state.config.is_production());
     Ok((
@@ -260,8 +294,8 @@ pub async fn refresh_token(
         Json(serde_json::json!({
             "success": true,
             "data": {
-                "access_token": access_token,
-                "refresh_token": new_refresh_token,
+                // C-2 security fix: new tokens are in Set-Cookie headers only.
+                // Return only non-secret metadata the frontend may use.
                 "token_type": "Bearer",
                 "expires_in": access_max_age,
                 "user": user,

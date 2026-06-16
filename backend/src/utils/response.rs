@@ -73,7 +73,9 @@ impl<T: Serialize> PaginatedResponse<T> {
     }
 }
 
-/// Health check handler
+/// Health check handler — intentionally minimal to avoid information disclosure.
+/// H-4 security fix: Version is NOT exposed here. Knowing the exact version
+/// helps attackers target known CVEs in that specific release.
 pub async fn health_handler() -> impl IntoResponse {
     (
         StatusCode::OK,
@@ -81,7 +83,6 @@ pub async fn health_handler() -> impl IntoResponse {
             "success": true,
             "status": "healthy",
             "service": "mvr-backend",
-            "version": env!("CARGO_PKG_VERSION"),
         })),
     )
 }

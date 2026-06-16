@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // H-6 security fix: Do NOT emit source maps in production builds.
+  // Source maps expose original TypeScript/JSX source to anyone who opens DevTools,
+  // making reverse-engineering significantly easier.
+  productionBrowserSourceMaps: false,
+
   // Standalone output for Docker; disabled on Vercel (Vercel manages its own output)
   ...(process.env.DOCKER_BUILD === "true" ? { output: "standalone" as const } : {}),
 
@@ -53,7 +58,6 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
-          // ── Existing headers (preserved) ──────────────────────────────────
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-XSS-Protection", value: "1; mode=block" },
@@ -64,6 +68,38 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(self)",
+          },
+          // ── Content Security Policy (BUG-013) ─────────────────────────────
+          // Allows self, Cloudinary, Unsplash, Google Fonts, backend API,
+          // and open.er-api.com (currency converter).
+          // unsafe-inline is required for Next.js hydration scripts + Tailwind.
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              // Scripts: self + Next.js inline hydration
+              // H-6 security fix: 'unsafe-eval' has been REMOVED.
+              // React 19 / Next.js 15 do not require unsafe-eval in production builds.
+              // 'unsafe-inline' is kept for now for Next.js hydration (tracked in BUG-027:
+              // migrate to nonce-based CSP when inline script hashes are available).
+              "script-src 'self' 'unsafe-inline'",
+              // Styles: self + inline (Tailwind) + Google Fonts
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              // Fonts: self + Google Fonts CDN
+              "font-src 'self' https://fonts.gstatic.com",
+              // Images: self + Cloudinary + Unsplash + data URIs (for icons)
+              "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com",
+              // API connections: backend + currency API
+              // L-8 security fix: Removed generativelanguage.googleapis.com — the frontend
+              // never calls Gemini directly. All AI requests go through the Rust backend.
+              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"} https://open.er-api.com`,
+              // Frames: none
+              "frame-src 'none'",
+              // Objects: none
+              "object-src 'none'",
+              // Upgrade insecure requests in production
+              ...(isDev ? [] : ["upgrade-insecure-requests"]),
+            ].join("; "),
           },
           // HSTS — production only (localhost has no TLS certificate)
           // max-age=31536000 = 1 year; includeSubDomains covers api.* and www.*

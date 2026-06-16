@@ -13,7 +13,7 @@ use crate::{
             self, contact_limiter, leads_limiter, login_limiter, newsletter_limiter, sop_limiter,
         },
     },
-    utils::response::health_handler,
+    utils::{response::health_handler, token_blocklist::TokenBlocklist},
 };
 
 pub mod admin;
@@ -33,15 +33,19 @@ pub mod universities;
 pub struct AppState {
     pub db: PgPool,
     pub config: Config,
+    /// JTI blocklist for logout-based token revocation (H-1)
+    pub blocklist: TokenBlocklist,
 }
 
 /// Assembles the full Axum router with all route groups.
-/// Returns a `IntoMakeServiceWithConnectInfo<Router>` so that TCP socket
-/// addresses are available to the rate-limit middleware as an IP fallback.
 pub fn create_router(db: PgPool, config: Config) -> Router {
+    let blocklist = TokenBlocklist::new();
+    blocklist.spawn_eviction_task();
+
     let state = AppState {
         db,
         config: config.clone(),
+        blocklist,
     };
     let cors = cors_middleware::build_cors_layer(&config.allowed_origins);
 
@@ -98,7 +102,7 @@ fn public_routes(
         .route("/api/auth/refresh", post(auth::refresh_token))
         // Public blog routes
         .route("/api/blogs", get(blogs::get_all_blogs))
-        .route("/api/blogs/:slug", get(blogs::get_blog_by_slug))
+        .route("/api/blogs/:id", get(blogs::get_blog_by_slug))
         // Public university routes
         .route("/api/universities", get(universities::get_all_universities))
         // Public scholarship routes
@@ -164,10 +168,10 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/leads/:id", get(leads::get_lead))
         .route("/api/leads/:id", put(leads::update_lead))
         .route("/api/leads/:id", delete(leads::delete_lead))
-        // Blog management
+        // Blog management (admin uses UUID; public GET uses slug — separate routes)
         .route("/api/blogs", post(blogs::create_blog))
-        .route("/api/blogs/:slug", put(blogs::update_blog))
-        .route("/api/blogs/:slug", delete(blogs::delete_blog))
+        .route("/api/blogs/:id", put(blogs::update_blog))
+        .route("/api/blogs/:id", delete(blogs::delete_blog))
         // University management
         .route("/api/universities", post(universities::create_university))
         .route(

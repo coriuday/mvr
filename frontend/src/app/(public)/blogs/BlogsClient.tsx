@@ -45,9 +45,10 @@ export default function BlogsClient() {
           // Add default fields if they are missing from backend model
           const mappedPosts = data.data.map((p: any) => ({
             ...p,
-            category: "Country Guide", // Default if not in backend model
-            readTime: "5 min read",
-            tags: [],
+            // Use API-provided values; fall back only if genuinely absent
+            category: p.category || "Country Guide",
+            readTime: p.read_time || "5 min read",
+            tags: p.tags || [],
           }));
           setPosts(mappedPosts);
         }
