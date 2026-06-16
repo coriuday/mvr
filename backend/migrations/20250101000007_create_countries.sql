@@ -46,6 +46,7 @@ CREATE INDEX IF NOT EXISTS idx_countries_sort_order  ON countries(sort_order ASC
 CREATE INDEX IF NOT EXISTS idx_countries_content_gin ON countries USING gin(content);
 
 -- Auto-update updated_at (reuses the function defined in migration 001)
+DROP TRIGGER IF EXISTS countries_updated_at ON countries;
 CREATE TRIGGER countries_updated_at
     BEFORE UPDATE ON countries
     FOR EACH ROW

@@ -24,6 +24,7 @@ CREATE INDEX idx_blogs_published ON blogs(published);
 CREATE INDEX idx_blogs_created_at ON blogs(created_at DESC);
 CREATE INDEX idx_blogs_tags ON blogs USING gin(tags);
 
+DROP TRIGGER IF EXISTS blogs_updated_at ON blogs;
 CREATE TRIGGER blogs_updated_at
     BEFORE UPDATE ON blogs
     FOR EACH ROW

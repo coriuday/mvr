@@ -20,6 +20,7 @@ CREATE INDEX idx_universities_country ON universities(country);
 CREATE INDEX idx_universities_ranking ON universities(ranking);
 CREATE INDEX idx_universities_featured ON universities(is_featured);
 
+DROP TRIGGER IF EXISTS universities_updated_at ON universities;
 CREATE TRIGGER universities_updated_at
     BEFORE UPDATE ON universities
     FOR EACH ROW

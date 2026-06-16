@@ -2,13 +2,16 @@
 -- Migration 006: Create scholarships table
 -- =============================================================================
 
-CREATE TYPE scholarship_type AS ENUM (
-    'MERIT_BASED',
-    'NEED_BASED',
-    'GOVERNMENT',
-    'UNIVERSITY',
-    'PRIVATE'
-);
+DO $$ BEGIN
+    CREATE TYPE scholarship_type AS ENUM (
+        'MERIT_BASED',
+        'NEED_BASED',
+        'GOVERNMENT',
+        'UNIVERSITY',
+        'PRIVATE'
+    );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS scholarships (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -25,12 +28,17 @@ CREATE TABLE IF NOT EXISTS scholarships (
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Indexes
-CREATE INDEX idx_scholarships_type ON scholarships(scholarship_type);
-CREATE INDEX idx_scholarships_country ON scholarships(country);
-CREATE INDEX idx_scholarships_featured ON scholarships(is_featured);
-CREATE INDEX idx_scholarships_deadline ON scholarships(deadline);
+-- Add country_id FK column if it doesn't exist (links scholarship to countries table)
+ALTER TABLE scholarships ADD COLUMN IF NOT EXISTS country_id UUID REFERENCES countries(id) ON DELETE SET NULL;
 
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_scholarships_type ON scholarships(scholarship_type);
+CREATE INDEX IF NOT EXISTS idx_scholarships_country ON scholarships(country);
+CREATE INDEX IF NOT EXISTS idx_scholarships_featured ON scholarships(is_featured);
+CREATE INDEX IF NOT EXISTS idx_scholarships_deadline ON scholarships(deadline);
+CREATE INDEX IF NOT EXISTS idx_scholarships_country_id ON scholarships(country_id);
+
+DROP TRIGGER IF EXISTS scholarships_updated_at ON scholarships;
 CREATE TRIGGER scholarships_updated_at
     BEFORE UPDATE ON scholarships
     FOR EACH ROW
