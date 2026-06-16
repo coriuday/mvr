@@ -1,5 +1,5 @@
 use crate::{
-    models::user::{RegisterRequest, User, UserResponse, UserRole},
+    models::user::{RegisterRequest, UpdateUserRoleRequest, User, UserResponse, UserRole},
     utils::errors::{AppError, AppResult},
 };
 use sqlx::PgPool;
@@ -40,13 +40,17 @@ impl AuthRepository {
         .ok_or_else(|| AppError::NotFound(format!("User {id} not found")))
     }
 
-    /// Create a new staff user account
+    /// Create a new staff user account.
+    /// C-2 security fix: Role is always set to Counselor regardless of request body.
+    /// Use update_role() to change a user's role after creation (admin action).
     pub async fn create(
         &self,
         req: &RegisterRequest,
         password_hash: &str,
     ) -> AppResult<UserResponse> {
-        let role = req.role.clone().unwrap_or(UserRole::Counselor);
+        // C-2: role is NOT taken from the request — always defaults to Counselor.
+        // This prevents privilege escalation via mass assignment.
+        let role = UserRole::Counselor;
 
         sqlx::query_as::<_, UserResponse>(
             r#"
@@ -69,6 +73,26 @@ impl AuthRepository {
                 AppError::InternalServerError(format!("DB error: {e}"))
             }
         })
+    }
+
+    /// Update a staff user's role.
+    /// C-2 security fix: role assignment is a privileged admin-only operation,
+    /// separate from account creation.
+    pub async fn update_role(&self, id: Uuid, req: &UpdateUserRoleRequest) -> AppResult<UserResponse> {
+        sqlx::query_as::<_, UserResponse>(
+            r#"
+            UPDATE users
+            SET role = $2, updated_at = NOW()
+            WHERE id = $1
+            RETURNING id, name, email, role, is_active, created_at
+            "#,
+        )
+        .bind(id)
+        .bind(&req.role)
+        .fetch_optional(&self.db)
+        .await
+        .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?
+        .ok_or_else(|| AppError::NotFound(format!("User {id} not found")))
     }
 
     /// List all staff users

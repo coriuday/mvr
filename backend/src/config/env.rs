@@ -23,15 +23,11 @@ pub struct Config {
     pub frontend_url: String,
     pub allowed_origins: Vec<String>,
 
-    // Cloudinary
-    #[allow(dead_code)]
-    pub cloudinary_cloud_name: String,
-    #[allow(dead_code)]
-    pub cloudinary_api_key: String,
-    #[allow(dead_code)]
-    pub cloudinary_api_secret: String,
-    #[allow(dead_code)]
-    pub cloudinary_upload_preset: String,
+    // Cloudinary (H-2 fix: used by the signed upload service)
+    pub cloudinary_cloud_name: Option<String>,
+    pub cloudinary_api_key: Option<String>,
+    pub cloudinary_api_secret: Option<String>,
+    pub cloudinary_upload_preset: Option<String>,
 
     // Resend Email
     pub resend_api_key: String,
@@ -42,6 +38,11 @@ pub struct Config {
 
     // AI — Gemini
     pub gemini_api_key: String,
+
+    // Redis — optional JTI blocklist backend (C-1 security fix)
+    // If set, token revocations survive restarts and support multi-instance deploys.
+    // If unset, falls back to in-memory blocklist (acceptable for single-instance dev).
+    pub redis_url: Option<String>,
 }
 
 impl Config {
@@ -83,15 +84,11 @@ impl Config {
                 .map(|s| s.trim().to_string())
                 .collect(),
 
-            // Cloudinary
-            cloudinary_cloud_name: std::env::var("CLOUDINARY_CLOUD_NAME")
-                .unwrap_or_else(|_| "".to_string()),
-            cloudinary_api_key: std::env::var("CLOUDINARY_API_KEY")
-                .unwrap_or_else(|_| "".to_string()),
-            cloudinary_api_secret: std::env::var("CLOUDINARY_API_SECRET")
-                .unwrap_or_else(|_| "".to_string()),
-            cloudinary_upload_preset: std::env::var("CLOUDINARY_UPLOAD_PRESET")
-                .unwrap_or_else(|_| "mvr_consultants".to_string()),
+            // Cloudinary (H-2 fix: all optional — signed upload enabled when all three are set)
+            cloudinary_cloud_name: std::env::var("CLOUDINARY_CLOUD_NAME").ok().filter(|s| !s.is_empty()),
+            cloudinary_api_key: std::env::var("CLOUDINARY_API_KEY").ok().filter(|s| !s.is_empty()),
+            cloudinary_api_secret: std::env::var("CLOUDINARY_API_SECRET").ok().filter(|s| !s.is_empty()),
+            cloudinary_upload_preset: std::env::var("CLOUDINARY_UPLOAD_PRESET").ok().filter(|s| !s.is_empty()),
 
             // Resend
             resend_api_key: std::env::var("RESEND_API_KEY").unwrap_or_else(|_| "".to_string()),
@@ -99,13 +96,18 @@ impl Config {
                 .unwrap_or_else(|_| "mvrconsultantshyd@gmail.com".to_string()),
             email_from_name: std::env::var("EMAIL_FROM_NAME")
                 .unwrap_or_else(|_| "MVR Consultants".to_string()),
+            // L-2 security fix: admin emails are now required — no hardcoded fallbacks
+            // that would expose real PII in version-controlled source code.
             admin_email: std::env::var("ADMIN_EMAIL")
-                .unwrap_or_else(|_| "mvrconsultantshyd@gmail.com".to_string()),
+                .context("ADMIN_EMAIL must be set (Hyderabad office notification address)")?,
             admin_email_guntur: std::env::var("ADMIN_EMAIL_GUNTUR")
-                .unwrap_or_else(|_| "mvroverseasconsultancy@gmail.com".to_string()),
+                .context("ADMIN_EMAIL_GUNTUR must be set (Guntur office notification address)")?,
 
             // AI — Gemini Flash (cheap, fast, sufficient for SOP review)
             gemini_api_key: std::env::var("GEMINI_API_KEY").unwrap_or_else(|_| "".to_string()),
+
+            // Redis — optional; warn at startup if not configured
+            redis_url: std::env::var("REDIS_URL").ok(),
         })
     }
 

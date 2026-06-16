@@ -1,165 +1,320 @@
 "use client";
 
-import { useState } from "react";
-import { UserPlus, Shield, Mail, Key } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import {
+  UserPlus, Shield, Mail, Key, ChevronDown,
+  RefreshCw, Loader2, Users, AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import api from "@/services/api";
 
-export default function AdminUsersPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "COUNSELOR",
-  });
-  const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
+type UserRole = "ADMIN" | "EDITOR" | "COUNSELOR";
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setSuccessMsg("");
-    setErrorMsg("");
+interface StaffUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  is_active: boolean;
+  created_at: string;
+}
 
+const ROLE_COLORS: Record<UserRole, string> = {
+  ADMIN:    "bg-[#1a2f5e] text-white",
+  EDITOR:   "bg-purple-100 text-purple-700",
+  COUNSELOR:"bg-amber-100 text-[#c9a84c]",
+};
+
+const ROLES: UserRole[] = ["ADMIN", "EDITOR", "COUNSELOR"];
+
+// ── Role change dropdown ──────────────────────────────────────────────────────
+function RoleDropdown({ user, onChanged }: { user: StaffUser; onChanged: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [pending, setPending] = useState<UserRole | null>(null);
+
+  const applyRole = async (role: UserRole) => {
+    if (role === user.role) { setOpen(false); return; }
+    setPending(role);
+    setSaving(true);
+    setOpen(false);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-        method: "POST",
-        credentials: "include", // httpOnly cookie auth
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      await api.put(`/admin/users/${user.id}/role`, { role });
+      toast.success(`${user.name}'s role updated to ${role}`);
+      onChanged();
+    } catch {
+      toast.error("Failed to update role");
+    } finally {
+      setSaving(false);
+      setPending(null);
+    }
+  };
 
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setSuccessMsg(`Successfully created account for ${formData.name}`);
-        setFormData({ name: "", email: "", password: "", role: "COUNSELOR" });
-      } else {
-        setErrorMsg(data.error?.message || data.message || "Failed to create user");
-      }
-    } catch (err) {
-      setErrorMsg("An error occurred while communicating with the server.");
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        disabled={saving}
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${ROLE_COLORS[user.role]} ${saving ? "opacity-60" : "cursor-pointer hover:opacity-80"} transition-opacity`}
+      >
+        {saving ? <Loader2 size={10} className="animate-spin" /> : null}
+        {pending ?? user.role}
+        <ChevronDown size={11} />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full mt-1 z-20 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden w-36">
+            {ROLES.map((r) => (
+              <button
+                key={r}
+                onClick={() => applyRole(r)}
+                className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors hover:bg-gray-50 ${r === user.role ? "text-[#1a2f5e]" : "text-gray-600"}`}
+              >
+                <span className={`inline-block w-2 h-2 rounded-full mr-2 ${r === "ADMIN" ? "bg-[#1a2f5e]" : r === "EDITOR" ? "bg-purple-400" : "bg-[#c9a84c]"}`} />
+                {r}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Register form modal ───────────────────────────────────────────────────────
+function RegisterModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "COUNSELOR" });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.password.length < 8) { toast.error("Password must be at least 8 characters"); return; }
+    setLoading(true);
+    try {
+      await api.post("/auth/register", { name: form.name, email: form.email, password: form.password });
+      toast.success(`Account created for ${form.name}. They start as Counselor — upgrade role below.`);
+      setForm({ name: "", email: "", password: "", role: "COUNSELOR" });
+      onSuccess();
+      onClose();
+    } catch (err: unknown) {
+      const ae = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(ae.response?.data?.error?.message || "Failed to create user");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#1a2f5e]" style={{ fontFamily: "var(--font-playfair)" }}>
-          Staff Management
-        </h1>
-        <p className="text-gray-500 text-sm mt-1">Register new administrators and counselors.</p>
-      </div>
+    <Dialog open={open} onOpenChange={(o) => { if (!loading) { if (!o) onClose(); } }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-[#1a2f5e] flex items-center gap-2">
+            <UserPlus size={18} /> Add Staff Member
+          </DialogTitle>
+        </DialogHeader>
 
-      <div className="max-w-2xl bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-        <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
-          <div className="w-10 h-10 bg-[#1a2f5e]/5 rounded-lg flex items-center justify-center text-[#1a2f5e]">
-            <UserPlus size={20} />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-[#1a2f5e]">Add New Staff Member</h2>
-            <p className="text-sm text-gray-500">Only ADMIN users can perform this action.</p>
-          </div>
+        <div className="mt-1 mb-4 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 text-xs text-amber-700 flex items-start gap-2">
+          <AlertCircle size={14} className="shrink-0 mt-0.5" />
+          New accounts always start as <strong>Counselor</strong>. Upgrade role after creation using the dropdown in the user table.
         </div>
 
-        {successMsg && (
-          <div className="mb-6 p-4 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-sm font-medium">
-            {successMsg}
-          </div>
-        )}
-        {errorMsg && (
-          <div className="mb-6 p-4 bg-red-50 text-red-700 border border-red-100 rounded-lg text-sm font-medium">
-            {errorMsg}
-          </div>
-        )}
-
-        <form onSubmit={handleRegister} className="space-y-5">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
             <Label>Full Name *</Label>
             <div className="relative">
-              <Input 
-                value={formData.name}
-                onChange={e => setFormData({...formData, name: e.target.value})}
-                placeholder="John Doe"
-                required
-                className="pl-10"
-              />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <UserPlus size={16} />
-              </div>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Jane Smith" required className="pl-9" />
+              <UserPlus size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label>Email Address *</Label>
             <div className="relative">
-              <Input 
-                type="email"
-                value={formData.email}
-                onChange={e => setFormData({...formData, email: e.target.value})}
-                placeholder="john.doe@mvrconsultants.com"
-                required
-                className="pl-10"
-              />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <Mail size={16} />
-              </div>
+              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="jane@mvrconsultants.com" required className="pl-9" />
+              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label>Password *</Label>
             <div className="relative">
-              <Input 
-                type="password"
-                value={formData.password}
-                onChange={e => setFormData({...formData, password: e.target.value})}
-                placeholder="Must be at least 8 characters with numbers and symbols"
-                required
-                className="pl-10"
-              />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <Key size={16} />
+              <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Min 8 characters" required className="pl-9" />
+              <Key size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
+            <p className="text-xs text-gray-400">Provide a temporary strong password. Ask the user to change it after first login.</p>
+          </div>
+
+          <div className="space-y--2 pt-1">
+            <Label className="mb-3 block">Initial Role (cosmetic — always Counselor)</Label>
+            <div className="flex gap-3">
+              {(["COUNSELOR", "ADMIN"] as const).map((r) => (
+                <label key={r} className={`flex-1 flex flex-col items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${form.role === r ? (r === "ADMIN" ? "border-[#1a2f5e] bg-[#1a2f5e]/5" : "border-[#c9a84c] bg-amber-50") : "border-gray-100 hover:border-gray-200"}`}>
+                  <input type="radio" name="role" value={r} className="sr-only" checked={form.role === r} onChange={() => setForm({ ...form, role: r })} />
+                  <Shield size={20} className={form.role === r ? (r === "ADMIN" ? "text-[#1a2f5e]" : "text-[#c9a84c]") : "text-gray-300"} />
+                  <span className={`mt-1.5 text-xs font-bold ${form.role === r ? (r === "ADMIN" ? "text-[#1a2f5e]" : "text-[#c9a84c]") : "text-gray-400"}`}>{r}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <DialogFooter className="mt-2">
+            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
+            <Button type="submit" className="bg-[#1a2f5e] hover:bg-[#0f1c3d] text-white" disabled={loading}>
+              {loading ? <><Loader2 size={14} className="mr-2 animate-spin" />Creating…</> : "Create Account"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+function UserSkeleton() {
+  return (
+    <div className="divide-y divide-gray-50">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex items-center gap-4 px-6 py-4">
+          <div className="w-9 h-9 bg-gray-100 rounded-full animate-pulse shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-gray-100 rounded animate-pulse w-40" />
+            <div className="h-3 bg-gray-100 rounded animate-pulse w-56" />
+          </div>
+          <div className="h-6 bg-gray-100 rounded-full animate-pulse w-20" />
+          <div className="h-6 bg-gray-100 rounded-full animate-pulse w-14" />
+          <div className="h-4 bg-gray-100 rounded animate-pulse w-24" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+export default function AdminUsersPage() {
+  const [users, setUsers] = useState<StaffUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [registerOpen, setRegisterOpen] = useState(false);
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/admin/users");
+      setUsers(res.data.data ?? []);
+    } catch {
+      toast.error("Failed to load staff list");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-[#1a2f5e]">Staff Users</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Manage team members, roles, and access.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchUsers}
+            className="h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+            title="Refresh"
+          >
+            <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+          </button>
+          <Button className="bg-[#1a2f5e] hover:bg-[#0f1c3d] text-white" onClick={() => setRegisterOpen(true)}>
+            <UserPlus size={16} className="mr-2" /> Add Staff Member
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        {(["ADMIN", "EDITOR", "COUNSELOR"] as UserRole[]).map((role) => {
+          const count = users.filter((u) => u.role === role).length;
+          return (
+            <div key={role} className="bg-white rounded-xl border border-gray-100 p-5 flex items-center gap-4">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${role === "ADMIN" ? "bg-[#1a2f5e]/10" : role === "EDITOR" ? "bg-purple-50" : "bg-amber-50"}`}>
+                <Users size={18} className={role === "ADMIN" ? "text-[#1a2f5e]" : role === "EDITOR" ? "text-purple-500" : "text-[#c9a84c]"} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[#1a2f5e]">{count}</p>
+                <p className="text-gray-500 text-xs capitalize">{role.toLowerCase()}s</p>
               </div>
             </div>
-            <p className="text-xs text-gray-400">Please provide a strong, temporary password for the new user.</p>
-          </div>
-
-          <div className="space-y-2 pb-4">
-            <Label>System Role *</Label>
-            <div className="flex gap-4 mt-2">
-              <label className={`flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                formData.role === "COUNSELOR" ? "border-[#c9a84c] bg-[#c9a84c]/5" : "border-gray-100 hover:border-gray-200"
-              }`}>
-                <input type="radio" name="role" value="COUNSELOR" className="sr-only" 
-                  checked={formData.role === "COUNSELOR"} onChange={() => setFormData({...formData, role: "COUNSELOR"})} 
-                />
-                <Shield size={24} className={formData.role === "COUNSELOR" ? "text-[#c9a84c]" : "text-gray-400"} />
-                <span className={`mt-2 font-bold ${formData.role === "COUNSELOR" ? "text-[#c9a84c]" : "text-gray-500"}`}>Counselor</span>
-                <span className="text-xs text-gray-400 text-center mt-1">Can view leads and contact forms</span>
-              </label>
-
-              <label className={`flex-1 flex flex-col items-center justify-center p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                formData.role === "ADMIN" ? "border-[#1a2f5e] bg-[#1a2f5e]/5" : "border-gray-100 hover:border-gray-200"
-              }`}>
-                <input type="radio" name="role" value="ADMIN" className="sr-only" 
-                  checked={formData.role === "ADMIN"} onChange={() => setFormData({...formData, role: "ADMIN"})} 
-                />
-                <Shield size={24} className={formData.role === "ADMIN" ? "text-[#1a2f5e]" : "text-gray-400"} />
-                <span className={`mt-2 font-bold ${formData.role === "ADMIN" ? "text-[#1a2f5e]" : "text-gray-500"}`}>Administrator</span>
-                <span className="text-xs text-gray-400 text-center mt-1">Full system access (CRUD)</span>
-              </label>
-            </div>
-          </div>
-
-          <Button type="submit" disabled={loading} className="w-full bg-[#1a2f5e] hover:bg-[#2a4a8e] text-white h-12">
-            {loading ? "Creating Account..." : "Create Staff Account"}
-          </Button>
-        </form>
+          );
+        })}
       </div>
+
+      {/* Users Table */}
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
+          <h2 className="font-bold text-[#1a2f5e] text-sm">Team Members ({users.length})</h2>
+          <p className="text-xs text-gray-400">Click a role badge to change it</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-gray-400 uppercase bg-gray-50/60 border-b border-gray-100">
+              <tr>
+                <th className="px-6 py-3 font-semibold">Member</th>
+                <th className="px-6 py-3 font-semibold">Role</th>
+                <th className="px-6 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold">Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={4}><UserSkeleton /></td></tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-16 text-center text-gray-400">
+                    No staff users found.{" "}
+                    <button onClick={() => setRegisterOpen(true)} className="text-[#1a2f5e] underline font-medium">Add one</button>
+                  </td>
+                </tr>
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id} className="border-b border-gray-50 hover:bg-gray-50/40 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-[#1a2f5e] flex items-center justify-center text-white font-bold text-sm shrink-0">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-[#1a2f5e]">{user.name}</p>
+                          <p className="text-gray-400 text-xs">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <RoleDropdown user={user} onChanged={fetchUsers} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${user.is_active ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${user.is_active ? "bg-emerald-500" : "bg-gray-400"}`} />
+                        {user.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-xs">
+                      {new Date(user.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <RegisterModal open={registerOpen} onClose={() => setRegisterOpen(false)} onSuccess={fetchUsers} />
     </div>
   );
 }

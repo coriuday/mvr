@@ -25,6 +25,15 @@ export interface Lead {
   created_at: string;
   updated_at: string;
   notes?: string;
+  assigned_to?: string | null;
+  assigned_name?: string | null; // resolved from staff list
+}
+
+interface Counselor {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
 }
 
 type LeadStatus = "NEW" | "CONTACTED" | "IN_PROGRESS" | "CONVERTED" | "REJECTED";
@@ -90,11 +99,13 @@ function LeadModal({
   onClose,
   onUpdate,
   onDelete,
+  counselors,
 }: {
   lead: Lead;
   onClose: () => void;
-  onUpdate: (id: string, patch: Partial<Pick<Lead, "status" | "notes">>) => Promise<void>;
+  onUpdate: (id: string, patch: Partial<Pick<Lead, "status" | "notes"> & { assigned_to?: string | null }>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  counselors: Counselor[];
 }) {
   const [notes, setNotes]     = useState(lead.notes ?? "");
   const [saving, setSaving]   = useState(false);
@@ -201,6 +212,29 @@ function LeadModal({
               ))}
             </div>
           </div>
+
+          {/* Assign to counselor (Task 9) */}
+          {counselors.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Assign To</p>
+              <select
+                value={lead.assigned_to ?? ""}
+                disabled={saving}
+                onChange={async (e) => {
+                  const val = e.target.value || null;
+                  setSaving(true);
+                  await onUpdate(lead.id, { assigned_to: val });
+                  setSaving(false);
+                }}
+                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a2f5e]/20"
+              >
+                <option value="">— Unassigned —</option>
+                {counselors.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name} ({c.role})</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Notes */}
           <div>
@@ -445,46 +479,63 @@ function PipelineStats({ leads }: { leads: Lead[] }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+const PER_PAGE = 50;
+
 export default function LeadsPage() {
   useAdminAuth();
 
-  const [leads, setLeads]       = useState<Lead[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState("");
-  const [search, setSearch]     = useState("");
-  const [view, setView]         = useState<"kanban" | "list">("kanban");
-  const [selected, setSelected] = useState<Lead | null>(null);
-  const [dragOver, setDragOver] = useState<LeadStatus | null>(null);
+  const [leads, setLeads]         = useState<Lead[]>([]);
+  const [total, setTotal]         = useState(0);
+  const [page, setPage]           = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState("");
+  const [search, setSearch]       = useState("");
+  const [view, setView]           = useState<"kanban" | "list">("kanban");
+  const [selected, setSelected]   = useState<Lead | null>(null);
+  const [dragOver, setDragOver]   = useState<LeadStatus | null>(null);
+  const [counselors, setCounselors] = useState<Counselor[]>([]);
   const dragLeadRef = useRef<Lead | null>(null);
 
-  // Load ALL leads (no server-side pagination in kanban mode — we need all data to fill columns)
-  const fetchLeads = useCallback(async () => {
-    setLoading(true);
+  // Fetch counselors for assignment dropdown (Task 9)
+  useEffect(() => {
+    api.get("/admin/users").then((r) => {
+      const all: Counselor[] = r.data.data ?? [];
+      setCounselors(all.filter((u) => u.role !== "ADMIN"));
+    }).catch(() => {});
+  }, []);
+
+  // Paginated fetch (Task 10)
+  const fetchLeads = useCallback(async (p = 1, append = false) => {
+    if (!append) setLoading(true);
+    else setLoadingMore(true);
     setError("");
     try {
-      // Fetch up to 200 leads — sufficient for a growing consultancy
-      const res = await api.get("/leads?per_page=200&page=1");
-      setLeads(res.data.data ?? []);
+      const res = await api.get(`/leads?per_page=${PER_PAGE}&page=${p}`);
+      const incoming: Lead[] = res.data.data ?? [];
+      const tot: number = res.data.meta?.total ?? incoming.length;
+      setTotal(tot);
+      setLeads((prev) => append ? [...prev, ...incoming] : incoming);
+      setPage(p);
     } catch (e: unknown) {
       const ae = e as { response?: { data?: { error?: { message?: string } } } };
       setError(ae.response?.data?.error?.message ?? "Failed to load leads");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, []);
 
-  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+  useEffect(() => { fetchLeads(1, false); }, [fetchLeads]);
 
-  // Optimistic status update
-  const updateLead = useCallback(async (id: string, patch: Partial<Pick<Lead, "status" | "notes">>) => {
-    // Optimistic update — UI responds instantly
+  // Optimistic update (status, notes, assigned_to)
+  const updateLead = useCallback(async (id: string, patch: Partial<Pick<Lead, "status" | "notes"> & { assigned_to?: string | null }>) => {
     setLeads((prev) => prev.map((l) => l.id === id ? { ...l, ...patch } : l));
     setSelected((prev) => prev?.id === id ? { ...prev, ...patch } : prev);
     try {
       await api.put(`/leads/${id}`, patch);
     } catch {
-      // Revert on failure
-      fetchLeads();
+      fetchLeads(1, false);
     }
   }, [fetchLeads]);
 
@@ -568,7 +619,7 @@ export default function LeadsPage() {
         </div>
 
         <button
-          onClick={fetchLeads}
+          onClick={() => fetchLeads(1, false)}
           className="flex items-center gap-2 bg-[#1a2f5e] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#2a4a8e] transition-colors"
         >
           <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
@@ -637,6 +688,20 @@ export default function LeadsPage() {
         </>
       )}
 
+      {/* Load More (Task 10) */}
+      {!loading && leads.length < total && (
+        <div className="flex flex-col items-center gap-2 py-4">
+          <p className="text-sm text-gray-400">Showing {leads.length} of {total} leads</p>
+          <button
+            onClick={() => fetchLeads(page + 1, true)}
+            disabled={loadingMore}
+            className="flex items-center gap-2 bg-white border border-gray-200 text-[#1a2f5e] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#1a2f5e] hover:text-white hover:border-[#1a2f5e] transition-all disabled:opacity-50"
+          >
+            {loadingMore ? <><div className="w-4 h-4 border-2 border-[#1a2f5e] border-t-transparent rounded-full animate-spin" /> Loading…</> : "Load More Leads"}
+          </button>
+        </div>
+      )}
+
       {/* Detail Modal */}
       <AnimatePresence>
         {selected && (
@@ -645,6 +710,7 @@ export default function LeadsPage() {
             onClose={() => setSelected(null)}
             onUpdate={updateLead}
             onDelete={deleteLead}
+            counselors={counselors}
           />
         )}
       </AnimatePresence>

@@ -38,12 +38,18 @@ impl ContactService {
     /// 2. Persist the lead (soft-fail so email still sends on DB error).
     /// 3. Fire admin notification + student confirmation emails (fire-and-forget).
     pub async fn handle_inquiry(&self, body: &ContactRequest) -> AppResult<()> {
-        // Input validation (all rules live here, not in the route handler)
+        // H-1 security fix: all user-controlled fields are bounded.
         validate_required(&body.name, "Name")?;
         validate_length(&body.name, "Name", 2, 100)?;
         validate_email(&body.email)?;
         validate_required(&body.message, "Message")?;
         validate_length(&body.message, "Message", 5, 2000)?;
+        if let Some(phone) = &body.phone {
+            validate_length(phone, "Phone", 0, 25)?;
+        }
+        if let Some(country) = &body.country_interest {
+            validate_length(country, "Country of interest", 0, 100)?;
+        }
 
         // Persist the lead — soft-fail so that a DB hiccup doesn't block the email
         let lead_repo = LeadRepository::new(self.db.clone());

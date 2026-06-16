@@ -52,9 +52,9 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("✅ Migrations applied");
 
     // ---------------------------------------------------------------------------
-    // Build the Axum application router
+    // Build the Axum application router (async — connects to Redis if configured)
     // ---------------------------------------------------------------------------
-    let app = routes::create_router(db_pool, config.clone());
+    let app = routes::create_router(db_pool, config.clone()).await;
 
     // ---------------------------------------------------------------------------
     // Start the server

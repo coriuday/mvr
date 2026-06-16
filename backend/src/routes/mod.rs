@@ -19,6 +19,7 @@ use crate::{
 pub mod admin;
 pub mod auth;
 pub mod blogs;
+pub mod cloudinary;
 pub mod contact;
 pub mod countries;
 pub mod leads;
@@ -27,19 +28,35 @@ pub mod scholarships;
 pub mod sop;
 pub mod testimonials;
 pub mod universities;
+pub mod users;
 
 /// Application state — shared across all handlers via Axum State extractor
 #[derive(Debug, Clone)]
 pub struct AppState {
     pub db: PgPool,
     pub config: Config,
-    /// JTI blocklist for logout-based token revocation (H-1)
+    /// JTI blocklist for logout-based token revocation (C-1 fix: Redis-backed)
     pub blocklist: TokenBlocklist,
 }
 
 /// Assembles the full Axum router with all route groups.
-pub fn create_router(db: PgPool, config: Config) -> Router {
-    let blocklist = TokenBlocklist::new();
+///
+/// Async because the Redis connection manager requires an async handshake.
+pub async fn create_router(db: PgPool, config: Config) -> Router {
+    // C-1 fix: initialise blocklist with Redis if configured, else in-memory
+    let blocklist = TokenBlocklist::new(config.redis_url.as_deref())
+        .await
+        .unwrap_or_else(|e| {
+            tracing::error!(
+                error = %e,
+                "Failed to connect to Redis — falling back to in-memory blocklist. \
+                 Revoked tokens will not survive a restart."
+            );
+            // Safety: InMemory variant never fails
+            tokio::runtime::Handle::current()
+                .block_on(TokenBlocklist::new(None))
+                .expect("in-memory blocklist init is infallible")
+        });
     blocklist.spawn_eviction_task();
 
     let state = AppState {
@@ -184,16 +201,12 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         )
         // Scholarship management
         .route("/api/scholarships", post(scholarships::create_scholarship))
-        .route(
-            "/api/scholarships/:id",
-            put(scholarships::update_scholarship),
-        )
+        .route("/api/scholarships/:id", put(scholarships::update_scholarship))
+        .route("/api/scholarships/:id", delete(scholarships::delete_scholarship))
         // Testimonial management
         .route("/api/testimonials", post(testimonials::create_testimonial))
-        .route(
-            "/api/testimonials/:id",
-            put(testimonials::update_testimonial),
-        )
+        .route("/api/testimonials/:id", put(testimonials::update_testimonial))
+        .route("/api/testimonials/:id", delete(testimonials::delete_testimonial))
         // Country management (admin)
         .route("/api/admin/countries", get(countries::admin_list_countries))
         .route("/api/admin/countries", post(countries::create_country))
@@ -204,8 +217,12 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         )
         // Newsletter subscriber management (admin)
         .route("/api/admin/newsletter", get(newsletter::list_subscribers))
-        // User registration (admin creates accounts)
+        // User registration (admin creates accounts) + role management (C-2 fix)
         .route("/api/auth/register", post(auth::register))
+        .route("/api/admin/users", get(users::list_users))
+        .route("/api/admin/users/:id/role", put(users::update_role))
+        // Cloudinary signed upload (H-2 fix: no more unsigned preset abuse)
+        .route("/api/admin/cloudinary/sign", post(cloudinary::sign_upload))
         .layer(middleware::from_fn_with_state(
             state,
             auth_middleware::require_admin,

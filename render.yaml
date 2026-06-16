@@ -63,10 +63,17 @@ services:
         value: noreply@mvrconsultants.org
       - key: EMAIL_FROM_NAME
         value: "MVR Consultants"
+      # L-2 fix: real admin emails are set in Render dashboard (not hardcoded in source)
       - key: ADMIN_EMAIL
-        value: admin@mvrconsultants.org
+        sync: false   # Set in Render dashboard → Environment
       - key: ADMIN_EMAIL_GUNTUR
-        value: guntur@mvrconsultants.org
+        sync: false   # Set in Render dashboard → Environment
+
+      # ── Redis (C-1 security fix: persistent JTI blocklist) ────────────────
+      # Provision a Render Redis instance and paste the External URL here.
+      # Go to: Render Dashboard → New → Redis → Copy External Connection String
+      - key: REDIS_URL
+        sync: false   # Set in Render dashboard → Environment
 
       # ── AI / Gemini (used by SOP Reviewer) ────────────────────────────────
       - key: GEMINI_API_KEY

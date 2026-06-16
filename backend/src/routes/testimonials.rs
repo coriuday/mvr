@@ -1,7 +1,8 @@
 use crate::{
     models::testimonial::CreateTestimonialRequest,
+    repositories::testimonial_repository::TestimonialRepository,
     routes::AppState,
-    utils::errors::{AppError, AppResult},
+    utils::{errors::AppResult, response::MessageResponse},
 };
 use axum::{
     Json,
@@ -9,29 +10,43 @@ use axum::{
 };
 use uuid::Uuid;
 
+/// GET /api/testimonials  (public)
 pub async fn get_all_testimonials(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
 ) -> AppResult<Json<serde_json::Value>> {
-    Err(AppError::InternalServerError(
-        "Not yet implemented".to_string(),
-    ))
+    let repo = TestimonialRepository::new(state.db);
+    let testimonials = repo.find_all().await?;
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "data": testimonials,
+        "meta": { "total": testimonials.len() }
+    })))
 }
 
+/// POST /api/testimonials  (admin only)
 pub async fn create_testimonial(
-    State(_state): State<AppState>,
-    Json(_body): Json<CreateTestimonialRequest>,
+    State(state): State<AppState>,
+    Json(body): Json<CreateTestimonialRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    Err(AppError::InternalServerError(
-        "Not yet implemented".to_string(),
-    ))
+    let testimonial = TestimonialRepository::new(state.db).create(&body).await?;
+    Ok(Json(serde_json::json!({ "success": true, "data": testimonial })))
 }
 
+/// PUT /api/testimonials/:id  (admin only)
 pub async fn update_testimonial(
-    State(_state): State<AppState>,
-    Path(_id): Path<Uuid>,
-    Json(_body): Json<serde_json::Value>,
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+    Json(body): Json<serde_json::Value>,
 ) -> AppResult<Json<serde_json::Value>> {
-    Err(AppError::InternalServerError(
-        "Not yet implemented".to_string(),
-    ))
+    let testimonial = TestimonialRepository::new(state.db).update(id, &body).await?;
+    Ok(Json(serde_json::json!({ "success": true, "data": testimonial })))
+}
+
+/// DELETE /api/testimonials/:id  (admin only)
+pub async fn delete_testimonial(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> AppResult<Json<MessageResponse>> {
+    TestimonialRepository::new(state.db).delete(id).await?;
+    Ok(Json(MessageResponse::new("Testimonial deleted successfully")))
 }

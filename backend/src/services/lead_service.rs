@@ -20,9 +20,23 @@ impl LeadService {
 
     /// Validate and persist a new public-facing lead inquiry.
     pub async fn create_inquiry(&self, body: &CreateLeadRequest) -> AppResult<Lead> {
+        // H-1 security fix: all public-facing fields are length-bounded to prevent
+        // DB bloat and oversized admin notification emails.
         validate_required(&body.name, "Name")?;
         validate_length(&body.name, "Name", 2, 100)?;
         validate_email(&body.email)?;
+
+        // Optional fields — only validate if present
+        if let Some(phone) = &body.phone {
+            validate_length(phone, "Phone", 0, 25)?;
+        }
+        if let Some(msg) = &body.message {
+            validate_length(msg, "Message", 0, 5000)?;
+        }
+        if let Some(country) = &body.country_interest {
+            validate_length(country, "Country of interest", 0, 100)?;
+        }
+
         LeadRepository::new(self.db.clone()).create(body).await
     }
 

@@ -156,6 +156,12 @@ impl EmailService {
         student_email: &str,
         student_name: &str,
     ) -> AppResult<()> {
+        // L-1 security fix: HTML-escape the student name before interpolation.
+        // Without this, a name like "<script>alert(1)</script>" would inject
+        // executable HTML into the confirmation email.
+        let safe_name = html_escape(student_name);
+        let safe_email_addr = html_escape(student_email);
+
         let html = format!(
             r#"<!DOCTYPE html>
 <html lang="en">
@@ -168,7 +174,7 @@ impl EmailService {
     </div>
     <div style="padding:36px 32px;text-align:center;">
       <div style="font-size:52px;margin-bottom:16px;">✅</div>
-      <h2 style="color:#1a2f5e;margin:0 0 12px 0;font-size:22px;">Thank You, {}!</h2>
+      <h2 style="color:#1a2f5e;margin:0 0 12px 0;font-size:22px;">Thank You, {safe_name}!</h2>
       <p style="color:#4b5563;line-height:1.75;margin:0 0 12px 0;font-size:15px;">
         We have received your inquiry. One of our expert counselors will contact you within <strong>24 hours</strong>.
       </p>
@@ -195,7 +201,7 @@ impl EmailService {
         </tr>
         <tr>
           <td style="padding:4px 0;">✉️ Email</td>
-          <td style="padding:4px 0;text-align:right;"><a href="mailto:{}" style="color:#c9a84c;text-decoration:none;">{}</a></td>
+          <td style="padding:4px 0;text-align:right;"><a href="mailto:{safe_email_addr}" style="color:#c9a84c;text-decoration:none;">{safe_email_addr}</a></td>
         </tr>
         <tr>
           <td style="padding:4px 0;">🌐 Web</td>
@@ -209,10 +215,9 @@ impl EmailService {
   </div>
 </body>
 </html>"#,
-            student_name,
-            self.admin_email_guntur,
-            self.admin_email_guntur,
-            chrono::Utc::now().year()
+            chrono::Utc::now().year(),
+            safe_name = safe_name,
+            safe_email_addr = safe_email_addr,
         );
 
         let resend = Resend::new(&self.api_key);

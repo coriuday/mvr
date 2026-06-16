@@ -93,9 +93,17 @@ fn is_trusted_proxy(ip: &IpAddr) -> bool {
 
 /// Extracts the real client IP.
 ///
-/// C-5 security fix: `X-Forwarded-For` is only trusted when the TCP peer is
-/// a known private/loopback address. If an attacker connects directly from a
-/// public IP, they cannot spoof their address via this header.
+/// M-3 security fix: Prefers `X-Real-IP` over `X-Forwarded-For`.
+///
+/// Rationale:
+/// - nginx sets `X-Real-IP = $remote_addr` (the actual TCP peer IP, i.e. the client's IP)
+/// - This is reliable in multi-proxy chains (Render LB → nginx → backend) because
+///   nginx always overwrites X-Real-IP with the peer it sees.
+/// - `X-Forwarded-For` grows by appending each proxy's reported client IP, making
+///   "take the last entry" unreliable when there are N proxies in the chain.
+///
+/// C-5 fix (preserved): `X-Real-IP` and `X-Forwarded-For` are only trusted when
+/// the TCP peer is a known private/loopback address.
 fn extract_ip(request: &Request) -> IpAddr {
     // Get the TCP peer address first
     let peer_ip = request
@@ -103,17 +111,29 @@ fn extract_ip(request: &Request) -> IpAddr {
         .get::<ConnectInfo<std::net::SocketAddr>>()
         .map(|ci| ci.0.ip());
 
-    // Only honour X-Forwarded-For if the connection came from a trusted proxy
+    // Only honour proxy headers if the connection came from a trusted proxy
     if let Some(peer) = peer_ip {
         if is_trusted_proxy(&peer) {
+            // M-3 fix: prefer X-Real-IP (nginx sets this to $remote_addr, always the client IP)
+            if let Some(real_ip) = request
+                .headers()
+                .get("X-Real-IP")
+                .and_then(|v| v.to_str().ok())
+                .and_then(|s| s.trim().parse::<IpAddr>().ok())
+            {
+                return real_ip;
+            }
+
+            // Fallback: X-Forwarded-For (take first entry — the original client IP)
+            // We take FIRST here (not last) because when X-Real-IP is absent,
+            // the first X-Forwarded-For entry is the original client (added by
+            // the outermost proxy before our trusted edge).
             if let Some(forwarded) = request
                 .headers()
                 .get("X-Forwarded-For")
                 .and_then(|v| v.to_str().ok())
             {
-                // Take the LAST entry set by our trusted proxy, not the first
-                // (the first can be spoofed by the client).
-                if let Some(ip) = forwarded.split(',').next_back()
+                if let Some(ip) = forwarded.split(',').next()
                     && let Ok(parsed) = ip.trim().parse::<IpAddr>()
                 {
                     return parsed;

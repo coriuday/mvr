@@ -12,7 +12,9 @@ use crate::utils::{errors::AppError, jwt::verify_access_token};
 /// 2. `mvr_access` httpOnly cookie             (browser cookie auth)
 ///
 /// After signature verification, checks the JTI blocklist to reject
-/// tokens that were revoked by a prior logout call (H-1).
+/// tokens that were revoked by a prior logout call.
+///
+/// The blocklist check is async because the Redis backend is async (C-1 fix).
 ///
 /// Bearer header takes priority so that existing tooling and the current
 /// localStorage-based frontend continue to work during the migration.
@@ -24,8 +26,8 @@ pub async fn require_auth(
     let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &state.config)?;
 
-    // H-1: reject revoked tokens (logged-out sessions)
-    if state.blocklist.is_blocked(&claims.jti) {
+    // C-1: reject revoked tokens — blocklist may be Redis or in-memory
+    if state.blocklist.is_blocked(&claims.jti).await {
         return Err(AppError::Unauthorized(
             "Session has been invalidated. Please log in again.".to_string(),
         ));
@@ -44,8 +46,8 @@ pub async fn require_admin(
     let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &state.config)?;
 
-    // H-1: reject revoked tokens
-    if state.blocklist.is_blocked(&claims.jti) {
+    // C-1: reject revoked tokens
+    if state.blocklist.is_blocked(&claims.jti).await {
         return Err(AppError::Unauthorized(
             "Session has been invalidated. Please log in again.".to_string(),
         ));
@@ -71,8 +73,8 @@ pub async fn require_counselor_or_admin(
     let token = extract_token(request.headers())?;
     let claims = verify_access_token(&token, &state.config)?;
 
-    // H-1: reject revoked tokens
-    if state.blocklist.is_blocked(&claims.jti) {
+    // C-1: reject revoked tokens
+    if state.blocklist.is_blocked(&claims.jti).await {
         return Err(AppError::Unauthorized(
             "Session has been invalidated. Please log in again.".to_string(),
         ));
@@ -123,4 +125,3 @@ fn extract_token(headers: &axum::http::HeaderMap) -> Result<String, AppError> {
         "Authentication required. Please log in.".to_string(),
     ))
 }
-

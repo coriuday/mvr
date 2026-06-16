@@ -1,7 +1,13 @@
 # =============================================================================
-# MVR Consultants — Docker Compose
-# Services: frontend, backend (Rust/Axum), nginx, redis (optional)
+# MVR Consultants — Docker Compose (Local Development)
+# Services: frontend, backend (Rust/Axum), nginx (HTTP dev mode), redis
 # Database: Supabase (external — no local postgres container needed)
+#
+# C-1 fix: Redis is now always-on (not behind a profile) so the backend can
+#          use it for JTI blocklist persistence during local dev testing.
+# C-3 fix: nginx uses nginx.dev.conf (HTTP only). Production nginx.conf
+#          requires TLS certs and is used on VPS deployments.
+#          Render + Vercel handle TLS at their platform edge.
 # =============================================================================
 
 services:
@@ -16,12 +22,15 @@ services:
     container_name: mvr-frontend
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:80}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      # H-2 note: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is exposed to the browser
+      # for display purposes only. All uploads must use the backend-signed upload
+      # endpoint POST /api/admin/cloudinary/sign — NEVER unsigned presets.
       - NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     depends_on:
       - backend
     networks:
@@ -42,9 +51,9 @@ services:
     container_name: mvr-backend
     restart: unless-stopped
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET must be set}
       - JWT_EXPIRY_HOURS=${JWT_EXPIRY_HOURS:-24}
       - JWT_REFRESH_EXPIRY_DAYS=${JWT_REFRESH_EXPIRY_DAYS:-30}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
@@ -52,23 +61,28 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-      - CLOUDINARY_UPLOAD_PRESET=${CLOUDINARY_UPLOAD_PRESET:-mvr_consultants}
+      # H-2 fix: CLOUDINARY_UPLOAD_PRESET should be a SIGNED preset in production.
+      # Use POST /api/admin/cloudinary/sign for browser-side direct uploads.
+      - CLOUDINARY_UPLOAD_PRESET=${CLOUDINARY_UPLOAD_PRESET}
       - RESEND_API_KEY=${RESEND_API_KEY}
-      - EMAIL_FROM=${EMAIL_FROM}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@mvrconsultants.org}
       - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-MVR Consultants}
-      # Admin notification recipients (BUG-005: previously missing)
-      - ADMIN_EMAIL=${ADMIN_EMAIL}
-      - ADMIN_EMAIL_GUNTUR=${ADMIN_EMAIL_GUNTUR}
-      # NOTE: REDIS_URL removed — Rust backend has no Redis config (BUG-006)
+      # L-2 fix: admin emails are required — no hardcoded fallbacks
+      - ADMIN_EMAIL=${ADMIN_EMAIL:?ADMIN_EMAIL must be set}
+      - ADMIN_EMAIL_GUNTUR=${ADMIN_EMAIL_GUNTUR:?ADMIN_EMAIL_GUNTUR must be set}
+      # C-1 fix: Redis URL for persistent JTI blocklist
+      # Format: redis://:${REDIS_PASSWORD}@redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379
       - RUST_LOG=${RUST_LOG:-info}
-      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
       - BACKEND_HOST=0.0.0.0
       - BACKEND_PORT=8080
-    # M-10 security fix: Backend port is NOT published to the host.
-    # Only nginx (in the same Docker network) can reach it.
-    # Direct access to port 8080 from outside the host is blocked.
+    # Backend port is NOT published to the host — only nginx can reach it.
     expose:
       - "8080"
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - mvr-network
     healthcheck:
@@ -79,20 +93,19 @@ services:
       start_period: 15s
 
   # ---------------------------------------------------------------------------
-  # Nginx — Reverse Proxy
+  # Nginx — Reverse Proxy (dev: HTTP only; prod: see nginx.conf + TLS certs)
   # ---------------------------------------------------------------------------
   nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: nginx:1.27-alpine
     container_name: mvr-nginx
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+      # 443 not exposed in dev — no TLS certs locally
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - nginx-certs:/etc/nginx/certs
+      # C-3 fix: dev uses nginx.dev.conf (HTTP only, no HTTPS redirect)
+      # For VPS production deployment, mount nginx.conf + TLS cert volumes instead.
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - frontend
       - backend
@@ -100,19 +113,16 @@ services:
       - mvr-network
 
   # ---------------------------------------------------------------------------
-  # Redis — Optional Caching (enable with: docker compose --profile cache up)
+  # Redis — JTI Blocklist Storage
+  # C-1 fix: Redis is required (not optional) so that revoked tokens survive
+  # backend restarts and work across multiple instances.
   # ---------------------------------------------------------------------------
   redis:
     image: redis:7-alpine
     container_name: mvr-redis
     restart: unless-stopped
-    profiles:
-      - cache
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
-    # M-11 security fix: Redis port is NOT published to the host.
-    # Redis must only be reachable within the mvr-network Docker bridge.
-    # Remove this comment and add `ports: - "127.0.0.1:6379:6379"` ONLY
-    # if you need local debug access, and only temporarily.
+    # Redis port is NOT published to the host — only the backend container can reach it.
     expose:
       - "6379"
     volumes:
@@ -120,7 +130,7 @@ services:
     networks:
       - mvr-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -137,6 +147,4 @@ networks:
 # =============================================================================
 volumes:
   redis-data:
-    driver: local
-  nginx-certs:
     driver: local

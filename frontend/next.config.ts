@@ -89,10 +89,10 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               // Images: self + Cloudinary + Unsplash + data URIs (for icons)
               "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com",
-              // API connections: backend + currency API
+              // API connections: backend + currency API + Cloudinary upload API (H-2 signed uploads)
               // L-8 security fix: Removed generativelanguage.googleapis.com — the frontend
               // never calls Gemini directly. All AI requests go through the Rust backend.
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"} https://open.er-api.com`,
+              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"} https://open.er-api.com https://api.cloudinary.com`,
               // Frames: none
               "frame-src 'none'",
               // Objects: none

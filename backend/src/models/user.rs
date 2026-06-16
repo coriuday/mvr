@@ -50,12 +50,16 @@ impl From<User> for UserResponse {
 }
 
 /// Request body for user registration
+/// C-2 security fix: `role` field has been intentionally REMOVED.
+/// The registration endpoint always creates a Counselor account.
+/// Role assignment is done separately by an admin via PATCH /api/admin/users/:id/role.
+/// Accepting role from the request body was a mass-assignment vulnerability.
 #[derive(Debug, Deserialize)]
 pub struct RegisterRequest {
     pub name: String,
     pub email: String,
     pub password: String,
-    pub role: Option<UserRole>,
+    // NOTE: role is deliberately NOT included here. See above.
 }
 
 /// Request body for login
@@ -63,6 +67,14 @@ pub struct RegisterRequest {
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
+}
+
+/// Request body for updating a user's role (admin-only action).
+/// C-2 security fix: role assignment is a separate privileged operation,
+/// not bundled into the registration flow.
+#[derive(Debug, Deserialize)]
+pub struct UpdateUserRoleRequest {
+    pub role: UserRole,
 }
 
 // AuthTokenResponse has been intentionally removed (security fix C-2).

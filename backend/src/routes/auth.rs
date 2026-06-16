@@ -220,7 +220,7 @@ pub async fn logout(
     {
         // Verify and revoke — ignore errors (token may already be expired)
         if let Ok(claims) = crate::utils::jwt::verify_access_token(&token, &state.config) {
-            state.blocklist.block(claims.jti, claims.exp);
+            state.blocklist.block(claims.jti, claims.exp).await;
             tracing::info!(
                 user.email = %claims.email,
                 "User logged out — access token revoked"

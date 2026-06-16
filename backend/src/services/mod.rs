@@ -1,6 +1,7 @@
 pub mod admin_service;
 pub mod auth_service;
 pub mod blog_service;
+pub mod cloudinary_service;
 pub mod contact_service;
 pub mod country_service;
 pub mod email_service;

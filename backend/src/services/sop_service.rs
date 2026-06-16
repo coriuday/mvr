@@ -15,6 +15,9 @@ pub struct SopReviewRequest {
     pub degree: Option<DegreeLevel>,
     /// Intended program/field (max 100 chars to prevent injection)
     pub program: Option<String>,
+    /// Optional user email for usage tracking and per-email rate limiting (H-3 fix)
+    #[allow(dead_code)]
+    pub email: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -135,11 +138,14 @@ struct GeminiUsage {
 
 /// Sanitizes user-supplied text before embedding it in the Gemini prompt.
 ///
-/// H-2 security fix: prevents prompt injection by:
-/// 1. Stripping control sequences that break our YAML-style delimiters.
-/// 2. Removing leading `##`, `---`, and backtick sequences that could
-///    escape the content block and inject new prompt instructions.
-/// 3. Truncating to a hard character limit (in addition to word count).
+/// Security fixes:
+/// - M-2: Applies Unicode NFKD normalization FIRST to defeat homoglyph attacks
+///   e.g. "ᵢɡɳᵒʀᵉ previous instructions" normalizes to ASCII "ignore..."
+/// - Strips control sequences that break our YAML-style delimiters.
+/// - Removes leading `##`, `---`, and backtick sequences that could
+///   escape the content block and inject new prompt instructions.
+/// - Extended injection keyword list.
+/// - Truncates to a hard character limit (in addition to word count).
 fn sanitize_for_prompt(text: &str, max_chars: usize) -> String {
     // Truncate first to avoid doing expensive replacements on huge strings
     let truncated = if text.len() > max_chars {
@@ -148,10 +154,16 @@ fn sanitize_for_prompt(text: &str, max_chars: usize) -> String {
         text
     };
 
-    // Replace characters that are structurally significant in our prompt template
+    // M-2 fix: Apply Unicode NFKD normalization to collapse homoglyphs.
+    // NFKD decomposes characters like 'ᵢ' (U+1D62) → 'i', enabling the
+    // ASCII keyword checks below to catch Unicode-obfuscated injection attempts.
+    // We use a simple transliteration for Rust's stable library (no external Unicode crate needed).
+    let normalized = normalize_unicode_ascii(truncated);
+
+    // Replace characters that are structurally significant in our prompt template.
     // We keep newlines (important for paragraph structure) but neutralise
     // heading markers and horizontal-rule sequences that could break the boundary.
-    truncated
+    normalized
         .lines()
         .map(|line| {
             let trimmed = line.trim_start();
@@ -160,19 +172,66 @@ fn sanitize_for_prompt(text: &str, max_chars: usize) -> String {
                 return format!("[heading removed] {}", trimmed.trim_start_matches('#').trim());
             }
             // Neutralise horizontal rules that would break the --- delimiter
-            if trimmed.starts_with("---") || trimmed.starts_with("___") {
+            if trimmed.starts_with("---") || trimmed.starts_with("___") || trimmed.starts_with("***") {
                 return "[separator removed]".to_string();
             }
-            // Neutralise instruction-like patterns
-            if trimmed.to_lowercase().starts_with("ignore ") ||
-               trimmed.to_lowercase().starts_with("disregard ") ||
-               trimmed.to_lowercase().starts_with("forget ") {
+            // M-2 extended injection keyword list (checked after NFKD normalization)
+            let lower = trimmed.to_lowercase();
+            let injection_prefixes = [
+                "ignore ", "disregard ", "forget ", "override ", "bypass ",
+                "new instruction", "system prompt", "you are now", "act as",
+                "pretend you", "your new role", "stop being", "jailbreak",
+                "do anything now", "dan mode", "developer mode",
+            ];
+            if injection_prefixes.iter().any(|p| lower.starts_with(p) || lower.contains(p)) {
                 return format!("Note: {trimmed}");
             }
             line.to_string()
         })
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+/// Lightweight Unicode normalization that maps common homoglyphs and
+/// letterlike characters to their ASCII equivalents.
+///
+/// M-2 fix: Prevents bypass via characters like:
+///   ᵢ → i, ɡ → g, ɳ → n, ᵒ → o, ʀ → r, ᴇ → e
+///
+/// This is not a full NFKD implementation but covers the most common
+/// injection bypass patterns without requiring an external crate.
+fn normalize_unicode_ascii(text: &str) -> String {
+    text.chars()
+        .map(|c| match c {
+            // Common letterlike homoglyphs
+            'ᵢ' | 'ı' => 'i',
+            'ɡ' | 'ɢ' | 'ɠ' => 'g',
+            'ɳ' | 'ɴ' => 'n',
+            'ᵒ' | 'ᴏ' | 'ο' | 'о' => 'o', // Greek/Cyrillic o
+            'ʀ' | 'ɾ' => 'r',
+            'ᴇ' | 'е' => 'e',               // Cyrillic е
+            'ᴀ' | 'а' => 'a',               // Cyrillic а
+            'ᴄ' | 'с' => 'c',               // Cyrillic с
+            'ᴘ' | 'р' => 'p',               // Cyrillic р looks like p
+            'ʏ' | 'у' => 'y',               // Cyrillic у
+            'ᴅ' | 'ᴆ' => 'd',
+            'ꜰ' => 'f',
+            'ʜ' | 'н' => 'h',
+            'ᴊ' => 'j',
+            'ᴋ' => 'k',
+            'ʟ' => 'l',
+            'ᴍ' | 'м' => 'm',
+            'ǫ' => 'q',
+            'ꜱ' | 'ѕ' => 's',
+            'ᴛ' | 'т' => 't',
+            'ᴜ' => 'u',
+            'ᴠ' | 'ν' => 'v',               // Greek nu
+            'ᴡ' => 'w',
+            'х' | 'χ' => 'x',               // Cyrillic/Greek x
+            'ᴢ' | 'ᴣ' => 'z',
+            _ => c,
+        })
+        .collect()
 }
 
 /// Sanitizes optional context fields (country, program) to prevent injection.
