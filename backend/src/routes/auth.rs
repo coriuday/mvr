@@ -203,7 +203,7 @@ pub async fn logout(
     // when logout is called from non-standard clients.
     if let Some(token) = extract_refresh_cookie(&headers)
         .map(|_| ()) // ignore refresh cookie here
-        .and_then(|_| None::<String>)
+        .and(None::<String>)
         .or_else(|| {
             // Try to get the access token from the cookie
             headers

@@ -277,7 +277,7 @@ fn build_prompt(req: &SopReviewRequest, boundary: &str) -> String {
     let country_ctx = req
         .country
         .as_deref()
-        .map(|c| sanitize_context_field(c))
+        .map(sanitize_context_field)
         .filter(|c| !c.is_empty())
         .unwrap_or_else(|| "any English-speaking country".to_string());
     let degree_ctx = req
@@ -288,7 +288,7 @@ fn build_prompt(req: &SopReviewRequest, boundary: &str) -> String {
     let program_ctx = req
         .program
         .as_deref()
-        .map(|p| sanitize_context_field(p))
+        .map(sanitize_context_field)
         .filter(|p| !p.is_empty())
         .unwrap_or_else(|| "not specified".to_string());
     let word_count = req.sop_text.split_whitespace().count();

@@ -81,10 +81,10 @@ impl CloudinaryService {
 
         // Include upload_preset in the signature if set, so the frontend can
         // safely send it without being able to swap it for an unsigned preset.
-        if let Some(preset) = &config.cloudinary_upload_preset {
-            if !preset.is_empty() {
-                params.insert("upload_preset", preset.clone());
-            }
+        if let Some(preset) = &config.cloudinary_upload_preset
+            && !preset.is_empty()
+        {
+            params.insert("upload_preset", preset.clone());
         }
 
         // Sorted param string: "folder=uploads/blog&timestamp=1234567890&upload_preset=my_preset"

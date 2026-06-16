@@ -132,12 +132,10 @@ fn extract_ip(request: &Request) -> IpAddr {
                 .headers()
                 .get("X-Forwarded-For")
                 .and_then(|v| v.to_str().ok())
+                && let Some(ip) = forwarded.split(',').next()
+                && let Ok(parsed) = ip.trim().parse::<IpAddr>()
             {
-                if let Some(ip) = forwarded.split(',').next()
-                    && let Ok(parsed) = ip.trim().parse::<IpAddr>()
-                {
-                    return parsed;
-                }
+                return parsed;
             }
         }
         // Untrusted or direct connection — use TCP peer IP directly
