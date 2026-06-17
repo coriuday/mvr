@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import api from "@/services/api";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   Search, RefreshCw, AlertCircle, LayoutGrid, List,
   GripVertical, X, Phone, Mail, Globe, Clock,
@@ -490,7 +491,8 @@ export default function LeadsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState("");
-  const [search, setSearch]       = useState("");
+  const [searchRaw, setSearchRaw] = useState("");
+  const search = useDebounce(searchRaw, 300);
   const [view, setView]           = useState<"kanban" | "list">("kanban");
   const [selected, setSelected]   = useState<Lead | null>(null);
   const [dragOver, setDragOver]   = useState<LeadStatus | null>(null);
@@ -592,8 +594,8 @@ export default function LeadsPage() {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search name, email, country…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={searchRaw}
+            onChange={(e) => setSearchRaw(e.target.value)}
             className="pl-9 rounded-xl border-gray-200 h-10"
           />
         </div>

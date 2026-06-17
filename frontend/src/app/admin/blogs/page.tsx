@@ -11,6 +11,7 @@ import { CloudinaryImageUpload } from "@/components/admin/CloudinaryImageUpload"
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Blog {
   id: string;
@@ -54,7 +55,8 @@ export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchRaw, setSearchRaw] = useState("");
+  const searchTerm = useDebounce(searchRaw, 300);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<BlogDraft | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -83,32 +85,30 @@ export default function AdminBlogsPage() {
 
     setSaving(true);
     const isEditing = !!editingBlog.id;
+    const payload = {
+      title: editingBlog.title,
+      slug: editingBlog.slug || editingBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      content: editingBlog.content,
+      excerpt: editingBlog.excerpt || "",
+      cover_image: editingBlog.cover_image || null,
+      author_name: editingBlog.author_name || "Admin",
+      is_published: editingBlog.is_published ?? false,
+    };
     try {
       if (isEditing) {
-        await api.put(`/blogs/${editingBlog.id}`, {
-          title: editingBlog.title,
-          slug: editingBlog.slug || editingBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-          content: editingBlog.content,
-          excerpt: editingBlog.excerpt || "",
-          cover_image: editingBlog.cover_image || null,
-          author_name: editingBlog.author_name || "Admin",
-          is_published: editingBlog.is_published ?? false,
-        });
+        const res = await api.put(`/blogs/${editingBlog.id}`, payload);
+        const updated: Blog = res.data.data ?? { ...editingBlog, ...payload } as Blog;
+        // Bug 2B: update in-place — no full list re-fetch needed
+        setBlogs((prev) => prev.map((b) => b.id === editingBlog.id ? updated : b));
       } else {
-        await api.post("/blogs", {
-          title: editingBlog.title,
-          slug: editingBlog.slug || editingBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-          content: editingBlog.content,
-          excerpt: editingBlog.excerpt || "",
-          cover_image: editingBlog.cover_image || null,
-          author_name: editingBlog.author_name || "Admin",
-          is_published: editingBlog.is_published ?? false,
-        });
+        const res = await api.post("/blogs", payload);
+        const created: Blog = res.data.data ?? { id: Date.now().toString(), ...payload, created_at: new Date().toISOString(), published_at: null };
+        // Bug 2B: prepend to list
+        setBlogs((prev) => [created, ...prev]);
       }
       toast.success(isEditing ? "Blog post updated" : "Blog post created");
       setIsModalOpen(false);
       setEditingBlog(null);
-      fetchBlogs();
     } catch (err: unknown) {
       const ae = err as { response?: { data?: { error?: { message?: string } } } };
       toast.error(ae.response?.data?.error?.message || "Failed to save post");
@@ -123,8 +123,9 @@ export default function AdminBlogsPage() {
     try {
       await api.delete(`/blogs/${deleteTarget}`);
       toast.success("Blog post deleted");
+      // Bug 2B: filter out immediately — no full list re-fetch needed
+      setBlogs((prev) => prev.filter((b) => b.id !== deleteTarget));
       setDeleteTarget(null);
-      fetchBlogs();
     } catch {
       toast.error("Failed to delete post");
     } finally {
@@ -161,8 +162,8 @@ export default function AdminBlogsPage() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search by title or author…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchRaw}
+            onChange={(e) => setSearchRaw(e.target.value)}
             className="pl-9 h-9"
           />
         </div>

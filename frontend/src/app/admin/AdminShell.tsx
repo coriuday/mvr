@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, FileText,
   Award, LogOut, Menu, X, LayoutGrid, Globe, Mail,
   MessageSquare, BookOpen,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { AdminErrorBoundary } from "@/components/admin/AdminErrorBoundary";
 
@@ -31,9 +31,20 @@ const GROUPS = [
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout } = useAdminAuth();
+  const { user, loading, isVerifying, logout } = useAdminAuth();
+  const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // Safety net: if verification never resolves in 10 s, redirect to login.
+  // Must be declared before any early return to satisfy Rules of Hooks.
+  useEffect(() => {
+    if (pathname === "/admin/login") return;
+    const timeout = setTimeout(() => {
+      if (isVerifying) router.replace("/admin/login");
+    }, 10_000);
+    return () => clearTimeout(timeout);
+  }, [isVerifying, router, pathname]);
 
   if (pathname === "/admin/login") return <>{children}</>;
 
@@ -42,7 +53,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <div className="min-h-screen bg-[#1a2f5e] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
-          <p className="text-white/30 text-xs">Verifying session…</p>
+          <p className="text-white/50 text-xs tracking-wide">Verifying session…</p>
         </div>
       </div>
     );

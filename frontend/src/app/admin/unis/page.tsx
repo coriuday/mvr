@@ -11,6 +11,7 @@ import { CloudinaryImageUpload } from "@/components/admin/CloudinaryImageUpload"
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface University {
   id: string;
@@ -52,7 +53,8 @@ export default function AdminUnisPage() {
   const [unis, setUnis] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchRaw, setSearchRaw] = useState("");
+  const searchTerm = useDebounce(searchRaw, 300);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUni, setEditingUni] = useState<UniDraft | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -104,14 +106,19 @@ export default function AdminUnisPage() {
     };
     try {
       if (isEditing) {
-        await api.put(`/universities/${editingUni.id}`, payload);
+        const res = await api.put(`/universities/${editingUni.id}`, payload);
+        const updated: University = res.data.data ?? { ...editingUni, ...payload, id: editingUni.id!, created_at: (editingUni as University).created_at };
+        // Bug 2B: update in-place — no full list re-fetch needed
+        setUnis((prev) => prev.map((u) => u.id === editingUni.id ? updated : u));
       } else {
-        await api.post("/universities", payload);
+        const res = await api.post("/universities", payload);
+        const created: University = res.data.data ?? { id: Date.now().toString(), ...payload, created_at: new Date().toISOString() };
+        // Bug 2B: prepend to list
+        setUnis((prev) => [created, ...prev]);
       }
       toast.success(isEditing ? "University updated" : "University added");
       setIsModalOpen(false);
       setEditingUni(null);
-      fetchUnis();
     } catch (err: unknown) {
       const ae = err as { response?: { data?: { error?: { message?: string } } } };
       toast.error(ae.response?.data?.error?.message || "Failed to save university");
@@ -126,8 +133,9 @@ export default function AdminUnisPage() {
     try {
       await api.delete(`/universities/${deleteTarget}`);
       toast.success("University deleted");
+      // Bug 2B: filter out immediately — no full list re-fetch needed
+      setUnis((prev) => prev.filter((u) => u.id !== deleteTarget));
       setDeleteTarget(null);
-      fetchUnis();
     } catch {
       toast.error("Failed to delete university");
     } finally {
@@ -163,8 +171,8 @@ export default function AdminUnisPage() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search by name or country…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchRaw}
+            onChange={(e) => setSearchRaw(e.target.value)}
             className="pl-9 h-9"
           />
         </div>

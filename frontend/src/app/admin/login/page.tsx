@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, GraduationCap, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,7 +31,11 @@ export default function AdminLoginPage() {
       // The useAdminAuth hook will redirect to this page if the session doesn't have ADMIN role.
       // We never trust client-side role data as a security boundary.
       localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
-      router.replace("/admin");
+      // Bug 1 fix: Use a hard browser redirect so the httpOnly Set-Cookie header is fully committed
+      // before the admin page mounts and fires /api/auth/me. router.push/replace won't work here
+      // because Next.js client-side navigation doesn't trigger a full browser request cycle.
+      localStorage.setItem("mvr_login_ts", Date.now().toString());
+      window.location.replace("/admin");
     } catch (err: unknown) {
       // L-7 fix: Show a generic message — never echo server internals to the UI
       const raw = err instanceof Error ? err.message : "";

@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type ScholarshipType = "MERIT_BASED" | "NEED_BASED" | "GOVERNMENT" | "UNIVERSITY" | "PRIVATE";
 
@@ -71,7 +72,8 @@ export default function AdminScholarshipsPage() {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState("");
+  const [searchRaw, setSearchRaw] = useState("");
+  const search = useDebounce(searchRaw, 300);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -111,15 +113,20 @@ export default function AdminScholarshipsPage() {
     };
     try {
       if (draft.id) {
-        await api.put(`/scholarships/${draft.id}`, payload);
+        const res = await api.put(`/scholarships/${draft.id}`, payload);
+        const updated: Scholarship = res.data.data ?? { ...draft, ...payload, id: draft.id, created_at: (draft as Scholarship).created_at };
+        // Bug 2B: update in-place — no full list re-fetch needed
+        setScholarships((prev) => prev.map((s) => s.id === draft.id ? updated : s));
         toast.success("Scholarship updated");
       } else {
-        await api.post("/scholarships", payload);
+        const res = await api.post("/scholarships", payload);
+        const created: Scholarship = res.data.data ?? { id: Date.now().toString(), ...payload, created_at: new Date().toISOString() };
+        // Bug 2B: prepend to list
+        setScholarships((prev) => [created, ...prev]);
         toast.success("Scholarship created");
       }
       setIsModalOpen(false);
       setDraft(null);
-      fetchScholarships();
     } catch (err: unknown) {
       const ae = err as { response?: { data?: { error?: { message?: string } } } };
       toast.error(ae.response?.data?.error?.message || "Failed to save scholarship");
@@ -134,8 +141,9 @@ export default function AdminScholarshipsPage() {
     try {
       await api.delete(`/scholarships/${deleteTarget}`);
       toast.success("Scholarship deleted");
+      // Bug 2B: filter out immediately — no full list re-fetch needed
+      setScholarships((prev) => prev.filter((s) => s.id !== deleteTarget));
       setDeleteTarget(null);
-      fetchScholarships();
     } catch {
       toast.error("Failed to delete scholarship");
     } finally {
@@ -168,7 +176,7 @@ export default function AdminScholarshipsPage() {
       <div className="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between gap-4">
         <div className="relative max-w-sm w-full">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input placeholder="Search by name or country…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9" />
+          <Input placeholder="Search by name or country…" value={searchRaw} onChange={(e) => setSearchRaw(e.target.value)} className="pl-9 h-9" />
         </div>
         <p className="text-sm text-gray-500 shrink-0">{filtered.length} of <strong>{scholarships.length}</strong></p>
       </div>

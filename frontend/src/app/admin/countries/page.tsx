@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Country {
   id: string;
@@ -52,7 +53,8 @@ export default function AdminCountriesPage() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [search, setSearch] = useState("");
+  const [searchRaw, setSearchRaw] = useState("");
+  const search = useDebounce(searchRaw, 300);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
@@ -92,15 +94,20 @@ export default function AdminCountriesPage() {
     };
     try {
       if (draft.id) {
-        await api.put(`/admin/countries/${draft.id}`, payload);
+        const res = await api.put(`/admin/countries/${draft.id}`, payload);
+        const updated: Country = res.data.data ?? { ...draft, ...payload, id: draft.id, created_at: (draft as Country).created_at };
+        // Bug 2B: update in-place — no full list re-fetch needed
+        setCountries((prev) => prev.map((c) => c.id === draft.id ? updated : c));
         toast.success("Country updated");
       } else {
-        await api.post("/admin/countries", { ...payload, content: {} });
+        const res = await api.post("/admin/countries", { ...payload, content: {} });
+        const created: Country = res.data.data ?? { id: Date.now().toString(), ...payload, created_at: new Date().toISOString() };
+        // Bug 2B: append to list (sorted by sort_order at runtime)
+        setCountries((prev) => [...prev, created]);
         toast.success("Country created");
       }
       setIsModalOpen(false);
       setDraft(null);
-      fetchCountries();
     } catch (err: unknown) {
       const ae = err as { response?: { data?: { error?: { message?: string } } } };
       toast.error(ae.response?.data?.error?.message || "Failed to save country");
@@ -110,12 +117,15 @@ export default function AdminCountriesPage() {
   };
 
   const handleToggleActive = async (country: Country) => {
+    // Bug 2B: optimistic toggle — flip immediately in UI, revert on failure
+    setCountries((prev) => prev.map((c) => c.id === country.id ? { ...c, is_active: !c.is_active } : c));
     setToggling(country.id);
     try {
       await api.put(`/admin/countries/${country.id}`, { is_active: !country.is_active });
       toast.success(`${country.name} ${!country.is_active ? "activated" : "deactivated"}`);
-      fetchCountries();
     } catch {
+      // Revert on failure
+      setCountries((prev) => prev.map((c) => c.id === country.id ? { ...c, is_active: country.is_active } : c));
       toast.error("Failed to update status");
     } finally {
       setToggling(null);
@@ -128,8 +138,9 @@ export default function AdminCountriesPage() {
     try {
       await api.delete(`/admin/countries/${deleteTarget}`);
       toast.success("Country deleted");
+      // Bug 2B: filter out immediately — no full list re-fetch needed
+      setCountries((prev) => prev.filter((c) => c.id !== deleteTarget));
       setDeleteTarget(null);
-      fetchCountries();
     } catch {
       toast.error("Failed to delete country");
     } finally {
@@ -164,7 +175,7 @@ export default function AdminCountriesPage() {
       <div className="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between gap-4">
         <div className="relative max-w-sm w-full">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input placeholder="Search by name or slug…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9" />
+          <Input placeholder="Search by name or slug…" value={searchRaw} onChange={(e) => setSearchRaw(e.target.value)} className="pl-9 h-9" />
         </div>
         <p className="text-sm text-gray-500 shrink-0">{filtered.length} of <strong>{countries.length}</strong></p>
       </div>
