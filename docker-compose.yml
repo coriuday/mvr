@@ -3,6 +3,18 @@
 # Services: frontend, backend (Rust/Axum), nginx (HTTP dev mode), redis
 # Database: Supabase (external — no local postgres container needed)
 #
+# ── DEVELOPER SETUP ──────────────────────────────────────────────────────────
+# Before running docker-compose for the first time:
+#   1. Copy the env template:  cp .env.example .env
+#   2. Fill in your values in the root .env file
+#   3. Build and start:        docker-compose up --build
+#   4. Access the app:         http://localhost
+#   5. Health check:           http://localhost/health
+#
+# The root .env file is auto-read by docker-compose to interpolate all
+# variables across services. Do NOT edit docker-compose.yml directly.
+# ─────────────────────────────────────────────────────────────────────────────
+#
 # C-1 fix: Redis is now always-on (not behind a profile) so the backend can
 #          use it for JTI blocklist persistence during local dev testing.
 # C-3 fix: nginx uses nginx.dev.conf (HTTP only). Production nginx.conf
@@ -63,7 +75,7 @@ services:
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       # H-2 fix: CLOUDINARY_UPLOAD_PRESET should be a SIGNED preset in production.
       # Use POST /api/admin/cloudinary/sign for browser-side direct uploads.
-      - CLOUDINARY_UPLOAD_PRESET=${CLOUDINARY_UPLOAD_PRESET}
+      - CLOUDINARY_UPLOAD_PRESET=${CLOUDINARY_UPLOAD_PRESET:-mvr_consultants}
       - RESEND_API_KEY=${RESEND_API_KEY}
       - EMAIL_FROM=${EMAIL_FROM:-noreply@mvrconsultants.org}
       - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-MVR Consultants}
