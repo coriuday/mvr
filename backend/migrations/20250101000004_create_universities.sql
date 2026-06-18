@@ -16,11 +16,15 @@ CREATE TABLE IF NOT EXISTS universities (
 );
 
 -- Indexes
-CREATE INDEX idx_universities_country ON universities(country);
-CREATE INDEX idx_universities_ranking ON universities(ranking);
-CREATE INDEX idx_universities_featured ON universities(is_featured);
+CREATE INDEX IF NOT EXISTS idx_universities_country  ON universities(country);
+CREATE INDEX IF NOT EXISTS idx_universities_ranking  ON universities(ranking);
+CREATE INDEX IF NOT EXISTS idx_universities_featured ON universities(is_featured);
 
-CREATE TRIGGER universities_updated_at
-    BEFORE UPDATE ON universities
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+DO $$ BEGIN
+    CREATE TRIGGER universities_updated_at
+        BEFORE UPDATE ON universities
+        FOR EACH ROW
+        EXECUTE FUNCTION update_updated_at_column();
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;

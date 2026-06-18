@@ -20,7 +20,11 @@
 --     requires zero schema changes.
 -- =============================================================================
 
-CREATE TYPE subscriber_status AS ENUM ('active', 'unsubscribed');
+DO $$ BEGIN
+    CREATE TYPE subscriber_status AS ENUM ('active', 'unsubscribed');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS newsletter_subscribers (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -39,7 +43,11 @@ CREATE INDEX IF NOT EXISTS idx_newsletter_email  ON newsletter_subscribers(email
 CREATE INDEX IF NOT EXISTS idx_newsletter_status ON newsletter_subscribers(status);
 
 -- Auto-update updated_at (reuses function from migration 001)
-CREATE TRIGGER newsletter_subscribers_updated_at
-    BEFORE UPDATE ON newsletter_subscribers
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+DO $$ BEGIN
+    CREATE TRIGGER newsletter_subscribers_updated_at
+        BEFORE UPDATE ON newsletter_subscribers
+        FOR EACH ROW
+        EXECUTE FUNCTION update_updated_at_column();
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;

@@ -2,13 +2,17 @@
 -- Migration 006: Create scholarships table
 -- =============================================================================
 
-CREATE TYPE scholarship_type AS ENUM (
-    'MERIT_BASED',
-    'NEED_BASED',
-    'GOVERNMENT',
-    'UNIVERSITY',
-    'PRIVATE'
-);
+DO $$ BEGIN
+    CREATE TYPE scholarship_type AS ENUM (
+        'MERIT_BASED',
+        'NEED_BASED',
+        'GOVERNMENT',
+        'UNIVERSITY',
+        'PRIVATE'
+    );
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS scholarships (
     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -26,12 +30,16 @@ CREATE TABLE IF NOT EXISTS scholarships (
 );
 
 -- Indexes
-CREATE INDEX idx_scholarships_type ON scholarships(scholarship_type);
-CREATE INDEX idx_scholarships_country ON scholarships(country);
-CREATE INDEX idx_scholarships_featured ON scholarships(is_featured);
-CREATE INDEX idx_scholarships_deadline ON scholarships(deadline);
+CREATE INDEX IF NOT EXISTS idx_scholarships_type     ON scholarships(scholarship_type);
+CREATE INDEX IF NOT EXISTS idx_scholarships_country  ON scholarships(country);
+CREATE INDEX IF NOT EXISTS idx_scholarships_featured ON scholarships(is_featured);
+CREATE INDEX IF NOT EXISTS idx_scholarships_deadline ON scholarships(deadline);
 
-CREATE TRIGGER scholarships_updated_at
-    BEFORE UPDATE ON scholarships
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+DO $$ BEGIN
+    CREATE TRIGGER scholarships_updated_at
+        BEFORE UPDATE ON scholarships
+        FOR EACH ROW
+        EXECUTE FUNCTION update_updated_at_column();
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;

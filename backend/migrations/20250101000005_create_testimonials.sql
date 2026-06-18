@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS testimonials (
 );
 
 -- Indexes
-CREATE INDEX idx_testimonials_featured ON testimonials(is_featured);
-CREATE INDEX idx_testimonials_rating ON testimonials(rating);
+CREATE INDEX IF NOT EXISTS idx_testimonials_featured ON testimonials(is_featured);
+CREATE INDEX IF NOT EXISTS idx_testimonials_rating   ON testimonials(rating);
