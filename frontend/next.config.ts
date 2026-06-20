@@ -139,7 +139,14 @@ const nextConfig: NextConfig = {
   // Redirect www → non-www (configure domain when ready)
   // ---------------------------------------------------------------------------
   async redirects() {
-    return [];
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "mvrconsultants.org" }],
+        destination: "https://www.mvrconsultants.org/:path*",
+        permanent: true,
+      },
+    ];
   },
 };
 

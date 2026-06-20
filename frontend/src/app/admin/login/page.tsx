@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, GraduationCap, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,28 @@ export default function AdminLoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isApexDomain, setIsApexDomain] = useState(false);
+
+  useEffect(() => {
+    if (window.location.hostname === "mvrconsultants.org") {
+      setIsApexDomain(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Apex domain (mvrconsultants.org) is not on Vercel — API calls fail there.
+    if (
+      typeof window !== "undefined" &&
+      window.location.hostname === "mvrconsultants.org"
+    ) {
+      window.location.replace(
+        `https://www.mvrconsultants.org/admin/login${window.location.search}`
+      );
+      return;
+    }
+
     setLoading(true);
     setError("");
     try {
@@ -69,6 +88,21 @@ export default function AdminLoginPage() {
 
         {/* Card */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8">
+          {isApexDomain && (
+              <div className="mb-5 flex items-start gap-2.5 bg-amber-500/15 border border-amber-500/30 text-amber-100 rounded-xl px-4 py-3 text-sm">
+                <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                <span>
+                  Use{" "}
+                  <a
+                    href="https://www.mvrconsultants.org/admin/login"
+                    className="underline font-semibold text-white"
+                  >
+                    www.mvrconsultants.org
+                  </a>{" "}
+                  to sign in — the address without www cannot reach the admin API.
+                </span>
+              </div>
+            )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
               <Label htmlFor="admin-email" className="text-white/80 text-sm font-medium">Email Address</Label>
