@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import CountriesPageClient from "./CountriesPageClient";
 import { ALL_COUNTRIES } from "@/constants/countries";
+import { apiUrl } from "@/lib/api-url";
 
 export const metadata: Metadata = {
   title: "Study Destinations | MVR Consultants",
@@ -25,8 +26,7 @@ async function fetchCountryCards(): Promise<CountryCard[]> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 s — allows Render cold start
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
-    const res = await fetch(`${apiUrl}/api/countries`, {
+    const res = await fetch(apiUrl("/api/countries"), {
       next: { revalidate: 300 }, // ISR: re-fetch every 5 minutes
       signal: controller.signal,
     });

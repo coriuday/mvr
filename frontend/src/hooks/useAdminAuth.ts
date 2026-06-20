@@ -2,29 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-const API_BASE_URL =
-  typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080")
-    : "http://localhost:8080";
+import { apiUrl } from "@/lib/api-url";
 
 interface AuthState {
-  token: null; // always null — real token is in the httpOnly cookie
+  token: null;
   user: { name: string; email: string; role: string } | null;
-  /** true while the /api/auth/me check is in flight */
   loading: boolean;
-  /** alias kept for backwards compat — same as loading */
   isVerifying: boolean;
 }
 
-// H-5 fix: Only ADMIN role is permitted in the admin panel.
-// COUNSELOR was previously listed here but has been removed per the security policy decision.
-// The real auth gate is the server-side /api/auth/me check below — this list
-// only drives the client-side redirect after the server response is received.
 const ALLOWED_ROLES = ["ADMIN", "Admin"];
 
 const MAX_RETRIES = 3;
-const RETRY_DELAYS = [300, 800, 1500]; // ms
+const RETRY_DELAYS = [300, 800, 1500];
 
 export function useAdminAuth(): AuthState & { logout: () => void } {
   const router = useRouter();
@@ -40,9 +30,9 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
 
     async function verify(attempt = 0): Promise<void> {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        const res = await fetch(apiUrl("/api/auth/me"), {
           method: "GET",
-          credentials: "include", // send httpOnly cookie
+          credentials: "include",
           cache: "no-store",
         });
 
@@ -54,12 +44,10 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
             data?.data ?? data?.user ?? data;
 
           if (!serverUser?.role || !ALLOWED_ROLES.includes(serverUser.role)) {
-            // Authenticated but not an admin
             router.replace("/admin/login");
             return;
           }
 
-          // Persist display info only — never used for auth decisions
           localStorage.setItem(
             "mvr_user",
             JSON.stringify({
@@ -73,27 +61,23 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
           return;
         }
 
-        // 401: try a token refresh before giving up (attempt 0 only)
         if (res.status === 401 && attempt === 0) {
-          const refreshRes = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+          const refreshRes = await fetch(apiUrl("/api/auth/refresh"), {
             method: "POST",
             credentials: "include",
             cache: "no-store",
           });
           if (!cancelled && refreshRes.ok) {
-            // Retry verification immediately after refresh
             setTimeout(() => verify(attempt + 1), 200);
             return;
           }
         }
 
-        // Retry with exponential backoff for transient failures (non-401)
         if (res.status !== 401 && attempt < MAX_RETRIES) {
           setTimeout(() => verify(attempt + 1), RETRY_DELAYS[attempt]);
           return;
         }
 
-        // All retries exhausted — treat as unauthenticated
         if (!cancelled) {
           localStorage.removeItem("mvr_user");
           setAuth({ token: null, user: null, loading: false, isVerifying: false });
@@ -118,18 +102,15 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
 
   const logout = async () => {
     try {
-      // Ask the backend to set Max-Age=0 on both auth cookies.
-      // withCredentials ensures the cookies are sent so the backend
-      // can identify the session and clear it.
-      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      await fetch(apiUrl("/api/auth/logout"), {
         method: "POST",
         credentials: "include",
       });
     } catch {
-      // Swallow network errors — we still clear client state below
+      // Still clear client state below
     } finally {
       localStorage.removeItem("mvr_user");
-      localStorage.removeItem("mvr_access_token"); // clean up pre-migration remnants
+      localStorage.removeItem("mvr_access_token");
       localStorage.removeItem("mvr_refresh_token");
       localStorage.removeItem("mvr_login_ts");
       router.replace("/admin/login");

@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { apiUrl } from "@/lib/api-url";
 
 const COUNTRIES = [
   "United States", "United Kingdom", "Canada", "Australia",
@@ -82,7 +83,7 @@ export default function ContactPageClient() {
     setStatus("loading");
     setErrorMsg("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact`, {
+      const res = await fetch(apiUrl("/api/contact"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, phone: form.phone || undefined, country_interest: form.country_interest || undefined }),

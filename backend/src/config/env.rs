@@ -43,6 +43,10 @@ pub struct Config {
     // If set, token revocations survive restarts and support multi-instance deploys.
     // If unset, falls back to in-memory blocklist (acceptable for single-instance dev).
     pub redis_url: Option<String>,
+
+    /// When true, trust X-Forwarded-For / X-Real-IP from the reverse proxy (Render, nginx).
+    /// Defaults to true in production where the app is only reachable via the platform LB.
+    pub trust_proxy_headers: bool,
 }
 
 impl Config {
@@ -62,10 +66,22 @@ impl Config {
                 .context("DATABASE_URL must be set (Supabase PostgreSQL connection string)")?,
 
             // JWT
-            jwt_secret: std::env::var("JWT_SECRET")
-                .context("JWT_SECRET must be set (minimum 32 characters)")?,
-            jwt_refresh_secret: std::env::var("JWT_REFRESH_SECRET")
-                .context("JWT_REFRESH_SECRET must be set")?,
+            jwt_secret: {
+                let secret = std::env::var("JWT_SECRET")
+                    .context("JWT_SECRET must be set (minimum 32 characters)")?;
+                if secret.len() < 32 {
+                    anyhow::bail!("JWT_SECRET must be at least 32 characters");
+                }
+                secret
+            },
+            jwt_refresh_secret: {
+                let secret = std::env::var("JWT_REFRESH_SECRET")
+                    .context("JWT_REFRESH_SECRET must be set (minimum 32 characters)")?;
+                if secret.len() < 32 {
+                    anyhow::bail!("JWT_REFRESH_SECRET must be at least 32 characters");
+                }
+                secret
+            },
             jwt_expiry_hours: std::env::var("JWT_EXPIRY_HOURS")
                 .unwrap_or_else(|_| "24".to_string())
                 .parse::<u64>()
@@ -116,6 +132,14 @@ impl Config {
 
             // Redis — optional; warn at startup if not configured
             redis_url: std::env::var("REDIS_URL").ok(),
+
+            trust_proxy_headers: std::env::var("TRUST_PROXY_HEADERS")
+                .map(|v| v == "true" || v == "1")
+                .unwrap_or_else(|_| {
+                    std::env::var("ENVIRONMENT")
+                        .map(|e| e == "production")
+                        .unwrap_or(false)
+                }),
         })
     }
 

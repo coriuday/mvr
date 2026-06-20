@@ -6,6 +6,7 @@ import { Eye, EyeOff, LogIn, GraduationCap, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { apiUrl } from "@/lib/api-url";
 
 export default function AdminLoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -18,7 +19,7 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+      const res = await fetch(apiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // ← receive httpOnly Set-Cookie from backend

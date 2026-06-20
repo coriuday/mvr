@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:80}
+      - BACKEND_URL=http://backend:8080
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
       # H-2 note: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is exposed to the browser
       # for display purposes only. All uploads must use the backend-signed upload
@@ -85,6 +85,8 @@ services:
       # C-1 fix: Redis URL for persistent JTI blocklist
       # Format: redis://:${REDIS_PASSWORD}@redis:6379
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - TRUST_PROXY_HEADERS=true
       - RUST_LOG=${RUST_LOG:-info}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - BACKEND_HOST=0.0.0.0

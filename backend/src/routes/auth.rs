@@ -191,44 +191,26 @@ pub async fn login(
 // ─────────────────────────────────────────────
 pub async fn logout(
     State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<crate::utils::jwt::Claims>,
     headers: axum::http::HeaderMap,
 ) -> AppResult<(
     AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
     Json<MessageResponse>,
 )> {
-    // H-1: Revoke the access token immediately by blocking its JTI.
-    // The middleware has already verified the token before this handler runs,
-    // so we can read the claims from the extension OR re-verify from cookie.
-    // We re-extract from cookie here to be explicit and avoid Extension errors
-    // when logout is called from non-standard clients.
-    if let Some(token) = extract_refresh_cookie(&headers)
-        .map(|_| ()) // ignore refresh cookie here
-        .and(None::<String>)
-        .or_else(|| {
-            // Try to get the access token from the cookie
-            headers
-                .get(header::COOKIE)
-                .and_then(|v| v.to_str().ok())
-                .and_then(|cookies| {
-                    cookies
-                        .split(';')
-                        .map(|c| c.trim())
-                        .find(|c| c.starts_with("mvr_access="))
-                        .map(|c| c.trim_start_matches("mvr_access=").to_string())
-                })
-        })
-    {
-        // Verify and revoke — ignore errors (token may already be expired)
-        if let Ok(claims) = crate::utils::jwt::verify_access_token(&token, &state.config) {
-            state.blocklist.block(claims.jti, claims.exp).await;
-            tracing::info!(
-                user.email = %claims.email,
-                "User logged out — access token revoked"
-            );
+    // Revoke the access token JTI (from verified middleware claims)
+    state.blocklist.block(claims.jti, claims.exp).await;
+    tracing::info!(user.email = %claims.email, "User logged out — access token revoked");
+
+    // Revoke the refresh token if present in cookies
+    if let Some(refresh) = extract_refresh_cookie(&headers) {
+        if let Ok(refresh_claims) = verify_refresh_token(&refresh, &state.config) {
+            state
+                .blocklist
+                .block(refresh_claims.jti, refresh_claims.exp)
+                .await;
         }
     }
 
-    // Clear both auth cookies by setting Max-Age=0
     let cookies = clear_auth_cookies(state.config.is_production());
     Ok((
         AppendHeaders(cookies),
@@ -258,12 +240,26 @@ pub async fn refresh_token(
     // Verify the refresh token
     let claims = verify_refresh_token(&token_str, &state.config)?;
 
+    if state.blocklist.is_blocked(&claims.jti).await {
+        return Err(AppError::Unauthorized(
+            "Session has been invalidated. Please log in again.".to_string(),
+        ));
+    }
+
     let user_id = Uuid::parse_str(&claims.sub)
         .map_err(|_| AppError::Unauthorized("Invalid token subject".to_string()))?;
 
-    // Fetch fresh user data (confirms account still active)
     let repo = AuthRepository::new(state.db.clone());
     let user = repo.find_by_id(user_id).await?;
+
+    if !user.is_active {
+        return Err(AppError::Unauthorized(
+            "Account is deactivated. Contact admin.".to_string(),
+        ));
+    }
+
+    // Rotate refresh token — invalidate the old one
+    state.blocklist.block(claims.jti, claims.exp).await;
 
     let role_str = format!("{:?}", user.role).to_uppercase();
     let access_token = generate_access_token(&user.id, &user.email, &role_str, &state.config)?;

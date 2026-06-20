@@ -57,14 +57,17 @@ pub struct RateLimiterState {
     capacity: f64,
     /// Tokens added per second (steady-state throughput).
     refill_per_sec: f64,
+    /// Trust X-Forwarded-For / X-Real-IP (Render, nginx, Vercel rewrites).
+    trust_proxy_headers: bool,
 }
 
 impl RateLimiterState {
-    pub fn new(capacity: u32, refill_per_sec: f64) -> Self {
+    pub fn new(capacity: u32, refill_per_sec: f64, trust_proxy_headers: bool) -> Self {
         Self {
             buckets: Arc::new(Mutex::new(HashMap::new())),
             capacity: capacity as f64,
             refill_per_sec,
+            trust_proxy_headers,
         }
     }
 
@@ -72,6 +75,10 @@ impl RateLimiterState {
         let mut map = self.buckets.lock().unwrap();
         let bucket = map.entry(ip).or_insert_with(|| Bucket::new(self.capacity));
         bucket.consume(self.capacity, self.refill_per_sec)
+    }
+
+    pub fn trust_proxy_headers(&self) -> bool {
+        self.trust_proxy_headers
     }
 }
 
@@ -104,17 +111,37 @@ fn is_trusted_proxy(ip: &IpAddr) -> bool {
 ///
 /// C-5 fix (preserved): `X-Real-IP` and `X-Forwarded-For` are only trusted when
 /// the TCP peer is a known private/loopback address.
-fn extract_ip(request: &Request) -> IpAddr {
-    // Get the TCP peer address first
+fn extract_ip(request: &Request, trust_proxy_headers: bool) -> IpAddr {
+    if trust_proxy_headers {
+        if let Some(real_ip) = request
+            .headers()
+            .get("X-Real-IP")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|s| s.trim().parse::<IpAddr>().ok())
+        {
+            return real_ip;
+        }
+
+        if let Some(forwarded) = request
+            .headers()
+            .get("X-Forwarded-For")
+            .and_then(|v| v.to_str().ok())
+            && let Some(ip) = forwarded.split(',').next()
+            && let Ok(parsed) = ip.trim().parse::<IpAddr>()
+        {
+            return parsed;
+        }
+    }
+
+    // Get the TCP peer address
     let peer_ip = request
         .extensions()
         .get::<ConnectInfo<std::net::SocketAddr>>()
         .map(|ci| ci.0.ip());
 
-    // Only honour proxy headers if the connection came from a trusted proxy
+    // Honour proxy headers only from trusted private/loopback peers (local nginx)
     if let Some(peer) = peer_ip {
         if is_trusted_proxy(&peer) {
-            // M-3 fix: prefer X-Real-IP (nginx sets this to $remote_addr, always the client IP)
             if let Some(real_ip) = request
                 .headers()
                 .get("X-Real-IP")
@@ -124,10 +151,6 @@ fn extract_ip(request: &Request) -> IpAddr {
                 return real_ip;
             }
 
-            // Fallback: X-Forwarded-For (take first entry — the original client IP)
-            // We take FIRST here (not last) because when X-Real-IP is absent,
-            // the first X-Forwarded-For entry is the original client (added by
-            // the outermost proxy before our trusted edge).
             if let Some(forwarded) = request
                 .headers()
                 .get("X-Forwarded-For")
@@ -138,11 +161,9 @@ fn extract_ip(request: &Request) -> IpAddr {
                 return parsed;
             }
         }
-        // Untrusted or direct connection — use TCP peer IP directly
         return peer;
     }
 
-    // Last resort fallback (should not happen in practice)
     IpAddr::from([127, 0, 0, 1])
 }
 
@@ -179,7 +200,7 @@ pub async fn rate_limit_login(
     request: Request,
     next: Next,
 ) -> Response {
-    let ip = extract_ip(&request);
+    let ip = extract_ip(&request, limiter.trust_proxy_headers());
     if !limiter.is_allowed(ip) {
         tracing::warn!(ip = %ip, "Rate limit hit on /api/auth/login");
         return too_many_requests("/api/auth/login", 10);
@@ -195,7 +216,7 @@ pub async fn rate_limit_contact(
     request: Request,
     next: Next,
 ) -> Response {
-    let ip = extract_ip(&request);
+    let ip = extract_ip(&request, limiter.trust_proxy_headers());
     if !limiter.is_allowed(ip) {
         tracing::warn!(ip = %ip, "Rate limit hit on /api/contact");
         return too_many_requests("/api/contact", 30);
@@ -212,7 +233,7 @@ pub async fn rate_limit_leads(
     request: Request,
     next: Next,
 ) -> Response {
-    let ip = extract_ip(&request);
+    let ip = extract_ip(&request, limiter.trust_proxy_headers());
     if !limiter.is_allowed(ip) {
         tracing::warn!(ip = %ip, "Rate limit hit on /api/leads");
         return too_many_requests("/api/leads", 20);
@@ -227,7 +248,7 @@ pub async fn rate_limit_newsletter(
     request: Request,
     next: Next,
 ) -> Response {
-    let ip = extract_ip(&request);
+    let ip = extract_ip(&request, limiter.trust_proxy_headers());
     if !limiter.is_allowed(ip) {
         tracing::warn!(ip = %ip, "Rate limit hit on /api/newsletter/subscribe");
         return too_many_requests("/api/newsletter/subscribe", 60);
@@ -243,7 +264,7 @@ pub async fn rate_limit_sop(
     request: Request,
     next: Next,
 ) -> Response {
-    let ip = extract_ip(&request);
+    let ip = extract_ip(&request, limiter.trust_proxy_headers());
     if !limiter.is_allowed(ip) {
         tracing::warn!(ip = %ip, "Rate limit hit on /api/sop/review");
         return too_many_requests("/api/sop/review", 120);
@@ -251,32 +272,43 @@ pub async fn rate_limit_sop(
     next.run(request).await
 }
 
+/// Rate limiter for POST /api/auth/refresh — same limits as login.
+pub async fn rate_limit_refresh(
+    State(limiter): State<RateLimiterState>,
+    request: Request,
+    next: Next,
+) -> Response {
+    let ip = extract_ip(&request, limiter.trust_proxy_headers());
+    if !limiter.is_allowed(ip) {
+        tracing::warn!(ip = %ip, "Rate limit hit on /api/auth/refresh");
+        return too_many_requests("/api/auth/refresh", 10);
+    }
+    next.run(request).await
+}
+
 /// Returns a limiter sized for login: 5-burst, 1 req / 10 s per IP.
-pub fn login_limiter() -> RateLimiterState {
-    RateLimiterState::new(5, 0.1) // 0.1 token/sec = 1 per 10 s
+pub fn login_limiter(trust_proxy: bool) -> RateLimiterState {
+    RateLimiterState::new(5, 0.1, trust_proxy)
 }
 
 /// Returns a limiter sized for contact form: 3-burst, 1 req / 30 s per IP.
-pub fn contact_limiter() -> RateLimiterState {
-    RateLimiterState::new(3, 1.0 / 30.0)
+pub fn contact_limiter(trust_proxy: bool) -> RateLimiterState {
+    RateLimiterState::new(3, 1.0 / 30.0, trust_proxy)
 }
 
 /// Returns a limiter sized for lead submission: 5-burst, 1 req / 20 s per IP.
-pub fn leads_limiter() -> RateLimiterState {
-    RateLimiterState::new(5, 1.0 / 20.0)
+pub fn leads_limiter(trust_proxy: bool) -> RateLimiterState {
+    RateLimiterState::new(5, 1.0 / 20.0, trust_proxy)
 }
 
 /// Returns a limiter sized for newsletter subscribe: 2-burst, 1 req / 60 s per IP.
-/// Newsletter is a once-per-session action — stricter than contact.
-pub fn newsletter_limiter() -> RateLimiterState {
-    RateLimiterState::new(2, 1.0 / 60.0)
+pub fn newsletter_limiter(trust_proxy: bool) -> RateLimiterState {
+    RateLimiterState::new(2, 1.0 / 60.0, trust_proxy)
 }
 
 /// Returns a limiter sized for SOP AI review: 3-burst, 1 req / 120 s per IP.
-/// AI calls cost money — aggressive throttling prevents cost abuse while
-/// allowing a student to re-submit after editing their SOP.
-pub fn sop_limiter() -> RateLimiterState {
-    RateLimiterState::new(3, 1.0 / 120.0)
+pub fn sop_limiter(trust_proxy: bool) -> RateLimiterState {
+    RateLimiterState::new(3, 1.0 / 120.0, trust_proxy)
 }
 
 // ── Periodic eviction task ────────────────────────────────────────────────────

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+import { apiUrl } from "@/lib/api-url";
 
 interface UploadResult {
   secure_url: string;
@@ -28,7 +27,7 @@ export function useCloudinaryUpload(folder = "mvr/uploads") {
 
       try {
         // 1. Get signed upload parameters from our backend
-        const signRes = await fetch(`${API}/api/admin/cloudinary/sign`, {
+        const signRes = await fetch(apiUrl("/api/admin/cloudinary/sign"), {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },

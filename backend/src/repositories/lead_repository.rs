@@ -164,4 +164,22 @@ impl LeadRepository {
         .await
         .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))
     }
+
+    /// Aggregate lead counts by status — used for dashboard stats (no full-table scan).
+    pub async fn count_status_totals(&self) -> AppResult<(i64, i64, i64)> {
+        let row: (i64, i64, i64) = sqlx::query_as(
+            r#"
+            SELECT
+                COUNT(*) FILTER (WHERE status = 'NEW')::bigint,
+                COUNT(*) FILTER (WHERE status = 'CONVERTED')::bigint,
+                COUNT(*)::bigint
+            FROM leads
+            "#,
+        )
+        .fetch_one(&self.db)
+        .await
+        .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
+
+        Ok(row)
+    }
 }

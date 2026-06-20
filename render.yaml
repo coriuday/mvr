@@ -82,3 +82,7 @@ services:
       # ── Logging ───────────────────────────────────────────────────────────
       - key: RUST_LOG
         value: info
+
+      # ── Proxy ─────────────────────────────────────────────────────────────
+      - key: TRUST_PROXY_HEADERS
+        value: "true"

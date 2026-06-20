@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ALL_COUNTRIES } from "@/constants/countries";
+import { apiUrl } from "@/lib/api-url";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -30,16 +31,12 @@ const MOCK_BLOG_SLUGS = [
 /** Fetch all published blog slugs from the backend. Falls back to mock data. */
 async function getBlogSlugs(): Promise<string[]> {
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-      "http://localhost:8080";
-
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);
 
-    const res = await fetch(`${apiUrl}/api/blogs?limit=500&fields=slug`, {
+    const res = await fetch(apiUrl("/api/blogs?per_page=500"), {
       signal: controller.signal,
-      next: { revalidate: 3600 }, // Re-validate cached list every hour
+      next: { revalidate: 3600 },
     });
 
     clearTimeout(timeout);

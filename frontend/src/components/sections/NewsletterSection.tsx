@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+import { apiUrl } from "@/lib/api-url";
 
 export default function NewsletterSection() {
   const [email, setEmail]     = useState("");
@@ -20,7 +19,7 @@ export default function NewsletterSection() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+      const res = await fetch(apiUrl("/api/newsletter/subscribe"), {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

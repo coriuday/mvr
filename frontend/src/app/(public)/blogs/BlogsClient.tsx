@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BookOpen, Clock, Tag, ArrowRight } from "lucide-react";
+import { apiUrl } from "@/lib/api-url";
 
 interface BlogPost {
   id: string;
@@ -39,7 +40,7 @@ export default function BlogsClient() {
     const fetchBlogs = async () => {
       try {
         // We add ?published=true if we had that filter on backend, or just filter in frontend
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs`);
+        const res = await fetch(apiUrl("/api/blogs"));
         const data = await res.json();
         if (data.success) {
           // Add default fields if they are missing from backend model

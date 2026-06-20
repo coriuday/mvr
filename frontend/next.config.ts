@@ -88,10 +88,8 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               // Images: self + Cloudinary + Unsplash + data URIs (for icons)
               "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com",
-              // API connections: backend + currency API + Cloudinary upload API (H-2 signed uploads)
-              // L-8 security fix: Removed generativelanguage.googleapis.com — the frontend
-              // never calls Gemini directly. All AI requests go through the Rust backend.
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081"} https://open.er-api.com https://api.cloudinary.com`,
+              // API: same-origin proxy (/api → backend). External APIs below.
+              "connect-src 'self' https://open.er-api.com https://api.cloudinary.com",
               // Frames: none
               "frame-src 'none'",
               // Objects: none
@@ -112,6 +110,30 @@ const nextConfig: NextConfig = {
   },
 
 
+
+  // ---------------------------------------------------------------------------
+  // API proxy — same-origin cookies for admin auth (Vercel → Render)
+  // Browser calls /api/* on the frontend domain; Next.js forwards to Rust backend.
+  // Set BACKEND_URL in Vercel (server-only), e.g. https://mvr-backend.onrender.com
+  // ---------------------------------------------------------------------------
+  async rewrites() {
+    const backend = (
+      process.env.BACKEND_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://localhost:8080"
+    ).replace(/\/$/, "");
+
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backend}/api/:path*`,
+      },
+      {
+        source: "/health",
+        destination: `${backend}/health`,
+      },
+    ];
+  },
 
   // ---------------------------------------------------------------------------
   // Redirect www → non-www (configure domain when ready)

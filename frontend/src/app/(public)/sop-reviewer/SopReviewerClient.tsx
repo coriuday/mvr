@@ -8,8 +8,7 @@ import {
   TrendingUp, Zap,
 } from "lucide-react";
 import Link from "next/link";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+import { apiUrl } from "@/lib/api-url";
 
 // ─── Types (mirror backend) ───────────────────────────────────────────────────
 
@@ -233,7 +232,7 @@ export default function SopReviewerClient() {
     }, 1800);
 
     try {
-      const res = await fetch(`${API_URL}/api/sop/review`, {
+      const res = await fetch(apiUrl("/api/sop/review"), {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

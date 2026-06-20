@@ -29,22 +29,11 @@ impl AdminService {
         let lead_repo = LeadRepository::new(self.db.clone());
         let auth_repo = AuthRepository::new(self.db.clone());
 
-        // All three DB calls are independent — run concurrently.
-        let (leads_today, (all_leads_vec, total_leads), staff) = tokio::try_join!(
+        let (leads_today, (new_count, converted_count, total_leads), staff) = tokio::try_join!(
             lead_repo.count_today(),
-            async { lead_repo.find_all(&LeadFilter::default()).await },
+            lead_repo.count_status_totals(),
             auth_repo.list_all(),
         )?;
-
-        let new_count = all_leads_vec
-            .iter()
-            .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::New))
-            .count();
-
-        let converted_count = all_leads_vec
-            .iter()
-            .filter(|l| matches!(l.status, crate::models::lead::LeadStatus::Converted))
-            .count();
 
         let conversion_rate = if total_leads > 0 {
             format!(
@@ -58,8 +47,8 @@ impl AdminService {
         Ok(DashboardStats {
             total_leads,
             new_leads_today: leads_today,
-            new_leads_total: new_count,
-            converted_leads: converted_count,
+            new_leads_total: new_count as usize,
+            converted_leads: converted_count as usize,
             conversion_rate,
             staff_count: staff.len(),
         })

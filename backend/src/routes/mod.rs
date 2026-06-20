@@ -67,11 +67,12 @@ pub async fn create_router(db: PgPool, config: Config) -> Router {
     let cors = cors_middleware::build_cors_layer(&config.allowed_origins);
 
     // Build independent limiters and start the eviction background task
-    let login_lim = login_limiter();
-    let contact_lim = contact_limiter();
-    let leads_lim = leads_limiter();
-    let newsletter_lim = newsletter_limiter();
-    let sop_lim = sop_limiter();
+    let trust_proxy = config.trust_proxy_headers;
+    let login_lim = login_limiter(trust_proxy);
+    let contact_lim = contact_limiter(trust_proxy);
+    let leads_lim = leads_limiter(trust_proxy);
+    let newsletter_lim = newsletter_limiter(trust_proxy);
+    let sop_lim = sop_limiter(trust_proxy);
     rate_limit_middleware::spawn_eviction_task(login_lim.clone());
     rate_limit_middleware::spawn_eviction_task(contact_lim.clone());
     rate_limit_middleware::spawn_eviction_task(leads_lim.clone());
@@ -108,6 +109,13 @@ fn public_routes(
     sop_lim: rate_limit_middleware::RateLimiterState,
 ) -> Router<AppState> {
     Router::new()
+        .route(
+            "/api/auth/refresh",
+            post(auth::refresh_token).route_layer(middleware::from_fn_with_state(
+                login_lim.clone(),
+                rate_limit_middleware::rate_limit_refresh,
+            )),
+        )
         // Auth — rate-limited (brute-force protection)
         .route(
             "/api/auth/login",
@@ -116,7 +124,6 @@ fn public_routes(
                 rate_limit_middleware::rate_limit_login,
             )),
         )
-        .route("/api/auth/refresh", post(auth::refresh_token))
         // Public blog routes
         .route("/api/blogs", get(blogs::get_all_blogs))
         .route("/api/blogs/:id", get(blogs::get_blog_by_slug))

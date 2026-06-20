@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Tag, BookOpen } from "lucide-react";
 import DOMPurify from "isomorphic-dompurify";
+import { apiUrl } from "@/lib/api-url";
 
 // Same mockup data — will be replaced by API call once DB is live
 const MOCK_POSTS: Record<string, {
@@ -117,7 +118,7 @@ async function fetchBlogPost(slug: string) {
   const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 s — allows Render cold start
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/blogs/${slug}`,
+      apiUrl(`/api/blogs/${slug}`),
       { next: { revalidate: 60 }, signal: controller.signal }
     );
     clearTimeout(timeoutId);
