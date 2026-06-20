@@ -305,7 +305,7 @@ INSERT INTO users (id, name, email, password_hash, role, is_active)
 VALUES (
     gen_random_uuid(),
     'MVR Admin',
-    'mvrconsultantshyd@gmail.com',
+    'guntur@mvrconsultants.org',
     '$argon2id$v=19$m=65536,t=2,p=1$9X5bBoNoiJ8NDg0xfJ/Akg$iLyfhldBk4P5hx6UH5iLlFTQGDofc1lllkervzCGWs4',
     'ADMIN',
     TRUE

@@ -37,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
     let rows = sqlx::query(
         r#"
         INSERT INTO users (name, email, password_hash, role)
-        VALUES ('Admin', 'admin@mvrconsultants.com', $1, 'ADMIN')
+        VALUES ('MVR Admin', 'guntur@mvrconsultants.org', $1, 'ADMIN')
         ON CONFLICT (email) DO UPDATE
             SET password_hash = EXCLUDED.password_hash,
                 role           = 'ADMIN'
@@ -49,7 +49,7 @@ async fn main() -> anyhow::Result<()> {
     .rows_affected();
 
     println!("✅ Admin user upserted ({rows} row affected)");
-    println!("   Email:    admin@mvrconsultants.com");
+    println!("   Email:    guntur@mvrconsultants.org");
     println!("   Password: {password}");
     println!("\nYou can now login at http://localhost:3000/admin/login");
     Ok(())

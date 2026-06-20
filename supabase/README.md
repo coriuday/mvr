@@ -27,7 +27,7 @@ This script:
 
 **Seeded Admin Credentials:**
 ```
-Email:    mvrconsultantshyd@gmail.com
+Email:    guntur@mvrconsultants.org
 Password: Admin@MVR2025!
 ```
 > **Change the admin password immediately** after first login via the admin panel.
