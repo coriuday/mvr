@@ -130,8 +130,20 @@ impl Config {
             // AI — Gemini Flash (cheap, fast, sufficient for SOP review)
             gemini_api_key: std::env::var("GEMINI_API_KEY").unwrap_or_else(|_| "".to_string()),
 
-            // Redis — optional; warn at startup if not configured
-            redis_url: std::env::var("REDIS_URL").ok(),
+            // Redis — required in production for persistent admin logout revocation
+            redis_url: {
+                let environment = std::env::var("ENVIRONMENT")
+                    .unwrap_or_else(|_| "development".to_string());
+                match std::env::var("REDIS_URL") {
+                    Ok(url) if !url.trim().is_empty() => Some(url),
+                    _ if environment == "production" => {
+                        anyhow::bail!(
+                            "REDIS_URL must be set in production (Render Redis → Internal Connection URL)"
+                        );
+                    }
+                    _ => None,
+                }
+            },
 
             trust_proxy_headers: std::env::var("TRUST_PROXY_HEADERS")
                 .map(|v| v == "true" || v == "1")

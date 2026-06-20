@@ -43,20 +43,26 @@ pub struct AppState {
 ///
 /// Async because the Redis connection manager requires an async handshake.
 pub async fn create_router(db: PgPool, config: Config) -> Router {
-    // C-1 fix: initialise blocklist with Redis if configured, else in-memory
-    let blocklist = TokenBlocklist::new(config.redis_url.as_deref())
-        .await
-        .unwrap_or_else(|e| {
+    // C-1 fix: Redis blocklist in production; in-memory fallback only in dev
+    let blocklist = match TokenBlocklist::new(config.redis_url.as_deref()).await {
+        Ok(bl) => bl,
+        Err(e) if config.is_production() => {
+            panic!(
+                "REDIS_URL is set but connection failed in production: {e}. \
+                 Fix Redis or update REDIS_URL in Render dashboard."
+            );
+        }
+        Err(e) => {
             tracing::error!(
                 error = %e,
-                "Failed to connect to Redis — falling back to in-memory blocklist. \
+                "Failed to connect to Redis — falling back to in-memory blocklist (dev only). \
                  Revoked tokens will not survive a restart."
             );
-            // Safety: InMemory variant never fails
-            tokio::runtime::Handle::current()
-                .block_on(TokenBlocklist::new(None))
+            TokenBlocklist::new(None)
+                .await
                 .expect("in-memory blocklist init is infallible")
-        });
+        }
+    };
     blocklist.spawn_eviction_task();
 
     let state = AppState {

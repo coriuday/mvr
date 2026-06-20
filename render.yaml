@@ -3,12 +3,21 @@
 # Docs: https://render.com/docs/blueprint-spec
 
 services:
+  # ── Redis — admin session revocation (logout blocklist) ─────────────────────
+  - type: redis
+    name: mvr-redis
+    region: singapore
+    plan: free
+    ipAllowList: [] # Render services in same account can connect
+    maxmemoryPolicy: allkeys-lru
+
+  # ── Backend API ─────────────────────────────────────────────────────────────
   - type: web
     name: mvr-backend
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    region: singapore          # closest to Hyderabad
+    region: singapore
     plan: free
     healthCheckPath: /health
 
@@ -22,9 +31,8 @@ services:
       # Render injects PORT automatically — no need to set it here
 
       # ── Database ─────────────────────────────────────────────────────────
-      # Set this in Render dashboard → Environment (keep secret)
       - key: DATABASE_URL
-        sync: false            # means: set manually in dashboard, not in this file
+        sync: false
 
       # ── JWT ──────────────────────────────────────────────────────────────
       - key: JWT_SECRET
@@ -37,10 +45,6 @@ services:
         value: "30"
 
       # ── CORS ─────────────────────────────────────────────────────────────
-      # Set BOTH of these in Render dashboard → Environment:
-      #   FRONTEND_URL   = https://www.mvrconsultants.org
-      #   ALLOWED_ORIGINS = https://www.mvrconsultants.org
-      # (Must exactly match the Origin header browsers send from Vercel)
       - key: FRONTEND_URL
         sync: false
       - key: ALLOWED_ORIGINS
@@ -63,26 +67,24 @@ services:
         value: noreply@mvrconsultants.org
       - key: EMAIL_FROM_NAME
         value: "MVR Consultants"
-      # L-2 fix: real admin emails are set in Render dashboard (not hardcoded in source)
       - key: ADMIN_EMAIL
-        sync: false   # Set in Render dashboard → Environment
+        value: guntur@mvrconsultants.org
       - key: ADMIN_EMAIL_GUNTUR
-        sync: false   # Set in Render dashboard → Environment
+        value: guntur@mvrconsultants.org
 
-      # ── Redis (C-1 security fix: persistent JTI blocklist) ────────────────
-      # Provision a Render Redis instance and paste the External URL here.
-      # Go to: Render Dashboard → New → Redis → Copy External Connection String
+      # ── Redis — auto-wired from mvr-redis service above ───────────────────
       - key: REDIS_URL
-        sync: false   # Set in Render dashboard → Environment
+        fromService:
+          type: redis
+          name: mvr-redis
+          property: connectionString
 
-      # ── AI / Gemini (used by SOP Reviewer) ────────────────────────────────
+      # ── AI / Gemini (SOP Reviewer) ────────────────────────────────────────
       - key: GEMINI_API_KEY
-        sync: false   # Set manually in Render Dashboard → Environment
+        sync: false
 
-      # ── Logging ───────────────────────────────────────────────────────────
+      # ── Logging & proxy ───────────────────────────────────────────────────
       - key: RUST_LOG
         value: info
-
-      # ── Proxy ─────────────────────────────────────────────────────────────
       - key: TRUST_PROXY_HEADERS
         value: "true"
