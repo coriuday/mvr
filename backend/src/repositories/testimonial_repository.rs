@@ -15,19 +15,32 @@ impl TestimonialRepository {
     }
 
     pub async fn find_all(&self, filter: &TestimonialFilter) -> AppResult<Vec<Testimonial>> {
-        sqlx::query_as::<_, Testimonial>(
-            r#"
+        const SELECT: &str = r#"
             SELECT id, student_name, review, image_url, rating,
                    country, university, course, is_featured, created_at
             FROM testimonials
-            WHERE ($1::boolean IS NULL OR is_featured = $1)
-            ORDER BY is_featured DESC, created_at DESC
-            "#,
-        )
-        .bind(filter.featured)
-        .fetch_all(&self.db)
-        .await
-        .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))
+        "#;
+
+        let testimonials = match filter.featured {
+            Some(featured) => {
+                sqlx::query_as::<_, Testimonial>(&format!(
+                    "{SELECT} WHERE is_featured = $1 ORDER BY is_featured DESC, created_at DESC"
+                ))
+                .bind(featured)
+                .fetch_all(&self.db)
+                .await
+            }
+            None => {
+                sqlx::query_as::<_, Testimonial>(&format!(
+                    "{SELECT} ORDER BY is_featured DESC, created_at DESC"
+                ))
+                .fetch_all(&self.db)
+                .await
+            }
+        }
+        .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
+
+        Ok(testimonials)
     }
 
     pub async fn create(&self, req: &CreateTestimonialRequest) -> AppResult<Testimonial> {
