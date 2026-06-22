@@ -202,13 +202,13 @@ pub async fn logout(
     tracing::info!(user.email = %claims.email, "User logged out — access token revoked");
 
     // Revoke the refresh token if present in cookies
-    if let Some(refresh) = extract_refresh_cookie(&headers) {
-        if let Ok(refresh_claims) = verify_refresh_token(&refresh, &state.config) {
-            state
-                .blocklist
-                .block(refresh_claims.jti, refresh_claims.exp)
-                .await;
-        }
+    if let Some(refresh) = extract_refresh_cookie(&headers)
+        && let Ok(refresh_claims) = verify_refresh_token(&refresh, &state.config)
+    {
+        state
+            .blocklist
+            .block(refresh_claims.jti, refresh_claims.exp)
+            .await;
     }
 
     let cookies = clear_auth_cookies(state.config.is_production());
