@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { GraduationCap, Star, Users, ArrowRight, Search, SlidersHorizontal, BookOpen, Clock, BadgeEuro, Sparkles, ExternalLink, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UNIVERSITIES, type University } from "@/data/universities";
+import { useUniversities } from "@/hooks/useUniversities";
 
 const FIELDS_OF_STUDY = [
   "All", "CS", "Engineering", "Business", "Medicine", "Law", "Sciences", "Architecture", "Design"
@@ -16,6 +16,7 @@ const INTAKE_OPTIONS = [
 ];
 
 export default function UniversitiesSearchClient() {
+  const { universities: UNIVERSITIES, loading: apiLoading } = useUniversities();
   const [search, setSearch] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [selectedField, setSelectedField] = useState("All");
@@ -27,7 +28,7 @@ export default function UniversitiesSearchClient() {
   const uniqueCountries = useMemo(() => {
     const countries = new Set(UNIVERSITIES.map(u => u.country));
     return ["All", ...Array.from(countries).sort()];
-  }, []);
+  }, [UNIVERSITIES]);
 
   // Filter universities
   const filteredUnis = useMemo(() => {
@@ -63,7 +64,7 @@ export default function UniversitiesSearchClient() {
       };
       return getRankNum(a.ranking) - getRankNum(b.ranking);
     });
-  }, [search, selectedCountry, selectedField, selectedIntake, maxFees, sortBy]);
+  }, [search, selectedCountry, selectedField, selectedIntake, maxFees, sortBy, UNIVERSITIES]);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24">

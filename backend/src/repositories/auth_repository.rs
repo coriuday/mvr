@@ -109,6 +109,22 @@ impl AuthRepository {
         .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))
     }
 
+    /// Set user active status (admin toggle)
+    pub async fn set_active(&self, id: Uuid, is_active: bool) -> AppResult<UserResponse> {
+        sqlx::query_as::<_, UserResponse>(
+            r#"
+            UPDATE users SET is_active = $2, updated_at = NOW() WHERE id = $1
+            RETURNING id, name, email, role, is_active, created_at
+            "#,
+        )
+        .bind(id)
+        .bind(is_active)
+        .fetch_optional(&self.db)
+        .await
+        .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?
+        .ok_or_else(|| AppError::NotFound(format!("User {id} not found")))
+    }
+
     /// Deactivate a user (soft delete)
     #[allow(dead_code)]
     pub async fn deactivate(&self, id: Uuid) -> AppResult<()> {

@@ -1,17 +1,10 @@
 use crate::{
-    models::university::{CreateUniversityRequest, University, UniversityFilter},
+    models::university::{CreateUniversityRequest, University, UniversityFilter, UpdateUniversityRequest},
     repositories::university_repository::UniversityRepository,
     utils::errors::{AppError, AppResult},
 };
 use sqlx::PgPool;
 use uuid::Uuid;
-
-/// Typed body for updating a university's featured flag.
-/// Previously this was parsed from raw `serde_json::Value` in the route handler.
-#[derive(Debug, serde::Deserialize)]
-pub struct UpdateUniversityRequest {
-    pub is_featured: Option<bool>,
-}
 
 pub struct UniversityService {
     db: PgPool,
@@ -22,14 +15,24 @@ impl UniversityService {
         Self { db }
     }
 
-    /// List universities with optional country / featured filtering (public).
     pub async fn list(&self, filter: &UniversityFilter) -> AppResult<(Vec<University>, i64)> {
         UniversityRepository::new(self.db.clone())
-            .find_all(filter)
+            .find_all(filter, true)
             .await
     }
 
-    /// Validate and create a new university record (admin).
+    pub async fn list_admin(&self, filter: &UniversityFilter) -> AppResult<(Vec<University>, i64)> {
+        UniversityRepository::new(self.db.clone())
+            .find_all(filter, false)
+            .await
+    }
+
+    pub async fn get_by_slug(&self, slug: &str) -> AppResult<University> {
+        UniversityRepository::new(self.db.clone())
+            .find_by_slug(slug, true)
+            .await
+    }
+
     pub async fn create(&self, body: &CreateUniversityRequest) -> AppResult<University> {
         if body.name.trim().is_empty() {
             return Err(AppError::BadRequest(
@@ -41,19 +44,12 @@ impl UniversityService {
             .await
     }
 
-    /// Update the featured flag of a university (admin).
-    pub async fn update_featured(
-        &self,
-        id: Uuid,
-        body: &UpdateUniversityRequest,
-    ) -> AppResult<University> {
-        let featured = body.is_featured.unwrap_or(false);
+    pub async fn update(&self, id: Uuid, body: &UpdateUniversityRequest) -> AppResult<University> {
         UniversityRepository::new(self.db.clone())
-            .update_featured(id, featured)
+            .update(id, body)
             .await
     }
 
-    /// Delete a university record (admin).
     pub async fn delete(&self, id: Uuid) -> AppResult<()> {
         UniversityRepository::new(self.db.clone()).delete(id).await
     }

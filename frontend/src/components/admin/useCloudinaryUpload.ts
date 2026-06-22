@@ -23,6 +23,16 @@ export function useCloudinaryUpload(folder = "mvr/uploads") {
 
   const upload = useCallback(
     async (file: File): Promise<string | null> => {
+      const maxBytes = 10 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        setState({
+          uploading: false,
+          progress: 0,
+          error: "Image must be 10MB or smaller",
+        });
+        return null;
+      }
+
       setState({ uploading: true, progress: 0, error: "" });
 
       try {
@@ -37,13 +47,22 @@ export function useCloudinaryUpload(folder = "mvr/uploads") {
         if (!signRes.ok) {
           const err = await signRes.json().catch(() => ({}));
           throw new Error(
-            err?.error?.message || "Failed to get upload signature"
+            err?.error?.message || `Failed to get upload signature (${signRes.status})`
           );
         }
 
-        const {
-          data: { signature, timestamp, api_key, cloud_name, upload_preset },
-        } = await signRes.json();
+        const signJson = await signRes.json();
+        const data = signJson?.data;
+        if (
+          !data?.signature ||
+          !data?.timestamp ||
+          !data?.api_key ||
+          !data?.cloud_name
+        ) {
+          throw new Error("Invalid upload signature response from server");
+        }
+
+        const { signature, timestamp, api_key, cloud_name, upload_preset } = data;
 
         setState((s) => ({ ...s, progress: 20 }));
 

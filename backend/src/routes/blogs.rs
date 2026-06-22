@@ -10,6 +10,26 @@ use axum::{
 };
 use uuid::Uuid;
 
+// ─── GET /api/admin/blogs  (admin — includes drafts) ─────────────────────────
+pub async fn admin_get_all_blogs(
+    State(state): State<AppState>,
+    Query(filter): Query<BlogFilter>,
+) -> AppResult<Json<serde_json::Value>> {
+    let (blogs, total) = BlogService::new(state.db).list(&filter).await?;
+    let page = filter.page.unwrap_or(1);
+    let per_page = filter.per_page.unwrap_or(50);
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "data": blogs,
+        "meta": {
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": (total as f64 / per_page as f64).ceil() as i64,
+        }
+    })))
+}
+
 // ─── GET /api/blogs  (public) ────────────────────────────────────────────────
 pub async fn get_all_blogs(
     State(state): State<AppState>,

@@ -6,7 +6,8 @@ import Link from "next/link";
 import { GraduationCap, ArrowRight, ArrowLeft, ShieldCheck, Sparkles, CheckCircle2, AlertTriangle, BadgeEuro, Clock, Info, Landmark, HelpCircle, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UNIVERSITIES, type University } from "@/data/universities";
+import { useUniversities } from "@/hooks/useUniversities";
+import type { University } from "@/data/universities";
 
 // ── Define Scales & Fields ──────────────────────────────────────────────────
 const SCALES = [
@@ -29,6 +30,7 @@ const COUNTRIES = [
 ];
 
 function EligibilityContent() {
+  const { universities: UNIVERSITIES } = useUniversities();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
 

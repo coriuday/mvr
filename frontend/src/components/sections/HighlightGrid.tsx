@@ -1,8 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
+import { apiUrl } from "@/lib/api-url";
+import { mapApiUniversity, type ApiUniversity } from "@/lib/universities-api";
 
 const COURSES = [
   { icon: "⚙️", name: "Engineering", href: "/courses/engineering" },
@@ -13,14 +16,14 @@ const COURSES = [
   { icon: "🎨", name: "Design & Arts", href: "/courses/design" },
 ];
 
-const UNIVERSITIES = [
+const STATIC_UNIVERSITIES = [
   { name: "Harvard University", country: "USA", flag: "🇺🇸", href: "/universities/harvard" },
   { name: "University of Toronto", country: "Canada", flag: "🇨🇦", href: "/universities/toronto" },
   { name: "University of Oxford", country: "UK", flag: "🇬🇧", href: "/universities/oxford" },
   { name: "The University of Melbourne", country: "Australia", flag: "🇦🇺", href: "/universities/melbourne" },
 ];
 
-const SCHOLARSHIPS = [
+const STATIC_SCHOLARSHIPS = [
   {
     name: "Merit Based Scholarships",
     desc: "Unlock your potential",
@@ -51,7 +54,53 @@ const SCHOLARSHIPS = [
   },
 ];
 
+type UniLink = { name: string; country: string; flag: string; href: string };
+type ScholarshipLink = { name: string; desc: string; icon: React.ReactNode };
+
 export default function HighlightGrid() {
+  const [universities, setUniversities] = useState<UniLink[]>(STATIC_UNIVERSITIES);
+  const [scholarships, setScholarships] = useState<ScholarshipLink[]>(STATIC_SCHOLARSHIPS);
+
+  useEffect(() => {
+    fetch(apiUrl("/api/universities?is_featured=true&per_page=4"))
+      .then((r) => r.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          setUniversities(
+            json.data.slice(0, 4).map((u: ApiUniversity) => {
+              const m = mapApiUniversity(u);
+              return {
+                name: m.name,
+                country: m.country,
+                flag: m.flag,
+                href: `/universities/${m.id}`,
+              };
+            })
+          );
+        }
+      })
+      .catch(() => {});
+
+    fetch(apiUrl("/api/scholarships"))
+      .then((r) => r.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data)) {
+          const featured = json.data.filter((s: { is_featured?: boolean }) => s.is_featured).slice(0, 3);
+          const list = (featured.length > 0 ? featured : json.data.slice(0, 3));
+          if (list.length > 0) {
+            setScholarships(
+              list.map((s: { name: string; amount?: string | null; scholarship_type?: string }) => ({
+                name: s.name,
+                desc: s.amount || s.scholarship_type?.replace(/_/g, " ") || "Funding available",
+                icon: STATIC_SCHOLARSHIPS[0].icon,
+              }))
+            );
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="py-16 bg-[#f8f9fc]" id="highlights">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -100,7 +149,7 @@ export default function HighlightGrid() {
               Top Universities
             </h3>
             <ul className="space-y-4">
-              {UNIVERSITIES.map((u) => (
+              {universities.map((u) => (
                 <li key={u.name}>
                   <Link href={u.href} className="flex items-center gap-3 group">
                     <div className="w-9 h-9 rounded-full bg-[#f8f9fc] border border-gray-100 flex items-center justify-center text-base shrink-0">
@@ -137,7 +186,7 @@ export default function HighlightGrid() {
               Scholarships
             </h3>
             <ul className="space-y-5">
-              {SCHOLARSHIPS.map((s) => (
+              {scholarships.map((s) => (
                 <li key={s.name}>
                   <Link href="/scholarships" className="flex items-start gap-3 group">
                     {s.icon}
@@ -188,7 +237,7 @@ export default function HighlightGrid() {
               <p className="text-[#c9a84c] text-xs font-bold mt-3">– Arjun Mehta</p>
             </div>
             <Link
-              href="/success-stories"
+              href="/testimonials"
               className="inline-flex items-center gap-1.5 text-[#1a2f5e] text-xs font-semibold mt-6 hover:text-[#c9a84c] transition-colors"
             >
               Read More Stories <ArrowRight size={13} />

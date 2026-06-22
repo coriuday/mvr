@@ -1,7 +1,7 @@
 use crate::{
-    models::university::{CreateUniversityRequest, UniversityFilter},
+    models::university::{CreateUniversityRequest, UniversityFilter, UpdateUniversityRequest},
     routes::AppState,
-    services::university_service::{UniversityService, UpdateUniversityRequest},
+    services::university_service::UniversityService,
     utils::{errors::AppResult, response::MessageResponse},
 };
 use axum::{
@@ -10,7 +10,7 @@ use axum::{
 };
 use uuid::Uuid;
 
-// ─── GET /api/universities  (public) ─────────────────────────────────────────
+/// GET /api/universities  (public — active only)
 pub async fn get_all_universities(
     State(state): State<AppState>,
     Query(filter): Query<UniversityFilter>,
@@ -30,7 +30,36 @@ pub async fn get_all_universities(
     })))
 }
 
-// ─── POST /api/universities  (admin) ─────────────────────────────────────────
+/// GET /api/universities/:slug  (public — by slug)
+pub async fn get_university_by_slug(
+    State(state): State<AppState>,
+    Path(slug): Path<String>,
+) -> AppResult<Json<serde_json::Value>> {
+    let uni = UniversityService::new(state.db).get_by_slug(&slug).await?;
+    Ok(Json(serde_json::json!({ "success": true, "data": uni })))
+}
+
+/// GET /api/admin/universities  (admin — includes inactive)
+pub async fn admin_list_universities(
+    State(state): State<AppState>,
+    Query(filter): Query<UniversityFilter>,
+) -> AppResult<Json<serde_json::Value>> {
+    let (unis, total) = UniversityService::new(state.db).list_admin(&filter).await?;
+    let page = filter.page.unwrap_or(1);
+    let per_page = filter.per_page.unwrap_or(50);
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "data": unis,
+        "meta": {
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": (total as f64 / per_page as f64).ceil() as i64,
+        }
+    })))
+}
+
+/// POST /api/universities  (admin)
 pub async fn create_university(
     State(state): State<AppState>,
     Json(body): Json<CreateUniversityRequest>,
@@ -39,20 +68,17 @@ pub async fn create_university(
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
-// ─── PUT /api/universities/:id  (admin) ──────────────────────────────────────
-// Uses a typed UpdateUniversityRequest instead of raw serde_json::Value.
+/// PUT /api/universities/:id  (admin)
 pub async fn update_university(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
     Json(body): Json<UpdateUniversityRequest>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let uni = UniversityService::new(state.db)
-        .update_featured(id, &body)
-        .await?;
+    let uni = UniversityService::new(state.db).update(id, &body).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
-// ─── DELETE /api/universities/:id  (admin) ────────────────────────────────────
+/// DELETE /api/universities/:id  (admin)
 pub async fn delete_university(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,

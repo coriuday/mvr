@@ -1,5 +1,6 @@
 use crate::{
-    models::user::UpdateUserRoleRequest, repositories::auth_repository::AuthRepository,
+    models::user::{UpdateUserActiveRequest, UpdateUserRoleRequest},
+    repositories::auth_repository::AuthRepository,
     routes::AppState, utils::errors::AppResult,
 };
 use axum::{
@@ -39,6 +40,21 @@ pub async fn update_role(
     Ok(Json(serde_json::json!({
         "success": true,
         "message": "User role updated successfully",
+        "data": user,
+    })))
+}
+
+// ─── PATCH /api/admin/users/:id/active ───────────────────────────────────────
+pub async fn update_active(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+    Json(body): Json<UpdateUserActiveRequest>,
+) -> AppResult<Json<serde_json::Value>> {
+    let repo = AuthRepository::new(state.db);
+    let user = repo.set_active(id, body.is_active).await?;
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": if body.is_active { "User activated" } else { "User deactivated" },
         "data": user,
     })))
 }

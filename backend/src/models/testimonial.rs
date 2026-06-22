@@ -19,6 +19,11 @@ pub struct Testimonial {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct TestimonialFilter {
+    pub featured: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
 #[allow(dead_code)]
 pub struct CreateTestimonialRequest {
     pub student_name: String,

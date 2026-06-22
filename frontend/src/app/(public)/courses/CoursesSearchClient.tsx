@@ -5,7 +5,8 @@ import Link from "next/link";
 import { GraduationCap, ArrowRight, Search, SlidersHorizontal, BookOpen, Clock, BadgeEuro, Sparkles, Star, Milestone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UNIVERSITIES, type University } from "@/data/universities";
+import { useUniversities } from "@/hooks/useUniversities";
+import type { University } from "@/data/universities";
 
 interface CourseItem {
   id: string; // unique course identifier
@@ -34,6 +35,7 @@ const DISCIPLINES_MAP: Record<string, { label: string; icon: string }> = {
 };
 
 export default function CoursesSearchClient() {
+  const { universities: UNIVERSITIES } = useUniversities();
   const [search, setSearch] = useState("");
   const [selectedDiscipline, setSelectedDiscipline] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All"); // "All", "Undergraduate", "Postgraduate"
@@ -87,7 +89,7 @@ export default function CoursesSearchClient() {
     });
     
     return list;
-  }, []);
+  }, [UNIVERSITIES]);
 
   // Filter list
   const filteredCourses = useMemo(() => {

@@ -98,6 +98,7 @@ const STATIC_ROUTES: StaticRoute[] = [
 
   // ── Secondary pages (0.7) ───────────────────────────────────────────────
   { path: "/scholarships",  priority: 0.7, changeFrequency: "weekly"  },
+  { path: "/testimonials", priority: 0.7, changeFrequency: "weekly"  },
   { path: "/universities",  priority: 0.7, changeFrequency: "weekly"  },
   { path: "/visa",          priority: 0.7, changeFrequency: "monthly" },
   { path: "/faq",           priority: 0.7, changeFrequency: "monthly" },

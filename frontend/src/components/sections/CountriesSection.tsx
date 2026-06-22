@@ -1,8 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { apiUrl } from "@/lib/api-url";
 
 const COUNTRIES = [
   {
@@ -137,6 +139,23 @@ const COUNTRIES = [
 ];
 
 export default function CountriesSection() {
+  const [activeSlugs, setActiveSlugs] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    fetch(apiUrl("/api/countries"))
+      .then((r) => r.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data)) {
+          setActiveSlugs(new Set(json.data.map((c: { slug: string }) => c.slug)));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const visible = COUNTRIES.filter(
+    (c) => c.id === "more" || !activeSlugs || activeSlugs.has(c.id)
+  );
+
   return (
     <section className="py-16 bg-white" id="study-abroad">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -159,7 +178,7 @@ export default function CountriesSection() {
 
         {/* Country cards grid */}
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-          {COUNTRIES.map((country, i) => (
+          {visible.map((country, i) => (
             <motion.div
               key={country.id}
               initial={{ opacity: 0, y: 24 }}

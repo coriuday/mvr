@@ -15,17 +15,56 @@ import { useDebounce } from "@/hooks/useDebounce";
 
 interface University {
   id: string;
+  slug?: string | null;
   name: string;
   country: string;
-  ranking: number | null;
-  logo_url: string | null;
-  description: string | null;
-  website_url: string | null;
+  flag?: string | null;
+  ranking?: string | null;
+  fees?: string | null;
+  intake?: string | null;
+  duration?: string | null;
+  scholarship?: string | null;
+  ielts?: string | null;
+  ielts_min?: number | null;
+  gpa_min?: number | null;
+  annual_tuition_usd?: number | null;
+  programs?: string[];
+  logo_url?: string | null;
+  description?: string | null;
+  website_url?: string | null;
   is_featured: boolean;
-  created_at: string;
+  is_active?: boolean;
+  created_at?: string;
 }
 
 type UniDraft = Partial<University>;
+
+/** API returns camelCase; admin form uses snake_case. */
+function normalizeUni(raw: Record<string, unknown>): University {
+  return {
+    id: String(raw.id),
+    slug: (raw.slug as string) ?? null,
+    name: String(raw.name ?? ""),
+    country: String(raw.country ?? ""),
+    flag: (raw.flag as string) ?? null,
+    ranking: (raw.ranking as string) ?? null,
+    fees: (raw.fees as string) ?? null,
+    intake: (raw.intake as string) ?? null,
+    duration: (raw.duration as string) ?? null,
+    scholarship: (raw.scholarship as string) ?? null,
+    ielts: (raw.ielts as string) ?? null,
+    ielts_min: (raw.ielts_min ?? raw.ieltsMin) as number | null,
+    gpa_min: (raw.gpa_min ?? raw.gpaMin) as number | null,
+    annual_tuition_usd: (raw.annual_tuition_usd ?? raw.annualTuitionUsd) as number | null,
+    programs: (raw.programs as string[]) ?? [],
+    logo_url: (raw.logo_url ?? raw.logoUrl) as string | null,
+    description: (raw.description as string) ?? null,
+    website_url: (raw.website_url ?? raw.websiteUrl) as string | null,
+    is_featured: Boolean(raw.is_featured ?? raw.isFeatured),
+    is_active: raw.is_active !== undefined ? Boolean(raw.is_active) : raw.isActive !== undefined ? Boolean(raw.isActive) : true,
+    created_at: raw.created_at as string | undefined,
+  };
+}
 
 function TableSkeleton() {
   return (
@@ -66,13 +105,13 @@ export default function AdminUnisPage() {
     setError("");
     try {
       // Universities endpoint is public but we still send credentials
-      const res = await api.get("/universities?per_page=200&page=1");
+      const res = await api.get("/admin/universities?per_page=500&page=1");
       // Handle both { data: [...] } and { universities: [...] } shapes
       const payload = res.data;
       const list: University[] = Array.isArray(payload.data)
-        ? payload.data
+        ? payload.data.map((u: Record<string, unknown>) => normalizeUni(u))
         : Array.isArray(payload.universities)
-        ? payload.universities
+        ? payload.universities.map((u: Record<string, unknown>) => normalizeUni(u))
         : [];
       setUnis(list);
     } catch (err: unknown) {
@@ -96,13 +135,25 @@ export default function AdminUnisPage() {
     setSaving(true);
     const isEditing = !!editingUni.id;
     const payload = {
+      slug: editingUni.slug || editingUni.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || null,
       name: editingUni.name,
       country: editingUni.country,
+      flag: editingUni.flag || null,
       ranking: editingUni.ranking ?? null,
+      fees: editingUni.fees || null,
+      intake: editingUni.intake || null,
+      duration: editingUni.duration || null,
+      scholarship: editingUni.scholarship || null,
+      ielts: editingUni.ielts || null,
+      ielts_min: editingUni.ielts_min ?? null,
+      gpa_min: editingUni.gpa_min ?? null,
+      annual_tuition_usd: editingUni.annual_tuition_usd ?? null,
+      programs: editingUni.programs ?? [],
       logo_url: editingUni.logo_url || null,
       description: editingUni.description || null,
       website_url: editingUni.website_url || null,
       is_featured: editingUni.is_featured ?? false,
+      is_active: editingUni.is_active ?? true,
     };
     try {
       if (isEditing) {
@@ -311,6 +362,21 @@ export default function AdminUnisPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
+                <Label>URL Slug</Label>
+                <Input
+                  value={editingUni?.slug || ""}
+                  onChange={(e) => setEditingUni({ ...editingUni, slug: e.target.value })}
+                  placeholder="e.g. oxford"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Flag Emoji</Label>
+                <Input value={editingUni?.flag || ""} onChange={(e) => setEditingUni({ ...editingUni, flag: e.target.value })} placeholder="🇬🇧" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
                 <Label>Country *</Label>
                 <Input
                   value={editingUni?.country || ""}
@@ -320,15 +386,68 @@ export default function AdminUnisPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>World Ranking</Label>
+                <Label>QS Ranking Label</Label>
                 <Input
-                  type="number"
                   value={editingUni?.ranking ?? ""}
-                  onChange={(e) => setEditingUni({ ...editingUni, ranking: e.target.value ? parseInt(e.target.value) : null })}
-                  placeholder="e.g. 3"
-                  min={1}
+                  onChange={(e) => setEditingUni({ ...editingUni, ranking: e.target.value || null })}
+                  placeholder="e.g. #3 QS"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>Annual Fees</Label>
+                <Input value={editingUni?.fees || ""} onChange={(e) => setEditingUni({ ...editingUni, fees: e.target.value })} placeholder="£26,000–37,000/yr" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Intake</Label>
+                <Input value={editingUni?.intake || ""} onChange={(e) => setEditingUni({ ...editingUni, intake: e.target.value })} placeholder="Sept, Jan" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>Duration</Label>
+                <Input value={editingUni?.duration || ""} onChange={(e) => setEditingUni({ ...editingUni, duration: e.target.value })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Scholarships</Label>
+                <Input value={editingUni?.scholarship || ""} onChange={(e) => setEditingUni({ ...editingUni, scholarship: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label>IELTS</Label>
+                <Input value={editingUni?.ielts || ""} onChange={(e) => setEditingUni({ ...editingUni, ielts: e.target.value })} placeholder="6.5+" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>IELTS Min</Label>
+                <Input type="number" step="0.5" value={editingUni?.ielts_min ?? ""} onChange={(e) => setEditingUni({ ...editingUni, ielts_min: e.target.value ? parseFloat(e.target.value) : null })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>GPA Min</Label>
+                <Input type="number" step="0.1" value={editingUni?.gpa_min ?? ""} onChange={(e) => setEditingUni({ ...editingUni, gpa_min: e.target.value ? parseFloat(e.target.value) : null })} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Programs (comma-separated)</Label>
+              <Input
+                value={(editingUni?.programs ?? []).join(", ")}
+                onChange={(e) => setEditingUni({ ...editingUni, programs: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+                placeholder="CS, Engineering, Business"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Annual Tuition (USD)</Label>
+              <Input
+                type="number"
+                value={editingUni?.annual_tuition_usd ?? ""}
+                onChange={(e) => setEditingUni({ ...editingUni, annual_tuition_usd: e.target.value ? parseInt(e.target.value) : null })}
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -349,6 +468,16 @@ export default function AdminUnisPage() {
                 rows={3}
               />
             </div>
+
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editingUni?.is_active ?? true}
+                onChange={(e) => setEditingUni({ ...editingUni, is_active: e.target.checked })}
+                className="rounded border-gray-300 text-[#c9a84c] focus:ring-[#c9a84c]"
+              />
+              <span className="text-sm font-medium text-gray-700">Visible on public website</span>
+            </label>
 
             <label className="flex items-center gap-2.5 cursor-pointer">
               <input

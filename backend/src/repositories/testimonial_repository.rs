@@ -1,5 +1,5 @@
 use crate::{
-    models::testimonial::{CreateTestimonialRequest, Testimonial},
+    models::testimonial::{CreateTestimonialRequest, Testimonial, TestimonialFilter},
     utils::errors::{AppError, AppResult},
 };
 use sqlx::PgPool;
@@ -14,15 +14,17 @@ impl TestimonialRepository {
         Self { db }
     }
 
-    pub async fn find_all(&self) -> AppResult<Vec<Testimonial>> {
+    pub async fn find_all(&self, filter: &TestimonialFilter) -> AppResult<Vec<Testimonial>> {
         sqlx::query_as::<_, Testimonial>(
             r#"
             SELECT id, student_name, review, image_url, rating,
                    country, university, course, is_featured, created_at
             FROM testimonials
+            WHERE ($1::boolean IS NULL OR is_featured = $1)
             ORDER BY is_featured DESC, created_at DESC
             "#,
         )
+        .bind(filter.featured)
         .fetch_all(&self.db)
         .await
         .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))

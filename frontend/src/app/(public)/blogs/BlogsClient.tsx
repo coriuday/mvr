@@ -15,8 +15,8 @@ interface BlogPost {
   readTime: string;
   created_at: string;
   tags: string[];
-  is_published: boolean;
-  cover_image: string | null;
+  published: boolean;
+  image_url: string | null;
 }
 
 const CATEGORIES = ["All", "Visa Guide", "Scholarships", "Immigration", "Test Prep", "Country Guide", "Admissions"];
@@ -111,8 +111,13 @@ export default function BlogsClient() {
                   </span>
                 </div>
               </div>
-              <div className="lg:col-span-2 bg-white/10 rounded-2xl flex items-center justify-center min-h-40">
-                <BookOpen size={64} className="text-white/20" />
+              <div className="lg:col-span-2 bg-white/10 rounded-2xl flex items-center justify-center min-h-40 overflow-hidden">
+                {featured.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={featured.image_url} alt="" className="w-full h-full object-cover min-h-40" />
+                ) : (
+                  <BookOpen size={64} className="text-white/20" />
+                )}
               </div>
             </Link>
           </div>
@@ -145,8 +150,13 @@ export default function BlogsClient() {
               {filtered.map((post) => (
                 <Link key={post.slug} href={`/blogs/${post.slug}`}
                   className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-200 group flex flex-col">
-                  <div className="h-36 bg-gradient-to-br from-[#1a2f5e]/5 to-[#c9a84c]/5 flex items-center justify-center">
-                    <BookOpen size={36} className="text-[#1a2f5e]/20" />
+                  <div className="h-36 bg-gradient-to-br from-[#1a2f5e]/5 to-[#c9a84c]/5 flex items-center justify-center overflow-hidden">
+                    {post.image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={post.image_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <BookOpen size={36} className="text-[#1a2f5e]/20" />
+                    )}
                   </div>
                   <div className="p-5 flex flex-col flex-1">
                     <span className={`self-start text-xs font-semibold px-2.5 py-1 rounded-full mb-3 ${CAT_COLORS[post.category] ?? "bg-gray-100 text-gray-600"}`}>

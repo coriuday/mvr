@@ -41,7 +41,11 @@ pub async fn sign_upload(
     }
 
     let svc = CloudinaryService::from_config(&state.config).ok_or_else(|| {
-        AppError::InternalServerError("Cloudinary is not configured on this server".to_string())
+        AppError::ServiceUnavailable(
+            "Image uploads are not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, \
+             and CLOUDINARY_API_SECRET on the server."
+                .to_string(),
+        )
     })?;
 
     let signature = svc.sign_upload(&state.config, &body.folder)?;

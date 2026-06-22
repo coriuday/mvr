@@ -1,21 +1,22 @@
 use crate::{
-    models::testimonial::CreateTestimonialRequest,
+    models::testimonial::{CreateTestimonialRequest, TestimonialFilter},
     repositories::testimonial_repository::TestimonialRepository,
     routes::AppState,
     utils::{errors::AppResult, response::MessageResponse},
 };
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
 };
 use uuid::Uuid;
 
 /// GET /api/testimonials  (public)
 pub async fn get_all_testimonials(
     State(state): State<AppState>,
+    Query(filter): Query<TestimonialFilter>,
 ) -> AppResult<Json<serde_json::Value>> {
     let repo = TestimonialRepository::new(state.db);
-    let testimonials = repo.find_all().await?;
+    let testimonials = repo.find_all(&filter).await?;
     Ok(Json(serde_json::json!({
         "success": true,
         "data": testimonials,

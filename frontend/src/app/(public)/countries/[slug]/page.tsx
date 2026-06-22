@@ -3,22 +3,62 @@ import { notFound } from "next/navigation";
 import CountryDetailClient from "./CountryDetailClient";
 import type { CountryData } from "@/types/country";
 import { ALL_COUNTRIES } from "@/constants/countries";
+import { apiUrl } from "@/lib/api-url";
 
 type Props = { params: Promise<{ slug: string }> };
 
-// Derived dynamically — add a new country to ALL_COUNTRIES and it's automatically
-// included in routing, metadata, static params, and the country detail page.
-const ALL_SLUGS = ALL_COUNTRIES.map((c) => c.id) as string[];
+async function fetchCountryFromApi(slug: string): Promise<CountryData | null> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(apiUrl(`/api/countries/${slug}`), {
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (json?.success && json?.data) return json.data as CountryData;
+  } catch {
+    clearTimeout(timeoutId);
+  }
+  return null;
+}
 
-
-async function getCountryData(slug: string): Promise<CountryData | null> {
-  if (!ALL_SLUGS.includes(slug)) return null;
+async function fetchCountryFromStatic(slug: string): Promise<CountryData | null> {
   try {
     const data = await import(`@/data/countries/${slug}.json`);
     return data.default as CountryData;
   } catch {
     return null;
   }
+}
+
+async function getCountryData(slug: string): Promise<CountryData | null> {
+  const fromApi = await fetchCountryFromApi(slug);
+  if (fromApi) return fromApi;
+  return fetchCountryFromStatic(slug);
+}
+
+async function fetchCountrySlugs(): Promise<string[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(apiUrl("/api/countries"), {
+      next: { revalidate: 300 },
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error("API error");
+    const json = await res.json();
+    const slugs = (json?.data as Array<{ slug: string }> | undefined)
+      ?.map((c) => c.slug)
+      .filter(Boolean);
+    if (slugs && slugs.length > 0) return slugs;
+  } catch {
+    clearTimeout(timeoutId);
+  }
+  return ALL_COUNTRIES.map((c) => c.id);
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -49,8 +89,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export function generateStaticParams() {
-  return ALL_SLUGS.map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await fetchCountrySlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export default async function CountryDetailPage({ params }: Props) {

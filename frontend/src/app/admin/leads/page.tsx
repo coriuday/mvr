@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import api from "@/services/api";
+import { toast } from "sonner";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   Search, RefreshCw, AlertCircle, LayoutGrid, List,
@@ -542,10 +543,17 @@ export default function LeadsPage() {
   }, [fetchLeads]);
 
   const deleteLead = useCallback(async (id: string) => {
+    const previous = leads;
     setLeads((prev) => prev.filter((l) => l.id !== id));
     setSelected(null);
-    await api.delete(`/leads/${id}`);
-  }, []);
+    try {
+      await api.delete(`/leads/${id}`);
+      toast.success("Lead deleted");
+    } catch {
+      setLeads(previous);
+      toast.error("Failed to delete lead");
+    }
+  }, [leads]);
 
   // ── Drag & Drop ────────────────────────────────────────────────────────────
 

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { X, ChevronDown } from "lucide-react";
-import { UNIVERSITIES, COUNTRIES_FILTER, type University } from "@/data/universities";
+import { useUniversities } from "@/hooks/useUniversities";
+import { COUNTRIES_FILTER, type University } from "@/data/universities";
 
 
 const COMPARE_FIELDS = [
@@ -19,6 +20,7 @@ const COMPARE_FIELDS = [
 
 
 export default function UniversityCompare() {
+  const { universities: UNIVERSITIES } = useUniversities();
   const searchParams = useSearchParams();
 
   // Seed initial selection from URL params: ?uni1=id&uni2=id&uni3=id

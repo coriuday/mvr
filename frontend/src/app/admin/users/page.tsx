@@ -31,6 +31,39 @@ const ROLE_COLORS: Record<UserRole, string> = {
 
 const ROLES: UserRole[] = ["ADMIN", "EDITOR", "COUNSELOR"];
 
+// ── Active status toggle ──────────────────────────────────────────────────────
+function ActiveToggle({ user, onChanged }: { user: StaffUser; onChanged: () => void }) {
+  const [saving, setSaving] = useState(false);
+
+  const toggle = async () => {
+    setSaving(true);
+    try {
+      await api.patch(`/admin/users/${user.id}/active`, { is_active: !user.is_active });
+      toast.success(user.is_active ? "User deactivated" : "User activated");
+      onChanged();
+    } catch {
+      toast.error("Failed to update user status");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={saving}
+      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition-opacity ${
+        user.is_active ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"
+      } ${saving ? "opacity-60" : "hover:opacity-80"}`}
+    >
+      {saving ? <Loader2 size={10} className="animate-spin" /> : null}
+      <span className={`w-1.5 h-1.5 rounded-full ${user.is_active ? "bg-emerald-500" : "bg-gray-400"}`} />
+      {user.is_active ? "Active" : "Inactive"}
+    </button>
+  );
+}
+
 // ── Role change dropdown ──────────────────────────────────────────────────────
 function RoleDropdown({ user, onChanged }: { user: StaffUser; onChanged: () => void }) {
   const [open, setOpen] = useState(false);
@@ -298,10 +331,7 @@ export default function AdminUsersPage() {
                       <RoleDropdown user={user} onChanged={fetchUsers} />
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${user.is_active ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${user.is_active ? "bg-emerald-500" : "bg-gray-400"}`} />
-                        {user.is_active ? "Active" : "Inactive"}
-                      </span>
+                      <ActiveToggle user={user} onChanged={fetchUsers} />
                     </td>
                     <td className="px-6 py-4 text-gray-400 text-xs">
                       {new Date(user.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}

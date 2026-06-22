@@ -19,14 +19,13 @@ interface Blog {
   slug: string;
   content: string;
   excerpt: string | null;
-  cover_image: string | null;
-  author_name: string;
-  is_published: boolean;
-  published_at: string | null;
+  image_url: string | null;
+  author_name: string | null;
+  published: boolean;
   created_at: string;
 }
 
-type BlogDraft = Partial<Blog>;
+type BlogDraft = Partial<Blog> & { cover_image?: string | null; is_published?: boolean };
 
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 function BlogSkeleton() {
@@ -67,7 +66,7 @@ export default function AdminBlogsPage() {
   const fetchBlogs = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/blogs");
+      const res = await api.get("/admin/blogs", { params: { per_page: 100 } });
       setBlogs(res.data.data ?? []);
     } catch {
       toast.error("Failed to load blog posts");
@@ -90,9 +89,8 @@ export default function AdminBlogsPage() {
       slug: editingBlog.slug || editingBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       content: editingBlog.content,
       excerpt: editingBlog.excerpt || "",
-      cover_image: editingBlog.cover_image || null,
-      author_name: editingBlog.author_name || "Admin",
-      is_published: editingBlog.is_published ?? false,
+      image_url: editingBlog.image_url ?? editingBlog.cover_image ?? null,
+      published: editingBlog.published ?? editingBlog.is_published ?? false,
     };
     try {
       if (isEditing) {
@@ -134,13 +132,13 @@ export default function AdminBlogsPage() {
   };
 
   const openCreate = () => {
-    setEditingBlog({ is_published: true, author_name: "MVR Consultants" });
+    setEditingBlog({ published: true });
     setIsModalOpen(true);
   };
 
   const filteredBlogs = blogs.filter((b) =>
     b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.author_name.toLowerCase().includes(searchTerm.toLowerCase())
+    (b.author_name ?? "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -199,9 +197,9 @@ export default function AdminBlogsPage() {
                   <tr key={blog.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        {blog.cover_image && (
+                        {(blog.image_url) && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={blog.cover_image} alt="" className="w-10 h-7 object-cover rounded-md shrink-0" />
+                          <img src={blog.image_url} alt="" className="w-10 h-7 object-cover rounded-md shrink-0" />
                         )}
                         <div>
                           <p className="font-semibold text-[#1a2f5e] truncate max-w-[260px]">{blog.title}</p>
@@ -209,9 +207,9 @@ export default function AdminBlogsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{blog.author_name}</td>
+                    <td className="px-6 py-4 text-gray-600">{blog.author_name ?? "—"}</td>
                     <td className="px-6 py-4">
-                      {blog.is_published ? (
+                      {blog.published ? (
                         <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-semibold">
                           <Globe size={11} /> Published
                         </span>
@@ -281,8 +279,8 @@ export default function AdminBlogsPage() {
             {/* Cover image — Cloudinary upload (Task 2) */}
             <CloudinaryImageUpload
               label="Cover Image"
-              value={editingBlog?.cover_image || ""}
-              onChange={(url) => setEditingBlog({ ...editingBlog, cover_image: url })}
+              value={editingBlog?.image_url ?? editingBlog?.cover_image ?? ""}
+              onChange={(url) => setEditingBlog({ ...editingBlog, image_url: url, cover_image: url })}
               folder="mvr/blogs"
               aspectRatio="video"
             />
@@ -309,20 +307,17 @@ export default function AdminBlogsPage() {
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label>Author Name</Label>
-              <Input
-                value={editingBlog?.author_name || ""}
-                onChange={(e) => setEditingBlog({ ...editingBlog, author_name: e.target.value })}
-                placeholder="MVR Consultants"
-              />
-            </div>
-
             <label className="flex items-center gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
-                checked={editingBlog?.is_published ?? false}
-                onChange={(e) => setEditingBlog({ ...editingBlog, is_published: e.target.checked })}
+                checked={editingBlog?.published ?? editingBlog?.is_published ?? false}
+                onChange={(e) =>
+                  setEditingBlog({
+                    ...editingBlog,
+                    published: e.target.checked,
+                    is_published: e.target.checked,
+                  })
+                }
                 className="rounded border-gray-300 text-[#c9a84c] focus:ring-[#c9a84c]"
               />
               <span className="text-sm font-medium text-gray-700">Publish immediately</span>

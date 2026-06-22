@@ -77,6 +77,11 @@ pub struct UpdateUserRoleRequest {
     pub role: UserRole,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct UpdateUserActiveRequest {
+    pub is_active: bool,
+}
+
 // AuthTokenResponse has been intentionally removed (security fix C-2).
 // Tokens are set exclusively via httpOnly Set-Cookie headers and are
 // never returned in the JSON response body.

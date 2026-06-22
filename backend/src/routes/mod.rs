@@ -1,6 +1,6 @@
 use axum::{
     Router, middleware,
-    routing::{delete, get, post, put},
+    routing::{delete, get, patch, post, put},
 };
 use sqlx::PgPool;
 use tower_http::trace::TraceLayer;
@@ -135,6 +135,7 @@ fn public_routes(
         .route("/api/blogs/:id", get(blogs::get_blog_by_slug))
         // Public university routes
         .route("/api/universities", get(universities::get_all_universities))
+        .route("/api/universities/:slug", get(universities::get_university_by_slug))
         // Public scholarship routes
         .route("/api/scholarships", get(scholarships::get_all_scholarships))
         // Public testimonial routes
@@ -199,10 +200,12 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/leads/:id", put(leads::update_lead))
         .route("/api/leads/:id", delete(leads::delete_lead))
         // Blog management (admin uses UUID; public GET uses slug — separate routes)
+        .route("/api/admin/blogs", get(blogs::admin_get_all_blogs))
         .route("/api/blogs", post(blogs::create_blog))
         .route("/api/blogs/:id", put(blogs::update_blog))
         .route("/api/blogs/:id", delete(blogs::delete_blog))
         // University management
+        .route("/api/admin/universities", get(universities::admin_list_universities))
         .route("/api/universities", post(universities::create_university))
         .route(
             "/api/universities/:id",
@@ -246,6 +249,7 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/auth/register", post(auth::register))
         .route("/api/admin/users", get(users::list_users))
         .route("/api/admin/users/:id/role", put(users::update_role))
+        .route("/api/admin/users/:id/active", patch(users::update_active))
         // Cloudinary signed upload (H-2 fix: no more unsigned preset abuse)
         .route("/api/admin/cloudinary/sign", post(cloudinary::sign_upload))
         .layer(middleware::from_fn_with_state(

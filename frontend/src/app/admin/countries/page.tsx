@@ -4,28 +4,19 @@ import { useState, useEffect, useCallback } from "react";
 import { Plus, Edit2, Trash2, Search, Globe, ToggleLeft, ToggleRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmModal } from "@/components/admin/ConfirmModal";
+import { CountryEditorForm, type CountryRow } from "@/components/admin/CountryEditorForm";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { useDebounce } from "@/hooks/useDebounce";
 
-interface Country {
-  id: string;
-  slug: string;
-  name: string;
-  flag: string;
-  tagline: string;
-  image_url: string | null;
-  hero_image_url: string | null;
-  sort_order: number;
-  is_active: boolean;
+interface Country extends CountryRow {
   created_at: string;
 }
 
-type Draft = Partial<Country>;
+type Draft = Partial<Country> | null;
 
 function TableSkeleton() {
   return (
@@ -90,6 +81,7 @@ export default function AdminCountriesPage() {
       image_url: draft.image_url || null,
       hero_image_url: draft.hero_image_url || null,
       sort_order: draft.sort_order ?? 0,
+      content: draft.content ?? {},
       ...(draft.id ? { is_active: draft.is_active } : {}),
     };
     try {
@@ -100,7 +92,7 @@ export default function AdminCountriesPage() {
         setCountries((prev) => prev.map((c) => c.id === draft.id ? updated : c));
         toast.success("Country updated");
       } else {
-        const res = await api.post("/admin/countries", { ...payload, content: {} });
+        const res = await api.post("/admin/countries", payload);
         const created: Country = res.data.data ?? { id: Date.now().toString(), ...payload, created_at: new Date().toISOString() };
         // Bug 2B: append to list (sorted by sort_order at runtime)
         setCountries((prev) => [...prev, created]);
@@ -158,18 +150,18 @@ export default function AdminCountriesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[#1a2f5e]">Countries</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Manage study-abroad destination pages.</p>
-        </div>
-        <Button
-          className="bg-[#1a2f5e] hover:bg-[#0f1c3d] text-white"
-          onClick={() => { setDraft({ is_active: true, sort_order: 0 }); setIsModalOpen(true); }}
-        >
-          <Plus size={16} className="mr-2" /> Add Country
-        </Button>
-      </div>
+      <AdminPageHeader
+        title="Countries"
+        description="Manage study-abroad destination pages."
+        action={
+          <Button
+            className="bg-[#1a2f5e] hover:bg-[#0f1c3d] text-white"
+            onClick={() => { setDraft({ is_active: true, sort_order: 0, content: {} }); setIsModalOpen(true); }}
+          >
+            <Plus size={16} className="mr-2" /> Add Country
+          </Button>
+        }
+      />
 
       {/* Toolbar */}
       <div className="bg-white p-4 rounded-xl border border-gray-100 flex items-center justify-between gap-4">
@@ -260,73 +252,21 @@ export default function AdminCountriesPage() {
 
       {/* Form Modal */}
       <Dialog open={isModalOpen} onOpenChange={(o) => { if (!saving) { setIsModalOpen(o); if (!o) setDraft(null); } }}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-[#1a2f5e]">
               {draft?.id ? "Edit Country" : "Add Country"}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSave} className="space-y-4 mt-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1.5 col-span-2">
-                <Label>Country Name *</Label>
-                <Input
-                  value={draft?.name || ""}
-                  onChange={(e) => {
-                    const name = e.target.value;
-                    setDraft((d) => ({ ...d, name, slug: d?.slug || autoSlug(name) }));
-                  }}
-                  placeholder="e.g. United Kingdom"
-                  required
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Flag Emoji *</Label>
-                <Input value={draft?.flag || ""} onChange={(e) => setDraft({ ...draft, flag: e.target.value })} placeholder="🇬🇧" required />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-1.5 col-span-2">
-                <Label>URL Slug *</Label>
-                <Input value={draft?.slug || ""} onChange={(e) => setDraft({ ...draft, slug: e.target.value })} placeholder="united-kingdom" required />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Sort Order</Label>
-                <Input type="number" value={draft?.sort_order ?? 0} onChange={(e) => setDraft({ ...draft, sort_order: parseInt(e.target.value) || 0 })} min={0} />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Tagline</Label>
-              <Input value={draft?.tagline || ""} onChange={(e) => setDraft({ ...draft, tagline: e.target.value })} placeholder="e.g. World-class education in a historic setting" />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Card Image URL</Label>
-              <Input value={draft?.image_url || ""} onChange={(e) => setDraft({ ...draft, image_url: e.target.value })} placeholder="https://…" />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Hero Banner URL</Label>
-              <Input value={draft?.hero_image_url || ""} onChange={(e) => setDraft({ ...draft, hero_image_url: e.target.value })} placeholder="https://…" />
-            </div>
-
-            {draft?.id && (
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <input type="checkbox" checked={draft?.is_active ?? true} onChange={(e) => setDraft({ ...draft, is_active: e.target.checked })} className="rounded border-gray-300 text-[#c9a84c] focus:ring-[#c9a84c]" />
-                <span className="text-sm font-medium text-gray-700">Show on public website</span>
-              </label>
-            )}
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} disabled={saving}>Cancel</Button>
-              <Button type="submit" className="bg-[#1a2f5e] hover:bg-[#0f1c3d] text-white" disabled={saving}>
-                {saving ? <><Loader2 size={14} className="mr-2 animate-spin" />Saving…</> : "Save Country"}
-              </Button>
-            </DialogFooter>
-          </form>
+          <CountryEditorForm
+            draft={draft as CountryRow | null}
+            setDraft={setDraft as React.Dispatch<React.SetStateAction<CountryRow | null>>}
+            saving={saving}
+            onSubmit={handleSave}
+            onCancel={() => setIsModalOpen(false)}
+            autoSlug={autoSlug}
+          />
         </DialogContent>
       </Dialog>
 

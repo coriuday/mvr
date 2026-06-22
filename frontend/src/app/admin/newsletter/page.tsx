@@ -47,9 +47,9 @@ export default function AdminNewsletterPage() {
   useEffect(() => { fetchSubscribers(); }, [fetchSubscribers]);
 
   const exportCSV = () => {
-    if (subscribers.length === 0) { toast.error("No subscribers to export"); return; }
+    if (filtered.length === 0) { toast.error("No subscribers to export"); return; }
     const header = "Email,Status,Subscribed Date\n";
-    const rows = subscribers
+    const rows = filtered
       .map((s) => `"${s.email}","${s.status}","${new Date(s.created_at).toLocaleDateString()}"`)
       .join("\n");
     const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
@@ -59,7 +59,7 @@ export default function AdminNewsletterPage() {
     a.download = `mvr-subscribers-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`Exported ${subscribers.length} subscribers`);
+    toast.success(`Exported ${filtered.length} subscribers`);
   };
 
   const filtered = subscribers.filter((s) =>
