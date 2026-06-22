@@ -43,6 +43,8 @@ async function proxyRequest(req: NextRequest, pathSegments: string[]) {
       cache: "no-store",
     });
 
+    const responseBody = await upstream.arrayBuffer();
+
     const responseHeaders = new Headers();
     upstream.headers.forEach((value, key) => {
       if (!HOP_BY_HOP.has(key.toLowerCase())) {
@@ -59,7 +61,7 @@ async function proxyRequest(req: NextRequest, pathSegments: string[]) {
       }
     }
 
-    return new NextResponse(upstream.body, {
+    return new NextResponse(responseBody, {
       status: upstream.status,
       statusText: upstream.statusText,
       headers: responseHeaders,

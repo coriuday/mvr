@@ -167,13 +167,17 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
       await authFetch("/api/auth/logout", { method: "POST" });
     } catch {
       // Still clear client state below
-    } finally {
-      localStorage.removeItem("mvr_user");
-      localStorage.removeItem("mvr_access_token");
-      localStorage.removeItem("mvr_refresh_token");
-      localStorage.removeItem("mvr_login_ts");
-      router.replace("/admin/login");
     }
+    try {
+      await authFetch("/api/auth/clear", { method: "POST" });
+    } catch {
+      // Best-effort cookie clear
+    }
+    localStorage.removeItem("mvr_user");
+    localStorage.removeItem("mvr_access_token");
+    localStorage.removeItem("mvr_refresh_token");
+    localStorage.removeItem("mvr_login_ts");
+    router.replace("/admin/login?logout=1");
   };
 
   return { ...auth, logout };

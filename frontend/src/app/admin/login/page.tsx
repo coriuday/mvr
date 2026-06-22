@@ -8,20 +8,46 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { apiUrl } from "@/lib/api-url";
 
+const EMPTY_FORM = { email: "", password: "" };
+
 export default function AdminLoginPage() {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState(EMPTY_FORM);
   const [showPass, setShowPass] = useState(false);
+  const [fieldsReady, setFieldsReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isApexDomain, setIsApexDomain] = useState(false);
 
   useEffect(() => {
+    setForm(EMPTY_FORM);
+    setShowPass(false);
+    setFieldsReady(false);
+
+    let autofillGuard: ReturnType<typeof setTimeout> | undefined;
+
+    // After logout, strip any saved client session metadata (not passwords).
+    const loggedOut =
+      new URLSearchParams(window.location.search).get("logout") === "1";
+    if (loggedOut) {
+      localStorage.removeItem("mvr_user");
+      localStorage.removeItem("mvr_login_ts");
+      localStorage.removeItem("mvr_access_token");
+      localStorage.removeItem("mvr_refresh_token");
+      // Browsers may autofill after paint — clear again once on return from logout.
+      autofillGuard = setTimeout(() => {
+        setForm(EMPTY_FORM);
+        setShowPass(false);
+      }, 150);
+    }
+
     if (window.location.hostname === "mvrconsultants.org") {
       setIsApexDomain(true);
       window.location.replace(
         `https://www.mvrconsultants.org${window.location.pathname}${window.location.search}`
       );
-      return;
+      return () => {
+        if (autofillGuard) clearTimeout(autofillGuard);
+      };
     }
 
     const controller = new AbortController();
@@ -36,6 +62,12 @@ export default function AdminLoginPage() {
       })
       .catch(() => {})
       .finally(() => clearTimeout(timeoutId));
+
+    return () => {
+      if (autofillGuard) clearTimeout(autofillGuard);
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,22 +98,38 @@ export default function AdminLoginPage() {
       });
       clearTimeout(timeoutId);
 
-      const contentType = res.headers.get("content-type") ?? "";
-      let data: { error?: { message?: string }; message?: string; data?: { user?: unknown } } = {};
-      try {
-        data = await res.json();
-      } catch {
-        if (window.location.hostname === "mvrconsultants.org") {
+      const raw = await res.text();
+      let data: {
+        error?: { message?: string };
+        message?: string;
+        data?: { user?: unknown };
+      } = {};
+
+      if (raw.trim()) {
+        try {
+          data = JSON.parse(raw) as typeof data;
+        } catch {
           throw new Error(
-            "This address cannot reach the admin API. Open www.mvrconsultants.org/admin/login instead."
+            raw.length < 160
+              ? raw
+              : "The API returned an unexpected response. Try again in a moment."
           );
         }
-        if (!contentType.includes("application/json")) {
-          throw new Error(
-            "The API returned an unexpected response. If the backend was sleeping, wait a minute and try again."
-          );
+      } else if (res.ok) {
+        // Proxy used to drop JSON bodies on Set-Cookie responses; cookies may still be set.
+        const meRes = await fetch(apiUrl("/api/auth/me"), {
+          credentials: "include",
+          cache: "no-store",
+        });
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          const user = meData?.data ?? meData?.user ?? meData;
+          localStorage.setItem("mvr_user", JSON.stringify(user ?? {}));
+          localStorage.setItem("mvr_login_ts", Date.now().toString());
+          window.location.replace("/admin");
+          return;
         }
-        throw new Error("Invalid response from server");
+        throw new Error("Login succeeded but the server returned no data. Please try again.");
       }
 
       if (!res.ok) {
@@ -144,15 +192,47 @@ export default function AdminLoginPage() {
                 </span>
               </div>
             )}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+            autoComplete="off"
+          >
+            {/* Decoy fields discourage browser password manager autofill */}
+            <input
+              type="text"
+              name="prevent_autofill_username"
+              autoComplete="username"
+              tabIndex={-1}
+              aria-hidden="true"
+              className="hidden"
+              defaultValue=""
+            />
+            <input
+              type="password"
+              name="prevent_autofill_password"
+              autoComplete="current-password"
+              tabIndex={-1}
+              aria-hidden="true"
+              className="hidden"
+              defaultValue=""
+            />
+
             <div className="space-y-1.5">
               <Label htmlFor="admin-email" className="text-white/80 text-sm font-medium">Email Address</Label>
               <Input
                 id="admin-email"
+                name="mvr-admin-email"
                 type="email"
+                inputMode="email"
                 placeholder="Enter your Admin Mail"
                 value={form.email}
                 onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                onFocus={() => setFieldsReady(true)}
+                readOnly={!fieldsReady}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
                 required
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/30 rounded-xl h-11 focus-visible:ring-[#c9a84c]/50"
               />
@@ -163,19 +243,25 @@ export default function AdminLoginPage() {
               <div className="relative">
                 <Input
                   id="admin-password"
+                  name="mvr-admin-password"
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
                   value={form.password}
                   onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+                  onFocus={() => setFieldsReady(true)}
+                  readOnly={!fieldsReady}
+                  autoComplete="new-password"
                   required
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/30 rounded-xl h-11 pr-11 focus-visible:ring-[#c9a84c]/50"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/30 rounded-xl h-11 pr-12 focus-visible:ring-[#c9a84c]/50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((p) => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                  aria-label={showPass ? "Hide password" : "Show password"}
+                  title={showPass ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white transition-colors"
                 >
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
