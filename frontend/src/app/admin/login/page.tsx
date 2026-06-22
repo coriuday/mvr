@@ -18,6 +18,9 @@ export default function AdminLoginPage() {
   useEffect(() => {
     if (window.location.hostname === "mvrconsultants.org") {
       setIsApexDomain(true);
+      window.location.replace(
+        `https://www.mvrconsultants.org${window.location.pathname}${window.location.search}`
+      );
     }
   }, []);
 
@@ -49,10 +52,21 @@ export default function AdminLoginPage() {
       });
       clearTimeout(timeoutId);
 
+      const contentType = res.headers.get("content-type") ?? "";
       let data: { error?: { message?: string }; message?: string; data?: { user?: unknown } } = {};
       try {
         data = await res.json();
       } catch {
+        if (window.location.hostname === "mvrconsultants.org") {
+          throw new Error(
+            "This address cannot reach the admin API. Open www.mvrconsultants.org/admin/login instead."
+          );
+        }
+        if (!contentType.includes("application/json")) {
+          throw new Error(
+            "The API returned an unexpected response. If the backend was sleeping, wait a minute and try again."
+          );
+        }
         throw new Error("Invalid response from server");
       }
 
