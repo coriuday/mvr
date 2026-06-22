@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, GraduationCap, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -55,7 +56,10 @@ async function loginRequest(
   }
 }
 
-async function completeLoginFromResponse(res: Response): Promise<void> {
+async function completeLoginFromResponse(
+  res: Response,
+  onSuccess: () => void
+): Promise<void> {
   const raw = await res.text();
   let data: {
     error?: { message?: string };
@@ -84,7 +88,7 @@ async function completeLoginFromResponse(res: Response): Promise<void> {
       const user = meData?.data ?? meData?.user ?? meData;
       localStorage.setItem("mvr_user", JSON.stringify(user ?? {}));
       localStorage.setItem("mvr_login_ts", Date.now().toString());
-      window.location.replace("/admin");
+      onSuccess();
       return;
     }
     throw new Error(
@@ -98,12 +102,13 @@ async function completeLoginFromResponse(res: Response): Promise<void> {
     );
   }
 
-      localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
-      localStorage.setItem("mvr_login_ts", Date.now().toString());
-      window.location.href = "/admin";
+  localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
+  localStorage.setItem("mvr_login_ts", Date.now().toString());
+  onSuccess();
 }
 
 export default function AdminLoginPage() {
+  const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -146,7 +151,7 @@ export default function AdminLoginPage() {
       signal: controller.signal,
     })
       .then((res) => {
-        if (res.ok) window.location.replace("/admin");
+        if (res.ok) router.replace("/admin");
       })
       .catch(() => {})
       .finally(() => clearTimeout(timeoutId));
@@ -155,7 +160,7 @@ export default function AdminLoginPage() {
       clearTimeout(timeoutId);
       controller.abort();
     };
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -184,7 +189,7 @@ export default function AdminLoginPage() {
 
     try {
       const res = await loginRequest(email, password);
-      await completeLoginFromResponse(res);
+      await completeLoginFromResponse(res, () => router.replace("/admin"));
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") {
         setError(

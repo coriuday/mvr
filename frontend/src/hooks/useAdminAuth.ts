@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { apiUrl } from "@/lib/api-url";
 
@@ -15,9 +15,12 @@ interface AuthState {
   user: AuthUser | null;
   loading: boolean;
   isVerifying: boolean;
+  verifyError: boolean;
 }
 
-const AUTH_FETCH_TIMEOUT_MS = 12_000;
+const AUTH_FETCH_TIMEOUT_MS = 20_000;
+const AUTH_MAX_RETRIES = 3;
+const AUTH_RETRY_BASE_MS = 2_000;
 
 function readCachedUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
@@ -35,6 +38,16 @@ function readCachedUser(): AuthUser | null {
 function isAdminRole(role: unknown): boolean {
   const normalized = String(role ?? "").toUpperCase();
   return normalized === "ADMIN";
+}
+
+function isTransientError(err: unknown): boolean {
+  if (err instanceof Error) {
+    return (
+      err.name === "AbortError" ||
+      err.message.toLowerCase().includes("failed to fetch")
+    );
+  }
+  return false;
 }
 
 async function authFetch(
@@ -55,10 +68,43 @@ async function authFetch(
   }
 }
 
-export function useAdminAuth(): AuthState & { logout: () => void } {
+async function authFetchWithRetry(
+  path: string,
+  init?: RequestInit
+): Promise<Response> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < AUTH_MAX_RETRIES; attempt++) {
+    try {
+      return await authFetch(path, init);
+    } catch (err) {
+      lastErr = err;
+      if (!isTransientError(err) || attempt === AUTH_MAX_RETRIES - 1) {
+        throw err;
+      }
+      await new Promise((r) =>
+        setTimeout(r, AUTH_RETRY_BASE_MS * (attempt + 1))
+      );
+    }
+  }
+  throw lastErr;
+}
+
+async function clearSession(): Promise<void> {
+  try {
+    await authFetch("/api/auth/clear", { method: "POST" });
+  } catch {
+    // Best-effort cookie clear
+  }
+}
+
+export function useAdminAuth(): AuthState & {
+  logout: () => void;
+  retryVerify: () => void;
+} {
   const router = useRouter();
   const pathname = usePathname();
   const onLoginPage = pathname === "/admin/login";
+  const [verifyTick, setVerifyTick] = useState(0);
   const [auth, setAuth] = useState<AuthState>(() => {
     const cached = readCachedUser();
     return {
@@ -66,20 +112,32 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
       user: cached,
       loading: !cached,
       isVerifying: !onLoginPage,
+      verifyError: false,
     };
   });
 
+  const retryVerify = useCallback(() => {
+    setVerifyTick((n) => n + 1);
+  }, []);
+
   useEffect(() => {
     if (onLoginPage) {
-      setAuth({ token: null, user: null, loading: false, isVerifying: false });
+      setAuth({
+        token: null,
+        user: null,
+        loading: false,
+        isVerifying: false,
+        verifyError: false,
+      });
       return;
     }
 
     let cancelled = false;
+    const cached = readCachedUser();
 
     async function verify(): Promise<void> {
       try {
-        const res = await authFetch("/api/auth/me", { method: "GET" });
+        const res = await authFetchWithRetry("/api/auth/me", { method: "GET" });
         if (cancelled) return;
 
         if (res.ok) {
@@ -88,12 +146,14 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
 
           if (!serverUser?.role || !isAdminRole(serverUser.role)) {
             localStorage.removeItem("mvr_user");
-            try {
-              await authFetch("/api/auth/clear", { method: "POST" });
-            } catch {
-              // Best-effort cookie clear
-            }
-            setAuth({ token: null, user: null, loading: false, isVerifying: false });
+            await clearSession();
+            setAuth({
+              token: null,
+              user: null,
+              loading: false,
+              isVerifying: false,
+              verifyError: false,
+            });
             router.replace("/admin/login");
             return;
           }
@@ -104,18 +164,21 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
             user: serverUser,
             loading: false,
             isVerifying: false,
+            verifyError: false,
           });
           return;
         }
 
         if (res.status === 401) {
-          const refreshRes = await authFetch("/api/auth/refresh", {
+          const refreshRes = await authFetchWithRetry("/api/auth/refresh", {
             method: "POST",
           });
           if (cancelled) return;
 
           if (refreshRes.ok) {
-            const retryRes = await authFetch("/api/auth/me", { method: "GET" });
+            const retryRes = await authFetchWithRetry("/api/auth/me", {
+              method: "GET",
+            });
             if (cancelled) return;
 
             if (retryRes.ok) {
@@ -128,6 +191,7 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
                   user: serverUser,
                   loading: false,
                   isVerifying: false,
+                  verifyError: false,
                 });
                 return;
               }
@@ -136,22 +200,38 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
         }
 
         localStorage.removeItem("mvr_user");
-        try {
-          await authFetch("/api/auth/clear", { method: "POST" });
-        } catch {
-          // Best-effort cookie clear
-        }
-        setAuth({ token: null, user: null, loading: false, isVerifying: false });
+        await clearSession();
+        setAuth({
+          token: null,
+          user: null,
+          loading: false,
+          isVerifying: false,
+          verifyError: false,
+        });
         router.replace("/admin/login");
       } catch {
         if (cancelled) return;
-        localStorage.removeItem("mvr_user");
-        try {
-          await authFetch("/api/auth/clear", { method: "POST" });
-        } catch {
-          // Best-effort cookie clear
+
+        if (cached && isAdminRole(cached.role)) {
+          setAuth({
+            token: null,
+            user: cached,
+            loading: false,
+            isVerifying: false,
+            verifyError: true,
+          });
+          return;
         }
-        setAuth({ token: null, user: null, loading: false, isVerifying: false });
+
+        localStorage.removeItem("mvr_user");
+        await clearSession();
+        setAuth({
+          token: null,
+          user: null,
+          loading: false,
+          isVerifying: false,
+          verifyError: false,
+        });
         router.replace("/admin/login");
       }
     }
@@ -160,7 +240,7 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
     return () => {
       cancelled = true;
     };
-  }, [router, onLoginPage]);
+  }, [router, onLoginPage, verifyTick]);
 
   const logout = async () => {
     try {
@@ -168,11 +248,7 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
     } catch {
       // Still clear client state below
     }
-    try {
-      await authFetch("/api/auth/clear", { method: "POST" });
-    } catch {
-      // Best-effort cookie clear
-    }
+    await clearSession();
     localStorage.removeItem("mvr_user");
     localStorage.removeItem("mvr_access_token");
     localStorage.removeItem("mvr_refresh_token");
@@ -180,5 +256,5 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
     router.replace("/admin/login?logout=1");
   };
 
-  return { ...auth, logout };
+  return { ...auth, logout, retryVerify };
 }

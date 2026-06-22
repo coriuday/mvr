@@ -10,7 +10,12 @@ interface Subscriber {
   id: string;
   email: string;
   status: string;
+  subscribed_at: string;
   created_at: string;
+}
+
+function isActiveStatus(status: string): boolean {
+  return status.toLowerCase() === "active";
 }
 
 function TableSkeleton() {
@@ -30,15 +35,18 @@ function TableSkeleton() {
 export default function AdminNewsletterPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [search, setSearch] = useState("");
 
   const fetchSubscribers = useCallback(async () => {
     setLoading(true);
+    setFetchError(false);
     try {
       const res = await api.get("/admin/newsletter");
       setSubscribers(res.data.data ?? []);
     } catch {
-      toast.error("Failed to load subscribers");
+      setFetchError(true);
+      toast.error("Failed to load subscribers — try refreshing the page");
     } finally {
       setLoading(false);
     }
@@ -46,27 +54,41 @@ export default function AdminNewsletterPage() {
 
   useEffect(() => { fetchSubscribers(); }, [fetchSubscribers]);
 
+  const filtered = subscribers.filter((s) =>
+    s.email.toLowerCase().includes(search.toLowerCase())
+  );
+
   const exportCSV = () => {
-    if (filtered.length === 0) { toast.error("No subscribers to export"); return; }
+    const toExport = search.trim() ? filtered : subscribers;
+    if (toExport.length === 0) {
+      toast.error(
+        fetchError
+          ? "Subscribers could not be loaded — refresh and try again"
+          : "No subscribers to export"
+      );
+      return;
+    }
     const header = "Email,Status,Subscribed Date\n";
-    const rows = filtered
-      .map((s) => `"${s.email}","${s.status}","${new Date(s.created_at).toLocaleDateString()}"`)
+    const rows = toExport
+      .map((s) => {
+        const date = s.subscribed_at || s.created_at;
+        return `"${s.email}","${s.status}","${new Date(date).toLocaleDateString()}"`;
+      })
       .join("\n");
     const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = `mvr-subscribers-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success(`Exported ${filtered.length} subscribers`);
+    toast.success(`Exported ${toExport.length} subscribers`);
   };
 
-  const filtered = subscribers.filter((s) =>
-    s.email.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const activeCount = subscribers.filter((s) => s.status === "active").length;
+  const activeCount = subscribers.filter((s) => isActiveStatus(s.status)).length;
+  const exportDisabled = loading || fetchError || subscribers.length === 0;
 
   return (
     <div className="space-y-6">
@@ -86,7 +108,8 @@ export default function AdminNewsletterPage() {
           </button>
           <button
             onClick={exportCSV}
-            className="flex items-center gap-2 bg-[#1a2f5e] text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#0f1c3d] transition-colors"
+            disabled={exportDisabled}
+            className="flex items-center gap-2 bg-[#1a2f5e] text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#0f1c3d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download size={15} /> Export CSV
           </button>
@@ -157,7 +180,11 @@ export default function AdminNewsletterPage() {
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="px-6 py-16 text-center text-gray-400">
-                    {search ? "No subscribers match your filter." : "No subscribers yet."}
+                    {fetchError
+                      ? "Could not load subscribers. Click refresh to try again."
+                      : search
+                        ? "No subscribers match your filter."
+                        : "No subscribers yet."}
                   </td>
                 </tr>
               ) : (
@@ -165,13 +192,13 @@ export default function AdminNewsletterPage() {
                   <tr key={s.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-3.5 font-medium text-[#1a2f5e]">{s.email}</td>
                     <td className="px-6 py-3.5">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${s.status === "active" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-500"}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${s.status === "active" ? "bg-emerald-500" : "bg-red-400"}`} />
-                        {s.status === "active" ? "Active" : "Unsubscribed"}
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${isActiveStatus(s.status) ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-500"}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isActiveStatus(s.status) ? "bg-emerald-500" : "bg-red-400"}`} />
+                        {isActiveStatus(s.status) ? "Active" : "Unsubscribed"}
                       </span>
                     </td>
                     <td className="px-6 py-3.5 text-gray-400 text-xs">
-                      {new Date(s.created_at).toLocaleDateString("en-IN", {
+                      {new Date(s.subscribed_at || s.created_at).toLocaleDateString("en-IN", {
                         day: "numeric", month: "short", year: "numeric",
                       })}
                     </td>

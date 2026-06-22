@@ -6,6 +6,7 @@ use uuid::Uuid;
 // ── Status enum ───────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::Type)]
+#[serde(rename_all = "lowercase")]
 #[sqlx(type_name = "subscriber_status", rename_all = "lowercase")]
 pub enum SubscriberStatus {
     Active,

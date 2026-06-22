@@ -31,7 +31,7 @@ const GROUPS = [
 ];
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
-  const { user, loading, isVerifying, logout } = useAdminAuth();
+  const { user, loading, isVerifying, verifyError, logout, retryVerify } = useAdminAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -63,6 +63,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <p className="text-white/30 text-[11px] max-w-xs text-center">
             First load can take a moment while the API wakes up.
           </p>
+          <button
+            type="button"
+            onClick={retryVerify}
+            className="mt-2 text-xs text-[#c9a84c] hover:text-white border border-[#c9a84c]/40 px-4 py-2 rounded-lg transition-colors"
+          >
+            Retry connection
+          </button>
         </div>
       </div>
     );
@@ -216,6 +223,18 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
         {/* Page content */}
         <main className="flex-1 p-6">
+          {verifyError && (
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <span>Could not verify session with the server. Showing cached login — some data may be stale.</span>
+              <button
+                type="button"
+                onClick={retryVerify}
+                className="shrink-0 font-semibold text-[#1a2f5e] hover:underline"
+              >
+                Retry
+              </button>
+            </div>
+          )}
           <AdminErrorBoundary section="Admin Panel">
             {children}
           </AdminErrorBoundary>
