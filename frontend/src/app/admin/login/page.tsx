@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, LogIn, GraduationCap, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,6 @@ const NETWORK_ERROR_MSG =
 
 function isNetworkError(err: unknown): boolean {
   if (!(err instanceof Error)) return false;
-  if (err.name === "TypeError") return true;
   return err.message.toLowerCase().includes("failed to fetch");
 }
 
@@ -110,6 +109,16 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isApexDomain, setIsApexDomain] = useState(false);
   const [formKey, setFormKey] = useState(0);
+  const [apexRedirecting, setApexRedirecting] = useState(false);
+
+  useLayoutEffect(() => {
+    if (window.location.hostname === "mvrconsultants.org") {
+      setApexRedirecting(true);
+      window.location.replace(
+        `https://www.mvrconsultants.org${window.location.pathname}${window.location.search}`
+      );
+    }
+  }, []);
 
   useEffect(() => {
     setShowPass(false);
@@ -122,14 +131,6 @@ export default function AdminLoginPage() {
       localStorage.removeItem("mvr_access_token");
       localStorage.removeItem("mvr_refresh_token");
       setFormKey((k) => k + 1);
-    }
-
-    if (window.location.hostname === "mvrconsultants.org") {
-      setIsApexDomain(true);
-      window.location.replace(
-        `https://www.mvrconsultants.org${window.location.pathname}${window.location.search}`
-      );
-      return;
     }
 
     // Wake Render backend before the user clicks Sign In.
@@ -205,6 +206,10 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
+
+  if (apexRedirecting) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f1c3d] to-[#1a2f5e] flex items-center justify-center p-4">

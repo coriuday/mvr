@@ -121,10 +121,13 @@ const nextConfig: NextConfig = {
     const backend = resolveBackendUrl();
 
     return [
-      // /api/* is handled by src/app/api/[...path]/route.ts (explicit proxy + Set-Cookie).
       {
         source: "/health",
         destination: `${backend}/health`,
+      },
+      {
+        source: "/api/:path*",
+        destination: `${backend}/api/:path*`,
       },
     ];
   },
