@@ -49,7 +49,7 @@ pub async fn run_migrations(_pool: &sqlx::PgPool, database_url: &str) -> Result<
 
 /// Idempotent safety net for tables that may be missing on older production DBs.
 async fn ensure_critical_tables(conn: &mut PgConnection) -> Result<()> {
-    sqlx::query(
+    const STATEMENTS: &[&str] = &[
         r#"
         CREATE TABLE IF NOT EXISTS testimonials (
             id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -62,14 +62,18 @@ async fn ensure_critical_tables(conn: &mut PgConnection) -> Result<()> {
             course          VARCHAR(255),
             is_featured     BOOLEAN NOT NULL DEFAULT FALSE,
             created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-        CREATE INDEX IF NOT EXISTS idx_testimonials_featured ON testimonials(is_featured);
-        CREATE INDEX IF NOT EXISTS idx_testimonials_rating   ON testimonials(rating);
+        )
         "#,
-    )
-    .execute(conn)
-    .await
-    .map_err(|e| anyhow::anyhow!("ensure_critical_tables failed: {}", e))?;
+        "CREATE INDEX IF NOT EXISTS idx_testimonials_featured ON testimonials(is_featured)",
+        "CREATE INDEX IF NOT EXISTS idx_testimonials_rating ON testimonials(rating)",
+    ];
+
+    for sql in STATEMENTS {
+        sqlx::query(sql)
+            .execute(&mut *conn)
+            .await
+            .map_err(|e| anyhow::anyhow!("ensure_critical_tables failed: {}", e))?;
+    }
 
     Ok(())
 }
