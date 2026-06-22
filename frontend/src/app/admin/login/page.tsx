@@ -8,24 +8,112 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { apiUrl } from "@/lib/api-url";
 
-const EMPTY_FORM = { email: "", password: "" };
+const LOGIN_TIMEOUT_MS = 25_000;
+const NETWORK_RETRY_DELAY_MS = 2_000;
+
+const NETWORK_ERROR_MSG =
+  "Could not reach the server. Use www.mvrconsultants.org, wait 30s for the API to wake up, and disable ad-blockers for this site.";
+
+function isNetworkError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  if (err.name === "TypeError") return true;
+  return err.message.toLowerCase().includes("failed to fetch");
+}
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = LOGIN_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function loginRequest(
+  email: string,
+  password: string,
+  retry = true
+): Promise<Response> {
+  try {
+    return await fetchWithTimeout(apiUrl("/api/auth/login"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      cache: "no-store",
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (err) {
+    if (retry && isNetworkError(err)) {
+      await new Promise((r) => setTimeout(r, NETWORK_RETRY_DELAY_MS));
+      return loginRequest(email, password, false);
+    }
+    throw err;
+  }
+}
+
+async function completeLoginFromResponse(res: Response): Promise<void> {
+  const raw = await res.text();
+  let data: {
+    error?: { message?: string };
+    message?: string;
+    data?: { user?: unknown };
+  } = {};
+
+  if (raw.trim()) {
+    try {
+      data = JSON.parse(raw) as typeof data;
+    } catch {
+      throw new Error(
+        raw.length < 160
+          ? raw
+          : "The API returned an unexpected response. Try again in a moment."
+      );
+    }
+  } else if (res.ok) {
+    const meRes = await fetchWithTimeout(apiUrl("/api/auth/me"), {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+    });
+    if (meRes.ok) {
+      const meData = await meRes.json();
+      const user = meData?.data ?? meData?.user ?? meData;
+      localStorage.setItem("mvr_user", JSON.stringify(user ?? {}));
+      localStorage.setItem("mvr_login_ts", Date.now().toString());
+      window.location.replace("/admin");
+      return;
+    }
+    throw new Error(
+      "Login succeeded but the server returned no data. Please try again."
+    );
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      data.error?.message || data.message || "Invalid credentials"
+    );
+  }
+
+  localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
+  localStorage.setItem("mvr_login_ts", Date.now().toString());
+  window.location.replace("/admin");
+}
 
 export default function AdminLoginPage() {
-  const [form, setForm] = useState(EMPTY_FORM);
   const [showPass, setShowPass] = useState(false);
-  const [fieldsReady, setFieldsReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isApexDomain, setIsApexDomain] = useState(false);
+  const [formKey, setFormKey] = useState(0);
 
   useEffect(() => {
-    setForm(EMPTY_FORM);
     setShowPass(false);
-    setFieldsReady(false);
 
-    let autofillGuard: ReturnType<typeof setTimeout> | undefined;
-
-    // After logout, strip any saved client session metadata (not passwords).
     const loggedOut =
       new URLSearchParams(window.location.search).get("logout") === "1";
     if (loggedOut) {
@@ -33,11 +121,7 @@ export default function AdminLoginPage() {
       localStorage.removeItem("mvr_login_ts");
       localStorage.removeItem("mvr_access_token");
       localStorage.removeItem("mvr_refresh_token");
-      // Browsers may autofill after paint — clear again once on return from logout.
-      autofillGuard = setTimeout(() => {
-        setForm(EMPTY_FORM);
-        setShowPass(false);
-      }, 150);
+      setFormKey((k) => k + 1);
     }
 
     if (window.location.hostname === "mvrconsultants.org") {
@@ -45,10 +129,13 @@ export default function AdminLoginPage() {
       window.location.replace(
         `https://www.mvrconsultants.org${window.location.pathname}${window.location.search}`
       );
-      return () => {
-        if (autofillGuard) clearTimeout(autofillGuard);
-      };
+      return;
     }
+
+    // Wake Render backend before the user clicks Sign In.
+    fetchWithTimeout("/health", { method: "GET", cache: "no-store" }, 15_000).catch(
+      () => {}
+    );
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12_000);
@@ -64,16 +151,14 @@ export default function AdminLoginPage() {
       .finally(() => clearTimeout(timeoutId));
 
     return () => {
-      if (autofillGuard) clearTimeout(autofillGuard);
       clearTimeout(timeoutId);
       controller.abort();
     };
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Apex domain (mvrconsultants.org) is not on Vercel — API calls fail there.
     if (
       typeof window !== "undefined" &&
       window.location.hostname === "mvrconsultants.org"
@@ -84,77 +169,42 @@ export default function AdminLoginPage() {
       return;
     }
 
+    const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("mvr-admin-email") ?? "").trim();
+    const password = String(fd.get("mvr-admin-password") ?? "");
+
+    if (!email || !password) {
+      setError("Email and password are required");
+      return;
+    }
+
     setLoading(true);
     setError("");
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25_000);
+
     try {
-      const res = await fetch(apiUrl("/api/auth/login"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        signal: controller.signal,
-        body: JSON.stringify(form),
-      });
-      clearTimeout(timeoutId);
-
-      const raw = await res.text();
-      let data: {
-        error?: { message?: string };
-        message?: string;
-        data?: { user?: unknown };
-      } = {};
-
-      if (raw.trim()) {
-        try {
-          data = JSON.parse(raw) as typeof data;
-        } catch {
-          throw new Error(
-            raw.length < 160
-              ? raw
-              : "The API returned an unexpected response. Try again in a moment."
-          );
-        }
-      } else if (res.ok) {
-        // Proxy used to drop JSON bodies on Set-Cookie responses; cookies may still be set.
-        const meRes = await fetch(apiUrl("/api/auth/me"), {
-          credentials: "include",
-          cache: "no-store",
-        });
-        if (meRes.ok) {
-          const meData = await meRes.json();
-          const user = meData?.data ?? meData?.user ?? meData;
-          localStorage.setItem("mvr_user", JSON.stringify(user ?? {}));
-          localStorage.setItem("mvr_login_ts", Date.now().toString());
-          window.location.replace("/admin");
-          return;
-        }
-        throw new Error("Login succeeded but the server returned no data. Please try again.");
-      }
-
-      if (!res.ok) {
-        throw new Error(data.error?.message || data.message || "Invalid credentials");
-      }
-
-      localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
-      localStorage.setItem("mvr_login_ts", Date.now().toString());
-      window.location.replace("/admin");
+      const res = await loginRequest(email, password);
+      await completeLoginFromResponse(res);
     } catch (err: unknown) {
-      clearTimeout(timeoutId);
       if (err instanceof Error && err.name === "AbortError") {
         setError(
-          "Request timed out. The API may be waking up — wait a moment and try again. Use www.mvrconsultants.org (not the apex domain)."
+          "Request timed out. The API may be waking up — wait a moment and try again."
         );
         return;
       }
+      if (isNetworkError(err)) {
+        setError(NETWORK_ERROR_MSG);
+        return;
+      }
       const raw = err instanceof Error ? err.message : "";
-      const isSafe = raw.length < 120 && !raw.includes("stack") && !raw.includes("DB error");
-      setError(isSafe ? raw : "Login failed. Please check your credentials and try again.");
+      const isSafe =
+        raw.length < 120 && !raw.includes("stack") && !raw.includes("DB error");
+      setError(
+        isSafe ? raw : "Login failed. Please check your credentials and try again."
+      );
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f1c3d] to-[#1a2f5e] flex items-center justify-center p-4">
@@ -164,102 +214,88 @@ export default function AdminLoginPage() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="w-full max-w-md"
       >
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#c9a84c]/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <GraduationCap size={32} className="text-[#c9a84c]" />
           </div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-playfair)" }}>
+          <h1
+            className="text-2xl font-bold text-white"
+            style={{ fontFamily: "var(--font-playfair)" }}
+          >
             MVR Admin
           </h1>
           <p className="text-white/50 text-sm mt-1">Sign in to manage your platform</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8">
           {isApexDomain && (
-              <div className="mb-5 flex items-start gap-2.5 bg-amber-500/15 border border-amber-500/30 text-amber-100 rounded-xl px-4 py-3 text-sm">
-                <AlertCircle size={15} className="shrink-0 mt-0.5" />
-                <span>
-                  Use{" "}
-                  <a
-                    href="https://www.mvrconsultants.org/admin/login"
-                    className="underline font-semibold text-white"
-                  >
-                    www.mvrconsultants.org
-                  </a>{" "}
-                  to sign in — the address without www cannot reach the admin API.
-                </span>
-              </div>
-            )}
+            <div className="mb-5 flex items-start gap-2.5 bg-amber-500/15 border border-amber-500/30 text-amber-100 rounded-xl px-4 py-3 text-sm">
+              <AlertCircle size={15} className="shrink-0 mt-0.5" />
+              <span>
+                Use{" "}
+                <a
+                  href="https://www.mvrconsultants.org/admin/login"
+                  className="underline font-semibold text-white"
+                >
+                  www.mvrconsultants.org
+                </a>{" "}
+                to sign in — the address without www cannot reach the admin API.
+              </span>
+            </div>
+          )}
           <form
+            key={formKey}
             onSubmit={handleSubmit}
             className="space-y-5"
             autoComplete="off"
           >
-            {/* Decoy fields discourage browser password manager autofill */}
-            <input
-              type="text"
-              name="prevent_autofill_username"
-              autoComplete="username"
-              tabIndex={-1}
-              aria-hidden="true"
-              className="hidden"
-              defaultValue=""
-            />
-            <input
-              type="password"
-              name="prevent_autofill_password"
-              autoComplete="current-password"
-              tabIndex={-1}
-              aria-hidden="true"
-              className="hidden"
-              defaultValue=""
-            />
-
             <div className="space-y-1.5">
-              <Label htmlFor="admin-email" className="text-white/80 text-sm font-medium">Email Address</Label>
+              <Label
+                htmlFor="admin-email"
+                className="text-white/80 text-sm font-medium"
+              >
+                Email Address
+              </Label>
               <Input
                 id="admin-email"
                 name="mvr-admin-email"
                 type="email"
                 inputMode="email"
                 placeholder="Enter your Admin Mail"
-                value={form.email}
-                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                onFocus={() => setFieldsReady(true)}
-                readOnly={!fieldsReady}
-                autoComplete="off"
+                defaultValue=""
+                autoComplete="email"
                 autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 required
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/30 rounded-xl h-11 focus-visible:ring-[#c9a84c]/50"
+                className="admin-login-input bg-white/10 border-white/20 text-white placeholder:text-white/30 rounded-xl h-11 focus-visible:ring-[#c9a84c]/50"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="admin-password" className="text-white/80 text-sm font-medium">Password</Label>
+              <Label
+                htmlFor="admin-password"
+                className="text-white/80 text-sm font-medium"
+              >
+                Password
+              </Label>
               <div className="relative">
                 <Input
                   id="admin-password"
                   name="mvr-admin-password"
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
-                  value={form.password}
-                  onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                  onFocus={() => setFieldsReady(true)}
-                  readOnly={!fieldsReady}
-                  autoComplete="new-password"
+                  defaultValue=""
+                  autoComplete="current-password"
                   required
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/30 rounded-xl h-11 pr-12 focus-visible:ring-[#c9a84c]/50"
+                  className="admin-login-input bg-white/10 border-white/20 text-white placeholder:text-white/30 rounded-xl h-11 pr-12 focus-visible:ring-[#c9a84c]/50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((p) => !p)}
                   aria-label={showPass ? "Hide password" : "Show password"}
                   title={showPass ? "Hide password" : "Show password"}
-                  className="absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white transition-colors"
+                  className="absolute right-1.5 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-lg border border-white/25 bg-[#0f1c3d] text-[#c9a84c] hover:bg-[#1a2f5e] transition-colors"
                 >
                   {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -280,9 +316,24 @@ export default function AdminLoginPage() {
             >
               {loading ? (
                 <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" />
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z"
+                    />
                   </svg>
                   Signing in…
                 </span>

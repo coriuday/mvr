@@ -4,6 +4,7 @@ use crate::{
     routes::AppState,
     utils::{
         errors::{AppError, AppResult},
+        json_extractor::parse_json_body,
         jwt::{generate_access_token, generate_refresh_token, verify_refresh_token},
         password::{hash_password, validate_password_strength, verify_password},
         response::MessageResponse,
@@ -14,7 +15,7 @@ use axum::{
     Json,
     extract::State,
     http::{HeaderValue, header},
-    response::AppendHeaders,
+    response::{AppendHeaders, IntoResponse, Response},
 };
 use uuid::Uuid;
 
@@ -129,7 +130,23 @@ pub async fn register(
 // ─────────────────────────────────────────────
 pub async fn login(
     State(state): State<AppState>,
-    Json(body): Json<LoginRequest>,
+    body: Result<Json<LoginRequest>, axum::extract::rejection::JsonRejection>,
+) -> Result<
+    (
+        AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
+        Json<serde_json::Value>,
+    ),
+    Response,
+> {
+    let body = parse_json_body(body)?;
+    login_impl(state, body)
+        .await
+        .map_err(|e| e.into_response())
+}
+
+async fn login_impl(
+    state: AppState,
+    body: LoginRequest,
 ) -> AppResult<(
     AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
     Json<serde_json::Value>,

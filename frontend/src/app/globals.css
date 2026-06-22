@@ -309,3 +309,16 @@
   background-color: rgba(201, 168, 76, 0.25);
   color: #1a2f5e;
 }
+
+/* =============================================================================
+   ADMIN LOGIN — override Chrome autofill white background
+   ============================================================================= */
+.admin-login-input:-webkit-autofill,
+.admin-login-input:-webkit-autofill:hover,
+.admin-login-input:-webkit-autofill:focus,
+.admin-login-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff;
+  transition: background-color 5000s ease-in-out 0s;
+}
