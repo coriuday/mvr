@@ -56,6 +56,24 @@ async function loginRequest(
   }
 }
 
+const SESSION_COOKIE_MSG =
+  "Login succeeded but the session cookie was not saved. Use www.mvrconsultants.org and disable ad-blockers.";
+
+async function confirmSessionAndStoreUser(): Promise<void> {
+  const meRes = await fetchWithTimeout(apiUrl("/api/auth/me"), {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store",
+  });
+  if (!meRes.ok) {
+    throw new Error(SESSION_COOKIE_MSG);
+  }
+  const meData = await meRes.json();
+  const serverUser = meData?.data ?? meData?.user ?? meData;
+  localStorage.setItem("mvr_user", JSON.stringify(serverUser ?? {}));
+  localStorage.setItem("mvr_login_ts", Date.now().toString());
+}
+
 async function completeLoginFromResponse(
   res: Response,
   onSuccess: () => void
@@ -78,22 +96,9 @@ async function completeLoginFromResponse(
       );
     }
   } else if (res.ok) {
-    const meRes = await fetchWithTimeout(apiUrl("/api/auth/me"), {
-      method: "GET",
-      credentials: "include",
-      cache: "no-store",
-    });
-    if (meRes.ok) {
-      const meData = await meRes.json();
-      const user = meData?.data ?? meData?.user ?? meData;
-      localStorage.setItem("mvr_user", JSON.stringify(user ?? {}));
-      localStorage.setItem("mvr_login_ts", Date.now().toString());
-      onSuccess();
-      return;
-    }
-    throw new Error(
-      "Login succeeded but the server returned no data. Please try again."
-    );
+    await confirmSessionAndStoreUser();
+    onSuccess();
+    return;
   }
 
   if (!res.ok) {
@@ -102,8 +107,10 @@ async function completeLoginFromResponse(
     );
   }
 
-  localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
+  const userPayload = data.data?.user ?? data.data;
+  localStorage.setItem("mvr_user", JSON.stringify(userPayload ?? {}));
   localStorage.setItem("mvr_login_ts", Date.now().toString());
+  await confirmSessionAndStoreUser();
   onSuccess();
 }
 
@@ -115,6 +122,11 @@ export default function AdminLoginPage() {
   const [isApexDomain, setIsApexDomain] = useState(false);
   const [formKey, setFormKey] = useState(0);
   const [apexRedirecting, setApexRedirecting] = useState(false);
+  const [sessionExpired] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("session") === "expired"
+  );
 
   useLayoutEffect(() => {
     if (window.location.hostname === "mvrconsultants.org") {
@@ -128,9 +140,10 @@ export default function AdminLoginPage() {
   useEffect(() => {
     setShowPass(false);
 
-    const loggedOut =
-      new URLSearchParams(window.location.search).get("logout") === "1";
-    if (loggedOut) {
+    const params = new URLSearchParams(window.location.search);
+    const loggedOut = params.get("logout") === "1";
+    const sessionExpired = params.get("session") === "expired";
+    if (loggedOut || sessionExpired) {
       localStorage.removeItem("mvr_user");
       localStorage.removeItem("mvr_login_ts");
       localStorage.removeItem("mvr_access_token");
@@ -151,7 +164,7 @@ export default function AdminLoginPage() {
       signal: controller.signal,
     })
       .then((res) => {
-        if (res.ok) router.replace("/admin");
+        if (res.ok) window.location.assign("/admin");
       })
       .catch(() => {})
       .finally(() => clearTimeout(timeoutId));
@@ -189,7 +202,7 @@ export default function AdminLoginPage() {
 
     try {
       const res = await loginRequest(email, password);
-      await completeLoginFromResponse(res, () => router.replace("/admin"));
+      await completeLoginFromResponse(res, () => window.location.assign("/admin"));
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") {
         setError(
@@ -238,6 +251,12 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8">
+          {sessionExpired && (
+            <div className="mb-5 flex items-start gap-2.5 bg-amber-500/15 border border-amber-500/30 text-amber-100 rounded-xl px-4 py-3 text-sm">
+              <AlertCircle size={15} className="shrink-0 mt-0.5" />
+              <span>Your session expired. Please sign in again.</span>
+            </div>
+          )}
           {isApexDomain && (
             <div className="mb-5 flex items-start gap-2.5 bg-amber-500/15 border border-amber-500/30 text-amber-100 rounded-xl px-4 py-3 text-sm">
               <AlertCircle size={15} className="shrink-0 mt-0.5" />

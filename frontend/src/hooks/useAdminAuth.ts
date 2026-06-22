@@ -28,7 +28,7 @@ function readCachedUser(): AuthUser | null {
     const raw = localStorage.getItem("mvr_user");
     if (!raw) return null;
     const parsed = JSON.parse(raw) as AuthUser;
-    if (!parsed?.email || !parsed?.name) return null;
+    if (!parsed?.email) return null;
     return parsed;
   } catch {
     return null;
@@ -200,7 +200,6 @@ export function useAdminAuth(): AuthState & {
         }
 
         localStorage.removeItem("mvr_user");
-        await clearSession();
         setAuth({
           token: null,
           user: null,
@@ -208,7 +207,7 @@ export function useAdminAuth(): AuthState & {
           isVerifying: false,
           verifyError: false,
         });
-        router.replace("/admin/login");
+        router.replace("/admin/login?session=expired");
       } catch {
         if (cancelled) return;
 
@@ -224,7 +223,6 @@ export function useAdminAuth(): AuthState & {
         }
 
         localStorage.removeItem("mvr_user");
-        await clearSession();
         setAuth({
           token: null,
           user: null,
@@ -232,7 +230,7 @@ export function useAdminAuth(): AuthState & {
           isVerifying: false,
           verifyError: false,
         });
-        router.replace("/admin/login");
+        router.replace("/admin/login?session=expired");
       }
     }
 

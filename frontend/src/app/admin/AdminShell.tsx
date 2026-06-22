@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, FileText,
-  Award, LogOut, Menu, X, LayoutGrid, Globe, Mail,
+  Award, LogOut, Menu, X, LayoutGrid, Globe,
   MessageSquare, BookOpen,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -21,7 +21,6 @@ const NAV = [
   { href: "/admin/scholarships", icon: Award,           label: "Scholarships", group: "content" },
   { href: "/admin/testimonials", icon: MessageSquare,   label: "Testimonials", group: "content" },
   { href: "/admin/countries",    icon: Globe,           label: "Countries",    group: "data"    },
-  { href: "/admin/newsletter",   icon: Mail,            label: "Newsletter",   group: "data"    },
 ];
 
 const GROUPS = [
@@ -44,13 +43,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     }, 15_000);
     return () => clearTimeout(timeout);
   }, [isVerifying, user, router, pathname]);
-
-  useEffect(() => {
-    if (pathname === "/admin/login") return;
-    if (!user && !loading && !isVerifying) {
-      router.replace("/admin/login");
-    }
-  }, [user, loading, isVerifying, pathname, router]);
 
   if (pathname === "/admin/login") return <>{children}</>;
 

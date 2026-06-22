@@ -30,11 +30,6 @@ const StudentResourcesSection = dynamic(() => import("@/components/sections/Stud
   ssr: true,
 });
 
-const NewsletterSection = dynamic(() => import("@/components/sections/NewsletterSection"), {
-  loading: () => <div className="min-h-[160px] animate-pulse bg-[#0f1c3d] m-4 rounded-2xl" />,
-  ssr: true,
-});
-
 export const metadata: Metadata = {
   title: "MVR Consultants — Study Abroad | Visa | Scholarships | Admissions",
   description:
@@ -52,7 +47,6 @@ export default function HomePage() {
       <TestimonialsSection />
       <HighlightGrid />
       <StudentResourcesSection />
-      <NewsletterSection />
     </>
   );
 }

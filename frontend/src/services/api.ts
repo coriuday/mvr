@@ -40,12 +40,7 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch {
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("mvr_access_token");
-          localStorage.removeItem("mvr_refresh_token");
-          localStorage.removeItem("mvr_user");
-          window.location.href = "/admin/login";
-        }
+        // Let useAdminAuth handle session state; do not hard-redirect here.
       }
     }
 

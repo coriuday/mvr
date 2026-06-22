@@ -190,12 +190,12 @@ export default function BlogsClient() {
       <section className="bg-[#1a2f5e] py-14">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: "var(--font-playfair)" }}>
-            Get Study Abroad Tips in Your Inbox
+            Ready to Start Your Study Abroad Journey?
           </h2>
-          <p className="text-white/60 mb-6">Join 20,000+ students receiving weekly visa updates and scholarship alerts.</p>
+          <p className="text-white/60 mb-6">Get expert guidance on visas, admissions, and scholarships from our counselors.</p>
           <Link href="/contact">
             <button className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white font-bold px-10 py-3 rounded-full transition-colors">
-              Subscribe to Newsletter
+              Contact Us
             </button>
           </Link>
         </div>
