@@ -18,8 +18,7 @@ async fn main() -> anyhow::Result<()> {
         .connect(&database_url)
         .await?;
 
-    let data_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../frontend/src/data/countries");
+    let data_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../frontend/src/data/countries");
 
     if !data_dir.exists() {
         anyhow::bail!("Country data directory not found: {}", data_dir.display());

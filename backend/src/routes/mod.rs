@@ -135,7 +135,10 @@ fn public_routes(
         .route("/api/blogs/:id", get(blogs::get_blog_by_slug))
         // Public university routes
         .route("/api/universities", get(universities::get_all_universities))
-        .route("/api/universities/:slug", get(universities::get_university_by_slug))
+        .route(
+            "/api/universities/:slug",
+            get(universities::get_university_by_slug),
+        )
         // Public scholarship routes
         .route("/api/scholarships", get(scholarships::get_all_scholarships))
         // Public testimonial routes
@@ -205,7 +208,10 @@ fn admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/blogs/:id", put(blogs::update_blog))
         .route("/api/blogs/:id", delete(blogs::delete_blog))
         // University management
-        .route("/api/admin/universities", get(universities::admin_list_universities))
+        .route(
+            "/api/admin/universities",
+            get(universities::admin_list_universities),
+        )
         .route("/api/universities", post(universities::create_university))
         .route(
             "/api/universities/:id",

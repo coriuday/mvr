@@ -132,8 +132,8 @@ impl Config {
 
             // Redis — required in production for persistent admin logout revocation
             redis_url: {
-                let environment = std::env::var("ENVIRONMENT")
-                    .unwrap_or_else(|_| "development".to_string());
+                let environment =
+                    std::env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string());
                 match std::env::var("REDIS_URL") {
                     Ok(url) if !url.trim().is_empty() => Some(url),
                     _ if environment == "production" => {

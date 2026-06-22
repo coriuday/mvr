@@ -1,5 +1,7 @@
 use crate::{
-    models::university::{CreateUniversityRequest, University, UniversityFilter, UpdateUniversityRequest},
+    models::university::{
+        CreateUniversityRequest, University, UniversityFilter, UpdateUniversityRequest,
+    },
     utils::errors::{AppError, AppResult},
 };
 use sqlx::PgPool;
@@ -21,7 +23,11 @@ impl UniversityRepository {
         Self { db }
     }
 
-    pub async fn find_all(&self, filter: &UniversityFilter, active_only: bool) -> AppResult<(Vec<University>, i64)> {
+    pub async fn find_all(
+        &self,
+        filter: &UniversityFilter,
+        active_only: bool,
+    ) -> AppResult<(Vec<University>, i64)> {
         let page = filter.page.unwrap_or(1).max(1);
         let per_page = filter.per_page.unwrap_or(20).min(500);
         let offset = (page - 1) * per_page;

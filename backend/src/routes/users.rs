@@ -1,7 +1,8 @@
 use crate::{
     models::user::{UpdateUserActiveRequest, UpdateUserRoleRequest},
     repositories::auth_repository::AuthRepository,
-    routes::AppState, utils::errors::AppResult,
+    routes::AppState,
+    utils::errors::AppResult,
 };
 use axum::{
     Json,

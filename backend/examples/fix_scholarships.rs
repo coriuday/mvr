@@ -1,14 +1,14 @@
 //! Inspect and fix the scholarships table schema.
 //! Usage: cargo run --example fix_scholarships
 
-use sqlx::postgres::PgPoolOptions;
 use sqlx::Row;
+use sqlx::postgres::PgPoolOptions;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     let url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    
+
     let pool = PgPoolOptions::new()
         .max_connections(1)
         .connect(&url)
@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
         "SELECT column_name, data_type, is_nullable
          FROM information_schema.columns
          WHERE table_name = 'scholarships'
-         ORDER BY ordinal_position"
+         ORDER BY ordinal_position",
     )
     .fetch_all(&pool)
     .await?;
@@ -59,7 +59,9 @@ async fn main() -> anyhow::Result<()> {
         name == "scholarship_type"
     });
     if !has_type {
-        println!("⚠️  'scholarship_type' column missing — scholarships table may be completely wrong");
+        println!(
+            "⚠️  'scholarship_type' column missing — scholarships table may be completely wrong"
+        );
     }
 
     Ok(())

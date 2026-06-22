@@ -1,5 +1,7 @@
 use crate::{
-    models::university::{CreateUniversityRequest, University, UniversityFilter, UpdateUniversityRequest},
+    models::university::{
+        CreateUniversityRequest, University, UniversityFilter, UpdateUniversityRequest,
+    },
     repositories::university_repository::UniversityRepository,
     utils::errors::{AppError, AppResult},
 };
