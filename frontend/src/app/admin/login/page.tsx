@@ -37,27 +37,40 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     setError("");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25_000);
     try {
       const res = await fetch(apiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // ← receive httpOnly Set-Cookie from backend
+        credentials: "include",
+        signal: controller.signal,
         body: JSON.stringify(form),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || data.message || "Invalid credentials");
+      clearTimeout(timeoutId);
 
-      // C-4 fix: Role validation is enforced server-side by the backend's /api/auth/me endpoint.
-      // The useAdminAuth hook will redirect to this page if the session doesn't have ADMIN role.
-      // We never trust client-side role data as a security boundary.
+      let data: { error?: { message?: string }; message?: string; data?: { user?: unknown } } = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Invalid response from server");
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error?.message || data.message || "Invalid credentials");
+      }
+
       localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
-      // Bug 1 fix: Use a hard browser redirect so the httpOnly Set-Cookie header is fully committed
-      // before the admin page mounts and fires /api/auth/me. router.push/replace won't work here
-      // because Next.js client-side navigation doesn't trigger a full browser request cycle.
       localStorage.setItem("mvr_login_ts", Date.now().toString());
       window.location.replace("/admin");
     } catch (err: unknown) {
-      // L-7 fix: Show a generic message — never echo server internals to the UI
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === "AbortError") {
+        setError(
+          "Request timed out. The API may be waking up — wait a moment and try again. Use www.mvrconsultants.org (not the apex domain)."
+        );
+        return;
+      }
       const raw = err instanceof Error ? err.message : "";
       const isSafe = raw.length < 120 && !raw.includes("stack") && !raw.includes("DB error");
       setError(isSafe ? raw : "Login failed. Please check your credentials and try again.");

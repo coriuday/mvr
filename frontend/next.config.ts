@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { resolveBackendUrl } from "./src/lib/backend-url";
 
 const nextConfig: NextConfig = {
   // H-6 security fix: Do NOT emit source maps in production builds.
@@ -117,17 +118,10 @@ const nextConfig: NextConfig = {
   // Set BACKEND_URL in Vercel (server-only), e.g. https://mvr-backend.onrender.com
   // ---------------------------------------------------------------------------
   async rewrites() {
-    const backend = (
-      process.env.BACKEND_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      "http://localhost:8080"
-    ).replace(/\/$/, "");
+    const backend = resolveBackendUrl();
 
     return [
-      {
-        source: "/api/:path*",
-        destination: `${backend}/api/:path*`,
-      },
+      // /api/* is handled by src/app/api/[...path]/route.ts (explicit proxy + Set-Cookie).
       {
         source: "/health",
         destination: `${backend}/health`,

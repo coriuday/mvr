@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { apiUrl } from "@/lib/api-url";
 
 interface AuthState {
@@ -18,6 +18,8 @@ const RETRY_DELAYS = [300, 800, 1500];
 
 export function useAdminAuth(): AuthState & { logout: () => void } {
   const router = useRouter();
+  const pathname = usePathname();
+  const onLoginPage = pathname === "/admin/login";
   const [auth, setAuth] = useState<AuthState>({
     token: null,
     user: null,
@@ -26,6 +28,11 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
   });
 
   useEffect(() => {
+    if (onLoginPage) {
+      setAuth({ token: null, user: null, loading: false, isVerifying: false });
+      return;
+    }
+
     let cancelled = false;
 
     async function verify(attempt = 0): Promise<void> {
@@ -98,7 +105,7 @@ export function useAdminAuth(): AuthState & { logout: () => void } {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, onLoginPage]);
 
   const logout = async () => {
     try {

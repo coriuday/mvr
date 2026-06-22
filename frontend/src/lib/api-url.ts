@@ -6,12 +6,10 @@
  * Server components / SSR call the backend directly via BACKEND_URL.
  */
 
+import { resolveBackendUrl } from "@/lib/backend-url";
+
 function serverBackendUrl(): string {
-  return (
-    process.env.BACKEND_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8080"
-  ).replace(/\/$/, "");
+  return resolveBackendUrl();
 }
 
 /** Base URL without `/api` suffix. Empty string in the browser = same-origin. */
