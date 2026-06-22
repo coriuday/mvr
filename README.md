@@ -23,14 +23,14 @@ MVR Consultants is a **premium, SEO-first consultancy website** serving students
 
 | Feature | Description |
 |---------|-------------|
-| 🌍 Study Abroad | Destination guides for USA, UK, Canada, Australia, Germany, Ireland & more |
-| 🎓 University Admissions | Curated university listings with rankings and descriptions |
-| 💰 Scholarships | Merit-based, need-based, and government scholarship listings |
+| 🌍 Study Abroad | Destination guides (CMS-managed, API-backed) for 26+ countries |
+| 🎓 University Admissions | Full university directory with fees, IELTS, programs & search |
+| 💰 Scholarships | Admin-managed scholarships synced to the public site |
 | 📋 Visa Guidance | Country-specific visa process guides |
 | 👤 Lead Management | Full CRM with status tracking and counselor assignment |
-| 📝 Blog / CMS | Admin-managed articles with SEO metadata |
-| 💬 Testimonials | Client testimonial management |
-| 📊 Admin Dashboard | Analytics, lead management, blog & university management |
+| 📝 Blog / CMS | Admin-managed articles with cover images & draft/publish workflow |
+| 💬 Testimonials | Client testimonials on homepage and `/testimonials` |
+| 📊 Admin Dashboard | Analytics, leads, blogs, countries, universities, scholarships & users |
 
 ---
 
@@ -38,20 +38,26 @@ MVR Consultants is a **premium, SEO-first consultancy website** serving students
 
 ```
 Client Browser
-      ↓
+      ↓  (same-origin /api/* + httpOnly cookies)
 ┌─────────────────────────────┐
 │  Frontend (Vercel)          │
 │  Next.js 16 + React 19      │
+│  /api/[...path] proxy       │
 └─────────────┬───────────────┘
-              │ HTTPS API calls
+              │ server-side proxy
               ↓
 ┌─────────────────────────────┐
 │  Backend (Render)           │
 │  Rust + Axum  Port: 8080    │
+│  Redis (session blocklist)  │
 └─────────────┬───────────────┘
               ↓
       Supabase (PostgreSQL)
 ```
+
+**Single source of truth:** Admin CMS edits are stored in Postgres and served via the API to the public website (countries, blogs, universities, scholarships, testimonials). Static JSON in `frontend/src/data/` is used only as a build-time fallback when the API is unreachable.
+
+> **Admin login:** Use `https://www.mvrconsultants.org/admin/login` (apex `mvrconsultants.org` without `www` does not reach Vercel).
 
 > For local development, an optional Nginx reverse proxy is available via Docker Compose.
 
@@ -84,21 +90,22 @@ Client Browser
 | Axum | 0.7 | Web framework |
 | Tokio | 1.x | Async runtime |
 | Tower HTTP | 0.5 | Middleware (CORS, tracing, compression) |
-| SQLx | 0.7 | Async PostgreSQL driver |
+| SQLx | 0.8 | Async PostgreSQL driver |
 | Serde | 1.x | JSON serialization |
 | jsonwebtoken | 9.x | JWT auth |
 | Argon2 | 0.5 | Password hashing |
+| Redis | 0.27 | JWT blocklist (logout revocation) |
 | Tracing | 0.1 | Structured logging |
 | reqwest | 0.12 | HTTP client (Cloudinary, Resend) |
 | resend-rs | 0.25 | Transactional email |
-| validator | 0.18 | Request validation |
+| validator | 0.19 | Request validation |
 
 ### Infrastructure
 | Technology | Purpose |
 |-----------|---------|
 | Supabase | Hosted PostgreSQL (shared team DB) |
 | Vercel | Frontend hosting & edge deployment |
-| Render | Backend Docker-based hosting (Singapore region) |
+| Render | Backend Docker-based hosting (Singapore region) + Redis |
 | Hostinger | Domain (DNS only — no VPS; CNAME → Vercel, business email) |
 | Cloudinary | Image uploads & CDN delivery |
 | Resend | Transactional email |
@@ -124,18 +131,22 @@ mvr/
 │       │   │   ├── faq/
 │       │   │   ├── privacy/
 │       │   │   ├── scholarships/
-│       │   │   ├── services/
+│       │   │   ├── testimonials/
 │       │   │   ├── terms/
 │       │   │   ├── universities/
 │       │   │   └── visa/
-│       │   ├── admin/         # Admin panel
+│       │   ├── admin/         # Admin panel (cookie-gated)
 │       │   │   ├── page.tsx   # Admin dashboard
 │       │   │   ├── blogs/
+│       │   │   ├── countries/
 │       │   │   ├── leads/
 │       │   │   ├── login/
+│       │   │   ├── newsletter/
+│       │   │   ├── scholarships/
+│       │   │   ├── testimonials/
 │       │   │   ├── unis/
 │       │   │   └── users/
-│       │   └── dashboard/     # User dashboard
+│       │   ├── api/[...path]/ # Same-origin API proxy → Render backend
 │       ├── components/        # UI components
 │       ├── services/          # API service layer
 │       ├── hooks/             # Custom React hooks
@@ -157,7 +168,9 @@ mvr/
 │   │   ├── middleware/        # Auth, CORS middleware
 │   │   ├── db/                # Database connection pool
 │   │   └── utils/             # JWT, errors, response helpers
-│   └── migrations/            # SQLx SQL migrations
+│   ├── migrations/            # SQLx SQL migrations
+│   ├── examples/              # One-off seed scripts (countries, universities, admin)
+│   └── .cargo/audit.toml      # cargo-audit policy (ignored advisories)
 │
 ├── supabase/                  # Supabase config & migrations
 │   ├── migrations/
@@ -220,17 +233,30 @@ npm run dev
 ```bash
 cd backend
 cargo run
+# API at http://localhost:8080 — frontend proxies /api/* via BACKEND_URL
+```
+
+### 5. Seed production data (one-time, against DATABASE_URL)
+
+```bash
+cd backend
+cargo run --example seed_admin -- "YourSecurePassword"
+cargo run --example seed_countries
+cargo run --example seed_universities
 ```
 
 ---
 
 ## 🔑 Environment Variables
 
-See [`.env.example`](.env.example) for the complete list.
+See [`.env.example`](.env.example), [`frontend/.env.example`](frontend/.env.example), and [`backend/.env.example`](backend/.env.example) for complete lists.
+
+### Backend (Render)
 
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | Supabase PostgreSQL connection string |
+| `REDIS_URL` | **Required in production** — Render Redis internal URL |
 | `JWT_SECRET` | Secret key for JWT signing (min 32 chars) |
 | `JWT_REFRESH_SECRET` | Separate secret for refresh tokens |
 | `JWT_EXPIRY_HOURS` | Access token expiry in hours (default: 24) |
@@ -238,15 +264,23 @@ See [`.env.example`](.env.example) for the complete list.
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
-| `CLOUDINARY_UPLOAD_PRESET` | Cloudinary unsigned upload preset |
+| `CLOUDINARY_UPLOAD_PRESET` | Cloudinary **signed** upload preset (`mvr_consultants`) |
 | `RESEND_API_KEY` | Resend email API key |
 | `EMAIL_FROM` | Sender email address |
 | `ADMIN_EMAIL` | Primary admin notification email |
-| `FRONTEND_URL` | Frontend URL for CORS (e.g. http://localhost:3000) |
-| `ALLOWED_ORIGINS` | Comma-separated allowed CORS origins |
+| `ADMIN_EMAIL_GUNTUR` | Guntur office notification email |
+| `ALLOWED_ORIGINS` | CORS origins (e.g. `https://www.mvrconsultants.org`) |
+| `TRUST_PROXY_HEADERS` | Set `true` on Render for correct client IP / rate limits |
 | `RUST_LOG` | Log level (e.g. `info`, `debug`) |
 
----
+### Frontend (Vercel)
+
+| Variable | Description |
+|----------|-------------|
+| `BACKEND_URL` | **Required** — Render backend URL (e.g. `https://mvr-backend.onrender.com`). Used by the `/api` proxy and SSR fetches. |
+| `NEXT_PUBLIC_APP_URL` | Public site URL (e.g. `https://www.mvrconsultants.org`) |
+
+> Browser requests use same-origin `/api/*` (no `NEXT_PUBLIC_API_URL` to Render needed in production). Auth uses httpOnly cookies (`mvr_access`, `mvr_refresh`).
 
 ## 🗺️ API Reference
 
@@ -254,59 +288,84 @@ See [`.env.example`](.env.example) for the complete list.
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check |
-| `/api/auth/login` | POST | Login & receive JWT |
+| `/api/auth/login` | POST | Login (sets httpOnly cookies) |
 | `/api/auth/refresh` | POST | Refresh access token |
-| `/api/blogs` | GET | List all published blogs |
+| `/api/blogs` | GET | List published blogs |
 | `/api/blogs/{slug}` | GET | Get blog by slug |
-| `/api/universities` | GET | List all universities |
-| `/api/scholarships` | GET | List all scholarships |
-| `/api/testimonials` | GET | List all testimonials |
+| `/api/countries` | GET | List active country cards |
+| `/api/countries/{slug}` | GET | Full country detail (JSONB content) |
+| `/api/universities` | GET | List universities (paginated) |
+| `/api/universities/{slug}` | GET | University detail by slug |
+| `/api/scholarships` | GET | List scholarships |
+| `/api/testimonials` | GET | List testimonials (`?featured=true` for homepage) |
 | `/api/contact` | POST | Submit contact form |
 | `/api/leads` | POST | Submit inquiry / lead form |
+| `/api/newsletter/subscribe` | POST | Newsletter signup |
 
 ### Protected Routes (valid JWT required)
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/auth/logout` | POST | Logout (invalidate token) |
+| `/api/auth/logout` | POST | Logout (revoke tokens + clear cookies) |
 | `/api/auth/me` | GET | Get current user profile |
 
-### Admin Routes (ADMIN role required)
+### Admin Routes (ADMIN role + httpOnly cookie)
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/auth/register` | POST | Create a new user account |
+| `/api/auth/register` | POST | Create a new staff account |
 | `/api/admin/stats` | GET | Dashboard analytics |
 | `/api/admin/recent-leads` | GET | Recent lead activity |
+| `/api/admin/blogs` | GET | List all blogs (including drafts) |
+| `/api/admin/countries` | GET / POST | List / create countries |
+| `/api/admin/countries/{id}` | PUT / DELETE | Update / delete country |
+| `/api/admin/universities` | GET | List all universities (incl. inactive) |
+| `/api/admin/users` | GET | List staff users |
+| `/api/admin/users/{id}/role` | PUT | Change user role |
+| `/api/admin/users/{id}/active` | PATCH | Activate / deactivate user |
+| `/api/admin/cloudinary/sign` | POST | Signed Cloudinary upload |
+| `/api/admin/newsletter` | GET | List newsletter subscribers |
 | `/api/leads` | GET | List all leads |
 | `/api/leads/{id}` | GET / PUT / DELETE | Manage individual lead |
 | `/api/blogs` | POST | Create blog post |
-| `/api/blogs/{id}` | PUT / DELETE | Edit or delete blog |
+| `/api/blogs/{id}` | PUT / DELETE | Edit or delete blog (UUID) |
 | `/api/universities` | POST | Add university |
-| `/api/universities/{id}` | PUT / DELETE | Edit or delete university |
+| `/api/universities/{id}` | PUT / DELETE | Edit or delete university (UUID) |
 | `/api/scholarships` | POST | Add scholarship |
-| `/api/scholarships/{id}` | PUT | Edit scholarship |
+| `/api/scholarships/{id}` | PUT / DELETE | Edit or delete scholarship |
 | `/api/testimonials` | POST | Add testimonial |
-| `/api/testimonials/{id}` | PUT | Edit testimonial |
+| `/api/testimonials/{id}` | PUT / DELETE | Edit or delete testimonial |
 
 ---
 
 ## 🚢 Deployment
 
 ### Backend → Render
-The backend deploys automatically via [`render.yaml`](render.yaml) as a Docker-based web service in the **Singapore** region.
+The backend deploys via [`render.yaml`](render.yaml) as a Docker web service in **Singapore**, with a **Redis** instance for JWT blocklist (logout revocation).
 
 ```bash
-# Render picks up render.yaml from the repo root automatically.
-# Set secret env vars in: Render Dashboard → Environment
+# Set secret env vars in: Render Dashboard → mvr-backend → Environment
+# Required: DATABASE_URL, JWT_*, REDIS_URL, CLOUDINARY_*, RESEND_API_KEY, ALLOWED_ORIGINS
 ```
+
+After first deploy, run seed scripts locally against production `DATABASE_URL` (see [Quick Start](#-quick-start)).
 
 ### Frontend → Vercel
-The frontend deploys to Vercel. Set environment variables in the Vercel dashboard.
+The frontend deploys to Vercel on push to `master`.
 
 ```bash
-# Production build (Vercel runs this automatically)
-cd frontend
-npm run build
+# Required Vercel env var:
+BACKEND_URL=https://mvr-backend.onrender.com   # your Render service URL
+NEXT_PUBLIC_APP_URL=https://www.mvrconsultants.org
 ```
+
+The Next.js app proxies `/api/*` to Render via `src/app/api/[...path]/route.ts` so admin auth cookies stay same-origin.
+
+```bash
+cd frontend && npm run build   # Vercel runs this automatically
+```
+
+### DNS
+- `www.mvrconsultants.org` → Vercel (CNAME)
+- Apex `mvrconsultants.org` should redirect to `www` (configured in `next.config.ts`)
 
 ---
 
@@ -314,11 +373,11 @@ npm run build
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| **Phase 1** | Project scaffolding, folder structure, base configuration | ✅ Done |
-| **Phase 2** | Auth system, core APIs, homepage UI, admin dashboard | 🟡 In Progress |
-| **Phase 3** | Blogs, testimonials, lead management, file uploads | ⏳ Pending |
-| **Phase 4** | SEO optimization, analytics, deployment polish | ⏳ Pending |
-| **Phase 5** | Monitoring, Redis caching, performance tuning | ⏳ Pending |
+| **Phase 1** | Auth, API proxy, uploads, admin bug fixes | ✅ Done |
+| **Phase 2** | CMS → public site sync (countries, unis, scholarships, testimonials) | ✅ Done |
+| **Phase 3** | Admin UX components, full country/university editors | ✅ Done |
+| **Phase 4** | CI (fmt, clippy, audit), production hardening | ✅ Done |
+| **Phase 5** | Monitoring, cache invalidation, performance tuning | ⏳ Pending |
 
 ---
 
@@ -334,8 +393,8 @@ We use a structured branch strategy with automated checks:
 1. Create a feature branch from `dev`: `git checkout -b feature/your-feature-name dev`.
 2. Follow conventional commits (`feat:`, `fix:`, `chore:`).
 3. Ensure local checks pass before submitting a PR:
-   - Backend: `cargo check` and `cargo clippy --all-targets -- -D warnings`
-   - Frontend: `npx tsc --noEmit`
+   - Backend: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo audit`, `cargo test`
+   - Frontend: `npm run build` (includes `tsc`)
 4. Submit a Pull Request targeting the `dev` branch. Our automated GitHub Action (`PR Checks`) will run clippy, tests, and build validation. Once approved and checks pass, it can be merged.
 5. Merging `dev` into `master` triggers the production deployment pipeline (`CI` workflow), which automatically runs all checks and deploys the backend to Render.
 

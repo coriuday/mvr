@@ -27,7 +27,7 @@ tower-http = { version = "0.5", features = [
 # ---------------------------------------------------------------------------
 # Database — SQLx with PostgreSQL + Supabase
 # ---------------------------------------------------------------------------
-sqlx = { version = "0.7", features = [
+sqlx = { version = "0.8", features = [
     "runtime-tokio-rustls",
     "postgres",
     "uuid",
@@ -56,7 +56,7 @@ chrono = { version = "0.4", features = ["serde"] }
 dotenvy = "0.15"
 thiserror = "1"
 anyhow = "1"
-validator = { version = "0.18", features = ["derive"] }
+validator = { version = "0.19", features = ["derive"] }
 
 # ---------------------------------------------------------------------------
 # Logging & Tracing

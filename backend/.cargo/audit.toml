@@ -1,0 +1,6 @@
+# cargo-audit policy — https://rustsec.org/advisories/
+#
+# rsa: transitive dep (no fixed release). We do not use RSA for app crypto;
+# passwords use Argon2 and JWTs use HMAC-SHA256 via jsonwebtoken.
+[advisories]
+ignore = ["RUSTSEC-2023-0071"]

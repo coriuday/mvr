@@ -136,7 +136,7 @@ fn public_routes(
         // Public university routes
         .route("/api/universities", get(universities::get_all_universities))
         .route(
-            "/api/universities/:slug",
+            "/api/universities/:id",
             get(universities::get_university_by_slug),
         )
         // Public scholarship routes

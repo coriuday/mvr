@@ -30,12 +30,12 @@ pub async fn get_all_universities(
     })))
 }
 
-/// GET /api/universities/:slug  (public — by slug)
+/// GET /api/universities/:id  (public — `id` is the URL slug, e.g. "mit")
 pub async fn get_university_by_slug(
     State(state): State<AppState>,
-    Path(slug): Path<String>,
+    Path(id): Path<String>,
 ) -> AppResult<Json<serde_json::Value>> {
-    let uni = UniversityService::new(state.db).get_by_slug(&slug).await?;
+    let uni = UniversityService::new(state.db).get_by_slug(&id).await?;
     Ok(Json(serde_json::json!({ "success": true, "data": uni })))
 }
 
