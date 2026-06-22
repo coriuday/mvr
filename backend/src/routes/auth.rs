@@ -72,6 +72,22 @@ fn extract_refresh_cookie(request_headers: &axum::http::HeaderMap) -> Option<Str
 }
 
 // ─────────────────────────────────────────────
+// POST /api/auth/clear  (public — expire stale auth cookies)
+// ─────────────────────────────────────────────
+pub async fn clear_session(
+    State(state): State<AppState>,
+) -> AppResult<(
+    AppendHeaders<[(header::HeaderName, HeaderValue); 2]>,
+    Json<MessageResponse>,
+)> {
+    let cookies = clear_auth_cookies(state.config.is_production());
+    Ok((
+        AppendHeaders(cookies),
+        Json(MessageResponse::new("Session cleared")),
+    ))
+}
+
+// ─────────────────────────────────────────────
 // POST /api/auth/register  (admin only)
 // ─────────────────────────────────────────────
 pub async fn register(

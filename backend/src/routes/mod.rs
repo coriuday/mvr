@@ -130,6 +130,7 @@ fn public_routes(
                 rate_limit_middleware::rate_limit_login,
             )),
         )
+        .route("/api/auth/clear", post(auth::clear_session))
         // Public blog routes
         .route("/api/blogs", get(blogs::get_all_blogs))
         .route("/api/blogs/:id", get(blogs::get_blog_by_slug))

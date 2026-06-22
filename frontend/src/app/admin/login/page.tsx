@@ -21,7 +21,21 @@ export default function AdminLoginPage() {
       window.location.replace(
         `https://www.mvrconsultants.org${window.location.pathname}${window.location.search}`
       );
+      return;
     }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12_000);
+    fetch(apiUrl("/api/auth/me"), {
+      credentials: "include",
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (res.ok) window.location.replace("/admin");
+      })
+      .catch(() => {})
+      .finally(() => clearTimeout(timeoutId));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -36,27 +36,33 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  // Safety net: if verification never resolves in 10 s, redirect to login.
-  // Must be declared before any early return to satisfy Rules of Hooks.
+  // Safety net: if verification never resolves, redirect to login.
   useEffect(() => {
     if (pathname === "/admin/login") return;
     const timeout = setTimeout(() => {
-      if (isVerifying) router.replace("/admin/login");
-    }, 10_000);
+      if (isVerifying && !user) router.replace("/admin/login");
+    }, 15_000);
     return () => clearTimeout(timeout);
-  }, [isVerifying, router, pathname]);
+  }, [isVerifying, user, router, pathname]);
 
   if (pathname === "/admin/login") return <>{children}</>;
 
-  if (loading || !user) {
+  if (!user && (loading || isVerifying)) {
     return (
       <div className="min-h-screen bg-[#1a2f5e] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
           <p className="text-white/50 text-xs tracking-wide">Verifying session…</p>
+          <p className="text-white/30 text-[11px] max-w-xs text-center">
+            First load can take a moment while the API wakes up.
+          </p>
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

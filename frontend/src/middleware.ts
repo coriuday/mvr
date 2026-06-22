@@ -17,10 +17,6 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin/login") {
-    const token = request.cookies.get("mvr_access");
-    if (token?.value) {
-      return NextResponse.redirect(new URL("/admin", request.url));
-    }
     return NextResponse.next();
   }
 
