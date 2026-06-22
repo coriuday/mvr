@@ -98,9 +98,9 @@ async function completeLoginFromResponse(res: Response): Promise<void> {
     );
   }
 
-  localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
-  localStorage.setItem("mvr_login_ts", Date.now().toString());
-  window.location.replace("/admin");
+      localStorage.setItem("mvr_user", JSON.stringify(data.data?.user ?? {}));
+      localStorage.setItem("mvr_login_ts", Date.now().toString());
+      window.location.href = "/admin";
 }
 
 export default function AdminLoginPage() {

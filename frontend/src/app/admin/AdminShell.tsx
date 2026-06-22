@@ -45,6 +45,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     return () => clearTimeout(timeout);
   }, [isVerifying, user, router, pathname]);
 
+  useEffect(() => {
+    if (pathname === "/admin/login") return;
+    if (!user && !loading && !isVerifying) {
+      router.replace("/admin/login");
+    }
+  }, [user, loading, isVerifying, pathname, router]);
+
   if (pathname === "/admin/login") return <>{children}</>;
 
   if (!user && (loading || isVerifying)) {
