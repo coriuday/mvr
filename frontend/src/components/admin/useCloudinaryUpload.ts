@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { apiUrl } from "@/lib/api-url";
 
 interface UploadResult {
@@ -12,6 +12,21 @@ export interface CloudinaryUploadState {
   uploading: boolean;
   progress: number; // 0–100
   error: string;
+}
+
+/** Map Cloudinary / sign-endpoint errors to actionable admin messages. */
+export function formatCloudinaryUploadError(message: string, httpStatus?: number): string {
+  const lower = message.toLowerCase();
+  if (httpStatus === 503 || lower.includes("not configured")) {
+    return "Image uploads are not configured on the server. Paste a URL instead, or ask admin to set CLOUDINARY_* env vars.";
+  }
+  if (lower.includes("upload preset") && lower.includes("not found")) {
+    return "Cloudinary upload preset is misconfigured. Paste an image URL instead, or clear CLOUDINARY_UPLOAD_PRESET on the server.";
+  }
+  if (lower.includes("invalid signature") || lower.includes("signature")) {
+    return "Upload signature rejected by Cloudinary. Check that API key and secret match your cloud name.";
+  }
+  return message;
 }
 
 export function useCloudinaryUpload(folder = "mvr/uploads") {
@@ -46,9 +61,9 @@ export function useCloudinaryUpload(folder = "mvr/uploads") {
 
         if (!signRes.ok) {
           const err = await signRes.json().catch(() => ({}));
-          throw new Error(
-            err?.error?.message || `Failed to get upload signature (${signRes.status})`
-          );
+          const raw =
+            err?.error?.message || `Failed to get upload signature (${signRes.status})`;
+          throw new Error(formatCloudinaryUploadError(raw, signRes.status));
         }
 
         const signJson = await signRes.json();
@@ -62,20 +77,18 @@ export function useCloudinaryUpload(folder = "mvr/uploads") {
           throw new Error("Invalid upload signature response from server");
         }
 
-        const { signature, timestamp, api_key, cloud_name, upload_preset } = data;
+        const { signature, timestamp, api_key, cloud_name } = data;
 
         setState((s) => ({ ...s, progress: 20 }));
 
-        // 2. Build multipart form for Cloudinary direct upload
         const formData = new FormData();
         formData.append("file", file);
         formData.append("api_key", api_key);
         formData.append("timestamp", String(timestamp));
         formData.append("signature", signature);
         formData.append("folder", folder);
-        if (upload_preset) formData.append("upload_preset", upload_preset);
 
-        // 3. Upload directly to Cloudinary with XHR to track progress
+        // Upload directly to Cloudinary with XHR to track progress
         const result = await new Promise<UploadResult>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.upload.addEventListener("progress", (e) => {
@@ -90,7 +103,8 @@ export function useCloudinaryUpload(folder = "mvr/uploads") {
             } else {
               try {
                 const body = JSON.parse(xhr.responseText);
-                reject(new Error(body?.error?.message || "Upload failed"));
+                const raw = body?.error?.message || "Upload failed";
+                reject(new Error(formatCloudinaryUploadError(raw)));
               } catch {
                 reject(new Error(`Upload failed (${xhr.status})`));
               }
@@ -104,7 +118,8 @@ export function useCloudinaryUpload(folder = "mvr/uploads") {
         setState({ uploading: false, progress: 100, error: "" });
         return result.secure_url;
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Upload failed";
+        const raw = err instanceof Error ? err.message : "Upload failed";
+        const msg = formatCloudinaryUploadError(raw);
         setState({ uploading: false, progress: 0, error: msg });
         return null;
       }

@@ -35,8 +35,6 @@ pub struct UploadSignature {
     pub api_key: String,
     /// The folder path included in the signature
     pub folder: String,
-    /// Upload preset name (MUST be a signed preset in production)
-    pub upload_preset: Option<String>,
 }
 
 impl CloudinaryService {
@@ -79,15 +77,7 @@ impl CloudinaryService {
         params.insert("folder", folder.to_string());
         params.insert("timestamp", timestamp.to_string());
 
-        // Include upload_preset in the signature if set, so the frontend can
-        // safely send it without being able to swap it for an unsigned preset.
-        if let Some(preset) = &config.cloudinary_upload_preset
-            && !preset.is_empty()
-        {
-            params.insert("upload_preset", preset.clone());
-        }
-
-        // Sorted param string: "folder=uploads/blog&timestamp=1234567890&upload_preset=my_preset"
+        // Sorted param string: "folder=uploads/blog&timestamp=1234567890"
         let param_string = params
             .iter()
             .map(|(k, v)| format!("{k}={v}"))
@@ -106,7 +96,6 @@ impl CloudinaryService {
             cloud_name: self.cloud_name.clone(),
             api_key: config.cloudinary_api_key.clone().unwrap_or_default(),
             folder: folder.to_string(),
-            upload_preset: config.cloudinary_upload_preset.clone(),
         })
     }
 }
