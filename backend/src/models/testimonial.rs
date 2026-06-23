@@ -10,7 +10,7 @@ pub struct Testimonial {
     pub student_name: String,
     pub review: String,
     pub image_url: Option<String>,
-    pub rating: i32, // 1–5
+    pub rating: i16, // 1–5 (SMALLINT in Postgres)
     pub country: Option<String>,
     pub university: Option<String>,
     pub course: Option<String>,
@@ -29,7 +29,7 @@ pub struct CreateTestimonialRequest {
     pub student_name: String,
     pub review: String,
     pub image_url: Option<String>,
-    pub rating: i32,
+    pub rating: i16,
     pub country: Option<String>,
     pub university: Option<String>,
     pub course: Option<String>,

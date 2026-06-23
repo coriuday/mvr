@@ -236,7 +236,11 @@ cargo run
 # API at http://localhost:8080 — frontend proxies /api/* via BACKEND_URL
 ```
 
-### 5. Seed production data (one-time, against DATABASE_URL)
+### 5. Seed production data
+
+On startup, the backend **automatically upserts** universities and countries when the DB has fewer than 50 / 20 rows (see [`backend/src/db/seed.rs`](backend/src/db/seed.rs)). A redeploy backfills sparse production databases without manual steps.
+
+For a full manual re-seed or local dev:
 
 ```bash
 cd backend
@@ -244,6 +248,10 @@ cargo run --example seed_admin -- "YourSecurePassword"
 cargo run --example seed_countries
 cargo run --example seed_universities
 ```
+
+**Render env checklist** (set in Dashboard if features are silent):
+- `RESEND_API_KEY` — contact form emails (startup logs a warning if missing)
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — admin image uploads
 
 ---
 

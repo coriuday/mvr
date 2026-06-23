@@ -57,6 +57,21 @@ async fn main() -> anyhow::Result<()> {
     db::migrations::run_migrations(&db_pool, &config.database_url).await?;
     tracing::info!("✅ Migrations applied");
 
+    db::seed::seed_if_empty(&db_pool).await?;
+    tracing::info!("✅ Seed check complete");
+
+    if config.resend_api_key.is_empty() {
+        tracing::warn!(
+            "RESEND_API_KEY is not set — contact form will save leads but will not send emails"
+        );
+    }
+    if config.cloudinary_api_secret.is_none() {
+        tracing::warn!(
+            "Cloudinary is not configured — admin image uploads will return 503 until \
+             CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET are set"
+        );
+    }
+
     // ---------------------------------------------------------------------------
     // Build the Axum application router (async — connects to Redis if configured)
     // ---------------------------------------------------------------------------

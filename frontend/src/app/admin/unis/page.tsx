@@ -99,14 +99,13 @@ export default function AdminUnisPage() {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const fetchUnis = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      // Universities endpoint is public but we still send credentials
       const res = await api.get("/admin/universities?per_page=500&page=1");
-      // Handle both { data: [...] } and { universities: [...] } shapes
       const payload = res.data;
       const list: University[] = Array.isArray(payload.data)
         ? payload.data.map((u: Record<string, unknown>) => normalizeUni(u))
@@ -114,10 +113,12 @@ export default function AdminUnisPage() {
         ? payload.universities.map((u: Record<string, unknown>) => normalizeUni(u))
         : [];
       setUnis(list);
+      setLoadFailed(false);
     } catch (err: unknown) {
       const ae = err as { response?: { data?: { error?: { message?: string } } } };
       const msg = ae.response?.data?.error?.message || "Failed to load universities";
       setError(msg);
+      setLoadFailed(true);
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -158,14 +159,18 @@ export default function AdminUnisPage() {
     try {
       if (isEditing) {
         const res = await api.put(`/universities/${editingUni.id}`, payload);
-        const updated: University = res.data.data ?? { ...editingUni, ...payload, id: editingUni.id!, created_at: (editingUni as University).created_at };
-        // Bug 2B: update in-place — no full list re-fetch needed
+        const raw = res.data.data ?? { ...editingUni, ...payload, id: editingUni.id };
+        const updated = normalizeUni(raw as Record<string, unknown>);
         setUnis((prev) => prev.map((u) => u.id === editingUni.id ? updated : u));
       } else {
         const res = await api.post("/universities", payload);
-        const created: University = res.data.data ?? { id: Date.now().toString(), ...payload, created_at: new Date().toISOString() };
-        // Bug 2B: prepend to list
-        setUnis((prev) => [created, ...prev]);
+        const raw = res.data.data ?? { id: Date.now().toString(), ...payload };
+        const created = normalizeUni(raw as Record<string, unknown>);
+        if (loadFailed || unis.length === 0) {
+          await fetchUnis();
+        } else {
+          setUnis((prev) => [created, ...prev]);
+        }
       }
       toast.success(isEditing ? "University updated" : "University added");
       setIsModalOpen(false);

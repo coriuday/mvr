@@ -17,7 +17,6 @@ pub struct ContactRequest {
     pub name: String,
     pub email: String,
     pub phone: Option<String>,
-    #[allow(dead_code)]
     pub subject: Option<String>,
     pub message: String,
     pub country_interest: Option<String>,
@@ -35,7 +34,7 @@ impl ContactService {
 
     /// Process a contact form submission:
     /// 1. Validate all inputs.
-    /// 2. Persist the lead (soft-fail so email still sends on DB error).
+    /// 2. Persist the lead (fail if DB insert fails).
     /// 3. Fire admin notification + student confirmation emails (fire-and-forget).
     pub async fn handle_inquiry(&self, body: &ContactRequest) -> AppResult<()> {
         // H-1 security fix: all user-controlled fields are bounded.
@@ -50,20 +49,25 @@ impl ContactService {
         if let Some(country) = &body.country_interest {
             validate_length(country, "Country of interest", 0, 100)?;
         }
+        if let Some(subject) = &body.subject {
+            validate_length(subject, "Subject", 0, 200)?;
+        }
 
-        // Persist the lead — soft-fail so that a DB hiccup doesn't block the email
+        let message = match &body.subject {
+            Some(s) if !s.trim().is_empty() => format!("Subject: {}\n\n{}", s.trim(), body.message),
+            _ => body.message.clone(),
+        };
+
         let lead_repo = LeadRepository::new(self.db.clone());
         let create_req = CreateLeadRequest {
             name: body.name.clone(),
             email: body.email.clone(),
             phone: body.phone.clone(),
-            message: Some(body.message.clone()),
+            message: Some(message.clone()),
             country_interest: body.country_interest.clone(),
-            source: None, // defaults to LeadSource::Website inside the repository
+            source: None,
         };
-        if let Err(ref e) = lead_repo.create(&create_req).await {
-            tracing::error!("Failed to persist contact lead to DB: {:?}", e);
-        }
+        lead_repo.create(&create_req).await?;
 
         // Send emails if the Resend API key is configured
         if !self.config.resend_api_key.is_empty() {
@@ -75,13 +79,12 @@ impl ContactService {
                 &self.config.admin_email_guntur,
             );
 
-            // Both sends are fire-and-forget — network failures are silently logged
             let _ = email_svc
                 .send_lead_notification(
                     &body.name,
                     &body.email,
                     body.phone.as_deref(),
-                    Some(&body.message),
+                    Some(&message),
                     body.country_interest.as_deref(),
                 )
                 .await;

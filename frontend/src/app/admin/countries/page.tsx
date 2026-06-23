@@ -51,13 +51,16 @@ export default function AdminCountriesPage() {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [toggling, setToggling] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const fetchCountries = useCallback(async () => {
     setLoading(true);
     try {
       const res = await api.get("/admin/countries?per_page=100&page=1");
       setCountries(res.data.data ?? []);
+      setLoadFailed(false);
     } catch {
+      setLoadFailed(true);
       toast.error("Failed to load countries");
     } finally {
       setLoading(false);
@@ -94,8 +97,11 @@ export default function AdminCountriesPage() {
       } else {
         const res = await api.post("/admin/countries", payload);
         const created: Country = res.data.data ?? { id: Date.now().toString(), ...payload, created_at: new Date().toISOString() };
-        // Bug 2B: append to list (sorted by sort_order at runtime)
-        setCountries((prev) => [...prev, created]);
+        if (loadFailed || countries.length === 0) {
+          await fetchCountries();
+        } else {
+          setCountries((prev) => [...prev, created]);
+        }
         toast.success("Country created");
       }
       setIsModalOpen(false);

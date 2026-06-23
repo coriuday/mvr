@@ -89,8 +89,13 @@ export default function ContactPageClient() {
         body: JSON.stringify({ ...form, phone: form.phone || undefined, country_interest: form.country_interest || undefined }),
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to send message");
+        const data = await res.json().catch(() => ({})) as {
+          error?: { message?: string };
+          message?: string;
+        };
+        throw new Error(
+          data.error?.message || data.message || "Failed to send message"
+        );
       }
       setStatus("success");
       setForm({ name: "", email: "", phone: "", country_interest: "", subject: "", message: "" });

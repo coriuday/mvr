@@ -90,7 +90,7 @@ impl TestimonialRepository {
         .bind(
             body.get("rating")
                 .and_then(|v| v.as_i64())
-                .map(|r| r as i32),
+                .map(|r| r as i16),
         )
         .bind(body.get("country").and_then(|v| v.as_str()))
         .bind(body.get("university").and_then(|v| v.as_str()))
