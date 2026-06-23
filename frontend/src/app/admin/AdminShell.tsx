@@ -107,10 +107,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       {/* ── Sidebar ── */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-40 flex flex-col bg-[#1a2f5e] shadow-2xl",
+        "fixed inset-y-0 left-0 z-40 flex h-screen flex-col overflow-hidden bg-[#1a2f5e] shadow-2xl",
         "transition-[width,transform] duration-300 ease-in-out",
-        "lg:translate-x-0 lg:static lg:z-auto",
-        open ? "translate-x-0 w-64" : "-translate-x-full w-64",
+        "lg:sticky lg:top-0 lg:z-auto lg:shrink-0",
+        open ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+        "w-64",
         collapsed ? "lg:w-[4.5rem]" : "lg:w-64"
       )}>
 
@@ -171,15 +172,18 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                         title={label}
                         onClick={() => setOpen(false)}
                         className={cn(
-                          "flex items-center rounded-xl text-sm font-medium transition-all duration-150 group relative",
-                          collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5 gap-3" : "gap-3 px-3 py-2.5",
+                          "flex items-center rounded-xl text-sm font-medium transition-all duration-150 group relative overflow-hidden",
+                          collapsed ? "lg:justify-center lg:px-0 lg:py-2.5 lg:gap-0 px-3 py-2.5 gap-3" : "gap-3 px-3 py-2.5",
                           active
                             ? "bg-white/10 text-white"
                             : "text-white/50 hover:text-white hover:bg-white/[0.06]"
                         )}
                       >
                         {active && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#c9a84c] rounded-r-full" />
+                          <span className={cn(
+                            "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#c9a84c] rounded-r-full",
+                            collapsed && "lg:hidden"
+                          )} />
                         )}
                         <span className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all",
@@ -189,7 +193,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                         )}>
                           <Icon size={15} />
                         </span>
-                        <span className={cn("flex-1", collapsed && "lg:hidden")}>{label}</span>
+                        <span className={cn("flex-1 truncate", collapsed && "lg:hidden")}>{label}</span>
                       </Link>
                     );
                   })}
