@@ -15,6 +15,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { apiUrl } from "@/lib/api-url";
+import { CONTACT_INFO } from "@/constants/navigation";
 
 const COUNTRIES = [
   "United States", "United Kingdom", "Canada", "Australia",
@@ -27,7 +28,7 @@ const CONTACT_CARDS = [
     icon: Phone,
     title: "Call Us",
     lines: ["+91 99669 03884", "+91 85999 99331"],
-    sub: "Mon–Sat, 9am–7pm IST",
+    sub: CONTACT_INFO.officeHours.callSub,
     color: "text-blue-500",
     bg: "bg-blue-50",
     href: "tel:+919966903884",
@@ -35,11 +36,11 @@ const CONTACT_CARDS = [
   {
     icon: Mail,
     title: "Email Us",
-    lines: ["mvrconsultantshyd@gmail.com", "mvroverseasconsultancy@gmail.com"],
+    lines: [CONTACT_INFO.email],
     sub: "Reply within 4 hours",
     color: "text-emerald-600",
     bg: "bg-emerald-50",
-    href: "mailto:mvrconsultantshyd@gmail.com",
+    href: `mailto:${CONTACT_INFO.email}`,
   },
   {
     icon: MapPin,
@@ -53,8 +54,8 @@ const CONTACT_CARDS = [
   {
     icon: Clock,
     title: "Office Hours",
-    lines: ["Mon–Fri: 9am – 7pm", "Saturday: 10am – 5pm"],
-    sub: "Sunday: Closed",
+    lines: CONTACT_INFO.officeHours.lines,
+    sub: CONTACT_INFO.officeHours.sunday,
     color: "text-purple-600",
     bg: "bg-purple-50",
     href: null,

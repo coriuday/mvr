@@ -52,8 +52,8 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-bold text-[#1a2f5e] mt-8 mb-4">4. Contact Us</h2>
             <p>
               If you have questions or comments about this notice, you may email us at{" "}
-              <a href="mailto:mvrconsultantshyd@gmail.com" className="text-[#c9a84c] hover:underline">
-                mvrconsultantshyd@gmail.com
+              <a href="mailto:guntur@mvrconsultants.org" className="text-[#c9a84c] hover:underline">
+                guntur@mvrconsultants.org
               </a>.
             </p>
           </div>

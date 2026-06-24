@@ -168,7 +168,7 @@ function RegisterModal({ open, onClose, onSuccess }: { open: boolean; onClose: (
           <div className="space-y-1.5">
             <Label>Email Address *</Label>
             <div className="relative">
-              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="jane@mvrconsultants.com" required className="pl-9" />
+              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="guntur@mvrconsultants.org" required className="pl-9" />
               <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
           </div>

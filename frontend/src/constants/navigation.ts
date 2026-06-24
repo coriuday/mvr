@@ -63,9 +63,15 @@ export const CONTACT_INFO = {
   phone: "+91 99669 03884",
   phoneAlt: "+91 85999 99331",
 
-  // Primary email (Hyderabad office)
-  email: "mvrconsultantshyd@gmail.com",
-  emailGuntur: "mvroverseasconsultancy@gmail.com",
+  // Official contact email
+  email: "guntur@mvrconsultants.org",
+
+  // Office hours (displayed on contact page and footers)
+  officeHours: {
+    callSub: "Mon–Sat: 10am – 5pm IST",
+    lines: ["Mon–Sat: 10am – 5pm"],
+    sunday: "Sunday: Closed",
+  },
 
   // Website
   website: "www.mvrconsultants.com",

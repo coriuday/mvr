@@ -117,7 +117,7 @@ impl Config {
             // Resend
             resend_api_key: std::env::var("RESEND_API_KEY").unwrap_or_else(|_| "".to_string()),
             email_from: std::env::var("EMAIL_FROM")
-                .unwrap_or_else(|_| "mvrconsultantshyd@gmail.com".to_string()),
+                .unwrap_or_else(|_| "guntur@mvrconsultants.org".to_string()),
             email_from_name: std::env::var("EMAIL_FROM_NAME")
                 .unwrap_or_else(|_| "MVR Consultants".to_string()),
             // L-2 security fix: admin emails are now required — no hardcoded fallbacks
