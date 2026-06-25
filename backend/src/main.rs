@@ -62,7 +62,14 @@ async fn main() -> anyhow::Result<()> {
 
     if config.resend_api_key.is_empty() {
         tracing::warn!(
-            "RESEND_API_KEY is not set — contact form will save leads but will not send emails"
+            "RESEND_API_KEY is not set — contact form will save leads but will not send emails. \
+             Add the key on Render and verify mvrconsultants.org in Resend (see backend/.env.example)."
+        );
+    } else if config.is_production() {
+        tracing::info!(
+            from = %config.email_from,
+            to = %config.admin_email,
+            "Resend email configured for contact form notifications"
         );
     }
     if config.cloudinary_api_secret.is_none() {

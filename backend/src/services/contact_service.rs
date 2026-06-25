@@ -70,7 +70,12 @@ impl ContactService {
         lead_repo.create(&create_req).await?;
 
         // Send emails if the Resend API key is configured
-        if !self.config.resend_api_key.is_empty() {
+        if !self.config.is_email_configured() {
+            tracing::warn!(
+                lead_email = %body.email,
+                "Contact lead saved but emails skipped — RESEND_API_KEY is not set on the server"
+            );
+        } else {
             let email_svc = EmailService::new(
                 &self.config.resend_api_key,
                 &self.config.email_from,
@@ -79,7 +84,7 @@ impl ContactService {
                 &self.config.admin_email_guntur,
             );
 
-            let _ = email_svc
+            if let Err(e) = email_svc
                 .send_lead_notification(
                     &body.name,
                     &body.email,
@@ -87,11 +92,17 @@ impl ContactService {
                     Some(&message),
                     body.country_interest.as_deref(),
                 )
-                .await;
+                .await
+            {
+                tracing::error!(error = %e, "Lead notification email flow failed");
+            }
 
-            let _ = email_svc
+            if let Err(e) = email_svc
                 .send_inquiry_confirmation(&body.email, &body.name)
-                .await;
+                .await
+            {
+                tracing::error!(error = %e, "Inquiry confirmation email flow failed");
+            }
         }
 
         Ok(())

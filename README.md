@@ -250,7 +250,9 @@ cargo run --example seed_universities
 ```
 
 **Render env checklist** (set in Dashboard if features are silent):
-- `RESEND_API_KEY` — contact form emails (startup logs a warning if missing)
+- `RESEND_API_KEY` — contact form emails via [Resend](https://resend.com); verify `mvrconsultants.org` DNS in Hostinger; check `GET /health` → `email.resend_configured: true`
+- `EMAIL_FROM` — `noreply@mvrconsultants.org` (verified sender in Resend)
+- `ADMIN_EMAIL` / `ADMIN_EMAIL_GUNTUR` — `guntur@mvrconsultants.org` (Hostinger inbox receives alerts)
 - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — admin image uploads
 
 ---

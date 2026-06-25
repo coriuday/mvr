@@ -117,7 +117,7 @@ impl Config {
             // Resend
             resend_api_key: std::env::var("RESEND_API_KEY").unwrap_or_else(|_| "".to_string()),
             email_from: std::env::var("EMAIL_FROM")
-                .unwrap_or_else(|_| "guntur@mvrconsultants.org".to_string()),
+                .unwrap_or_else(|_| "noreply@mvrconsultants.org".to_string()),
             email_from_name: std::env::var("EMAIL_FROM_NAME")
                 .unwrap_or_else(|_| "MVR Consultants".to_string()),
             // L-2 security fix: admin emails are now required — no hardcoded fallbacks
@@ -157,5 +157,10 @@ impl Config {
 
     pub fn is_production(&self) -> bool {
         self.environment == "production"
+    }
+
+    /// True when Resend API key is set — contact form will attempt outbound email.
+    pub fn is_email_configured(&self) -> bool {
+        !self.resend_api_key.is_empty()
     }
 }

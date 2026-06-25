@@ -128,11 +128,20 @@ impl EmailService {
             .with_reply(lead_email);
 
         if let Err(e) = resend.emails.send(email).await {
-            tracing::error!("Failed to send lead notification to HYD: {}", e);
-            // Soft-fail — don't block lead creation if email fails
+            tracing::error!(
+                to = %self.admin_email,
+                error = %e,
+                "Failed to send lead notification"
+            );
+        } else {
+            tracing::info!(
+                to = %self.admin_email,
+                lead = %lead_email,
+                "Lead notification email sent"
+            );
         }
 
-        // Also CC Guntur office if different
+        // Also notify Guntur office if different
         if self.admin_email_guntur != self.admin_email {
             let email2 = CreateEmailBaseOptions::new(
                 &self.from,
@@ -143,7 +152,17 @@ impl EmailService {
             .with_reply(lead_email);
 
             if let Err(e) = resend.emails.send(email2).await {
-                tracing::error!("Failed to send lead notification to GNT: {}", e);
+                tracing::error!(
+                    to = %self.admin_email_guntur,
+                    error = %e,
+                    "Failed to send lead notification (secondary inbox)"
+                );
+            } else {
+                tracing::info!(
+                    to = %self.admin_email_guntur,
+                    lead = %lead_email,
+                    "Lead notification email sent (secondary inbox)"
+                );
             }
         }
 
@@ -160,7 +179,7 @@ impl EmailService {
         // Without this, a name like "<script>alert(1)</script>" would inject
         // executable HTML into the confirmation email.
         let safe_name = html_escape(student_name);
-        let safe_email_addr = html_escape(student_email);
+        let safe_contact_email = html_escape(&self.admin_email);
 
         let html = format!(
             r#"<!DOCTYPE html>
@@ -201,7 +220,7 @@ impl EmailService {
         </tr>
         <tr>
           <td style="padding:4px 0;">✉️ Email</td>
-          <td style="padding:4px 0;text-align:right;"><a href="mailto:{safe_email_addr}" style="color:#c9a84c;text-decoration:none;">{safe_email_addr}</a></td>
+          <td style="padding:4px 0;text-align:right;"><a href="mailto:{safe_contact_email}" style="color:#c9a84c;text-decoration:none;">{safe_contact_email}</a></td>
         </tr>
         <tr>
           <td style="padding:4px 0;">🌐 Web</td>
@@ -217,7 +236,7 @@ impl EmailService {
 </html>"#,
             chrono::Utc::now().year(),
             safe_name = safe_name,
-            safe_email_addr = safe_email_addr,
+            safe_contact_email = safe_contact_email,
         );
 
         let resend = Resend::new(&self.api_key);
@@ -230,11 +249,15 @@ impl EmailService {
 
         if let Err(e) = resend.emails.send(email).await {
             tracing::warn!(
-                "Failed to send inquiry confirmation to {}: {}",
-                student_email,
-                e
+                to = %student_email,
+                error = %e,
+                "Failed to send inquiry confirmation"
             );
-            // Soft-fail
+        } else {
+            tracing::info!(
+                to = %student_email,
+                "Inquiry confirmation email sent"
+            );
         }
 
         Ok(())

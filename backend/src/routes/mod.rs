@@ -84,7 +84,12 @@ pub async fn create_router(db: PgPool, config: Config) -> Router {
 
     Router::new()
         // Health check (public)
-        .route("/health", get(health_handler))
+        .route(
+            "/health",
+            get(|axum::extract::State(state): axum::extract::State<AppState>| async move {
+                health_handler(state.config.is_email_configured()).await
+            }),
+        )
         // Public API routes (no auth)
         .merge(public_routes(
             login_lim,
