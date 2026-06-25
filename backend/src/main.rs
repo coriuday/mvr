@@ -69,7 +69,8 @@ async fn main() -> anyhow::Result<()> {
         tracing::info!(
             from = %config.email_from,
             to = %config.admin_email,
-            "Resend email configured for contact form notifications"
+            "Resend email configured — verify {} in the Resend dashboard (DNS in Hostinger) or sends will fail",
+            config.email_from
         );
     }
     if config.cloudinary_api_secret.is_none() {

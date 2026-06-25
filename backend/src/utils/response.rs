@@ -76,7 +76,7 @@ impl<T: Serialize> PaginatedResponse<T> {
 /// Health check handler — intentionally minimal to avoid information disclosure.
 /// H-4 security fix: Version is NOT exposed here. Knowing the exact version
 /// helps attackers target known CVEs in that specific release.
-pub async fn health_handler(resend_configured: bool) -> impl IntoResponse {
+pub async fn health_handler(resend_configured: bool, email_from: String) -> impl IntoResponse {
     (
         StatusCode::OK,
         Json(serde_json::json!({
@@ -85,6 +85,7 @@ pub async fn health_handler(resend_configured: bool) -> impl IntoResponse {
             "service": "mvr-backend",
             "email": {
                 "resend_configured": resend_configured,
+                "from": if resend_configured { email_from } else { String::new() },
             },
         })),
     )
