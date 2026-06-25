@@ -1,7 +1,7 @@
 import Navbar from "@/components/navbar/Navbar";
 import SiteFooter from "@/components/site-footer/SiteFooter";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
-import SitePreloader from "@/components/SitePreloader";
+import Preloader from "@/components/animations/Preloader";
 
 export default function PublicLayout({
   children,
@@ -10,7 +10,7 @@ export default function PublicLayout({
 }) {
   return (
     <div className="flex flex-col min-h-screen">
-      <SitePreloader />
+      <Preloader />
       <Navbar />
       <main className="flex-1">{children}</main>
       <SiteFooter />
