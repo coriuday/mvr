@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-favicons": "node scripts/generate-favicons.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -38,7 +39,9 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "postcss": "^8.5.14",
+    "sharp": "^0.34.5",
     "shadcn": "^4.7.0",
+    "to-ico": "^1.1.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
