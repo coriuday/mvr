@@ -40,6 +40,23 @@ interface Counselor {
 
 type LeadStatus = "NEW" | "CONTACTED" | "IN_PROGRESS" | "CONVERTED" | "REJECTED";
 
+/** Normalize API status values (PascalCase legacy) to pipeline keys */
+function normalizeLead(raw: Lead): Lead {
+  const statusMap: Record<string, LeadStatus> = {
+    New: "NEW",
+    Contacted: "CONTACTED",
+    InProgress: "IN_PROGRESS",
+    Converted: "CONVERTED",
+    Rejected: "REJECTED",
+    NEW: "NEW",
+    CONTACTED: "CONTACTED",
+    IN_PROGRESS: "IN_PROGRESS",
+    CONVERTED: "CONVERTED",
+    REJECTED: "REJECTED",
+  };
+  return { ...raw, status: statusMap[raw.status] ?? "NEW" };
+}
+
 // ─── Pipeline config (single source of truth for all columns) ─────────────────
 
 export const PIPELINE: {
@@ -515,7 +532,7 @@ export default function LeadsPage() {
     setError("");
     try {
       const res = await api.get(`/leads?per_page=${PER_PAGE}&page=${p}`);
-      const incoming: Lead[] = res.data.data ?? [];
+      const incoming: Lead[] = (res.data.data ?? []).map(normalizeLead);
       const tot: number = res.data.meta?.total ?? incoming.length;
       setTotal(tot);
       setLeads((prev) => append ? [...prev, ...incoming] : incoming);
