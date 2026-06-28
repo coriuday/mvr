@@ -108,13 +108,15 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     environment: production
+    continue-on-error: true
 
     steps:
       - name: Validate deploy hook secret
         run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+          HOOK_URL="$(echo "$RENDER_DEPLOY_HOOK_URL" | tr -d '[:space:]')"
+          if [ -z "$HOOK_URL" ]; then
             echo "❌ RENDER_DEPLOY_HOOK_URL secret is not set."
-            echo "Go to: https://github.com/coriuday/mvr/settings/secrets/actions"
+            echo "GitHub → Settings → Environments → production → Environment secrets"
             echo "Add secret: RENDER_DEPLOY_HOOK_URL"
             echo "Get the URL from: Render Dashboard → mvr-backend → Settings → Deploy Hook"
             exit 1
@@ -124,12 +126,19 @@ jobs:
 
       - name: Trigger Render deploy hook
         run: |
+          HOOK_URL="$(echo "$RENDER_DEPLOY_HOOK_URL" | tr -d '[:space:]')"
           echo "Triggering Render deploy for mvr-backend..."
-          curl -fsS --retry 3 \
-            "$RENDER_DEPLOY_HOOK_URL" \
-            -o /dev/null \
-            -w "HTTP %{http_code}\n"
-          echo "✅ Render deploy triggered — monitor at https://dashboard.render.com"
+          HTTP_CODE="$(curl -sS --retry 3 -o /dev/null -w "%{http_code}" "$HOOK_URL")"
+          echo "HTTP $HTTP_CODE"
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "202" ]; then
+            echo "✅ Render deploy triggered — monitor at https://dashboard.render.com"
+          else
+            if [ "$HTTP_CODE" = "401" ]; then
+              echo "::warning::Render deploy hook returned 401 — regenerate hook in Render and update RENDER_DEPLOY_HOOK_URL in GitHub Environment 'production'"
+            fi
+            echo "::error::Render deploy hook failed (HTTP $HTTP_CODE). Backend was not redeployed; fix RENDER_DEPLOY_HOOK_URL or deploy manually from Render."
+            exit 1
+          fi
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 

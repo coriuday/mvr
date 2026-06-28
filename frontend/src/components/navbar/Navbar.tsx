@@ -145,18 +145,10 @@ export default function Navbar() {
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-[90px] lg:h-[100px]">
+          <div className="flex items-center gap-4 h-[90px] lg:h-[100px]">
             {/* Logo — clip the empty SVG whitespace above/below the logo content */}
             <Link href="/" className="flex items-center shrink-0">
-              <div
-                style={{
-                  width: "320px",
-                  height: "116px",
-                  overflow: "hidden",
-                  position: "relative",
-                  flexShrink: 0,
-                }}
-              >
+              <div className="w-[260px] xl:w-[280px] 2xl:w-[320px] h-[116px] overflow-hidden relative shrink-0">
                 {/* The SVG is 1536×1024. At width=320px → rendered height ≈ 213px.
                     Logo content sits roughly at y=40px–140px of rendered height.
                     We shift up by 38px so logo is centered in the 90px window. */}
@@ -165,30 +157,25 @@ export default function Navbar() {
                   alt="MVR Consultants — Abroad Education"
                   width={1536}
                   height={1024}
-                  style={{
-                    width: "300px",
-                    height: "200px",
-                    position: "absolute",
-                    top: "-38px",
-                    left: "0",
-                    mixBlendMode: "multiply",
-                  }}
+                  className="absolute top-[-38px] left-0 w-[244px] xl:w-[263px] 2xl:w-[300px] h-[200px]"
+                  style={{ mixBlendMode: "multiply" }}
                   unoptimized
                   priority
                 />
               </div>
             </Link>
 
-            {/* Desktop nav */}
-            <nav className="hidden xl:flex items-center gap-6">
-              {NAV_ITEMS.map((item) => (
-                <DesktopNavItem key={item.href} item={item} />
-              ))}
-            </nav>
-
-            {/* CTA + hamburger */}
-            <div className="flex items-center gap-3">
-              <Link href="/contact" className="hidden md:block">
+            {/* Desktop nav + CTA + hamburger */}
+            <div className="flex items-center gap-5 xl:gap-6 shrink-0 ml-auto">
+              <nav className="hidden xl:flex items-center gap-4 2xl:gap-5">
+                {NAV_ITEMS.map((item) => (
+                  <DesktopNavItem key={item.href} item={item} />
+                ))}
+              </nav>
+              <Link
+                href="/contact"
+                className="hidden md:block shrink-0 relative z-10 xl:pl-5 xl:border-l xl:border-[#1a2f5e]/15"
+              >
                 <Button
                   size="sm"
                   className="text-white font-bold px-5 text-xs rounded-none transition-all duration-200 tracking-widest hover:opacity-90"
@@ -197,7 +184,6 @@ export default function Navbar() {
                   APPLY NOW →
                 </Button>
               </Link>
-              {/* Hamburger */}
               <button
                 onClick={() => setMobileOpen((o) => !o)}
                 className="xl:hidden p-2 rounded-lg transition-colors"

@@ -85,3 +85,17 @@ sqlx migrate info
 - ✅ Rate limiting (Nginx layer)
 - ✅ Input validation on all endpoints
 - ✅ Non-root Docker user
+
+## Production deploy (Render)
+
+CI on `master` triggers a Render deploy hook after backend and frontend checks pass. The frontend deploys separately via Vercel.
+
+If the **Deploy Backend → Render** job fails with **HTTP 401**, the deploy hook URL in GitHub is invalid or expired (app code is fine). Rotate the secret:
+
+1. **Render:** Dashboard → **mvr-backend** → **Settings** → **Deploy Hook** → copy URL or **Regenerate**
+2. **GitHub:** Repository → **Settings** → **Environments** → **production** → **Environment secrets**
+   - Set `RENDER_DEPLOY_HOOK_URL` to the full hook URL (no quotes, no trailing spaces)
+   - This job uses the **production environment** secret, not repository-level secrets alone
+3. Re-run the failed workflow or push to `master` and confirm the deploy step prints **HTTP 200**
+
+Until the hook works, deploy manually from the Render dashboard. CI is configured so a bad hook warns on the deploy job but does not fail the whole pipeline after build checks pass.
