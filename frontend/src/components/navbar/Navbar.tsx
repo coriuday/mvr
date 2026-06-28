@@ -7,6 +7,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ALL_COUNTRIES } from "@/constants/countries";
+import { CONTACT_FORM_HREF } from "@/constants/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type NavChild = { label: string; href: string };
@@ -36,7 +37,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Visa", href: "/visa" },
   { label: "Blogs", href: "/blogs" },
   { label: "SOP Reviewer", href: "/sop-reviewer" },
-  { label: "Contact", href: "/contact" },
+  { label: "Contact", href: CONTACT_FORM_HREF },
 ];
 
 // ─── Dropdown menu ─────────────────────────────────────────────────────────────
@@ -173,7 +174,7 @@ export default function Navbar() {
                 ))}
               </nav>
               <Link
-                href="/contact"
+                href={CONTACT_FORM_HREF}
                 className="hidden md:block shrink-0 relative z-10 xl:pl-5 xl:border-l xl:border-[#1a2f5e]/15"
               >
                 <Button
@@ -263,7 +264,7 @@ export default function Navbar() {
                   </div>
                 ))}
                 <div className="pt-3 pb-2">
-                  <Link href="/contact" onClick={() => setMobileOpen(false)}>
+                  <Link href={CONTACT_FORM_HREF} onClick={() => setMobileOpen(false)}>
                     <Button
                       className="w-full text-white font-bold rounded-none"
                       style={{ background: "#1a2f5e" }}

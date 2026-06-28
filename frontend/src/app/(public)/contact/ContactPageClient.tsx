@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Variants } from "framer-motion";
 import {
@@ -79,6 +79,17 @@ export default function ContactPageClient() {
 
   const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [field]: e.target.value }));
+
+  useEffect(() => {
+    const scrollToForm = () => {
+      if (window.location.hash === "#contact-form") {
+        document.getElementById("contact-form")?.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+    scrollToForm();
+    window.addEventListener("hashchange", scrollToForm);
+    return () => window.removeEventListener("hashchange", scrollToForm);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,7 +209,7 @@ export default function ContactPageClient() {
       </section>
 
       {/* ── Form + Sidebar ── */}
-      <section className="bg-gray-50 py-16">
+      <section id="contact-form" className="bg-gray-50 py-16 scroll-mt-24 lg:scroll-mt-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-5 gap-12">
             {/* Form */}

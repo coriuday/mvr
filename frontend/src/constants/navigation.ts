@@ -2,6 +2,9 @@
 // Navigation constants
 // =============================================================================
 
+export const CONTACT_FORM_ANCHOR = "contact-form";
+export const CONTACT_FORM_HREF = `/contact#${CONTACT_FORM_ANCHOR}`;
+
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
