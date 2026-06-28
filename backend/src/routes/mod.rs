@@ -9,9 +9,7 @@ use crate::{
     config::env::Config,
     middleware::{
         auth_middleware, cors_middleware,
-        rate_limit_middleware::{
-            self, contact_limiter, leads_limiter, login_limiter, sop_limiter,
-        },
+        rate_limit_middleware::{self, contact_limiter, leads_limiter, login_limiter, sop_limiter},
     },
     utils::{response::health_handler, token_blocklist::TokenBlocklist},
 };
@@ -86,21 +84,18 @@ pub async fn create_router(db: PgPool, config: Config) -> Router {
         // Health check (public)
         .route(
             "/health",
-            get(|axum::extract::State(state): axum::extract::State<AppState>| async move {
-                health_handler(
-                    state.config.is_email_configured(),
-                    state.config.email_from.clone(),
-                )
-                .await
-            }),
+            get(
+                |axum::extract::State(state): axum::extract::State<AppState>| async move {
+                    health_handler(
+                        state.config.is_email_configured(),
+                        state.config.email_from.clone(),
+                    )
+                    .await
+                },
+            ),
         )
         // Public API routes (no auth)
-        .merge(public_routes(
-            login_lim,
-            contact_lim,
-            leads_lim,
-            sop_lim,
-        ))
+        .merge(public_routes(login_lim, contact_lim, leads_lim, sop_lim))
         // Protected routes (JWT required)
         .merge(protected_routes(state.clone()))
         // Admin routes (ADMIN role required)

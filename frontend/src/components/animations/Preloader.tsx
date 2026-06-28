@@ -96,7 +96,7 @@ export default function Preloader() {
 
             {/* Logo */}
             <motion.div
-              className="relative"
+              className="relative overflow-hidden rounded-3xl"
               initial={{ opacity: 0, scale: 0.88, filter: "blur(8px)" }}
               animate={{
                 opacity: 1,
@@ -116,7 +116,7 @@ export default function Preloader() {
                 alt="MVR Consultants"
                 width={600}
                 height={600}
-                className="w-[600px] h-[600px] max-w-[min(600px,90vw)] max-h-[min(600px,50vh)] object-contain drop-shadow-2xl relative z-10"
+                className="w-[600px] h-[600px] max-w-[min(600px,90vw)] max-h-[min(600px,50vh)] object-contain drop-shadow-2xl relative z-10 rounded-3xl"
                 animate={{ scale: [1, 1.03, 1] }}
                 transition={{ duration: 2.6, ease: "easeInOut", repeat: Infinity, delay: 0.5 }}
               />

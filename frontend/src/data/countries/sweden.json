@@ -6,12 +6,12 @@
   "description": "Sweden is a global innovator with top-ranked universities and a strong focus on sustainability and technology. Many programs are English-taught, and the country offers a high standard of living.",
   "heroImage": "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?auto=format&fit=crop&w=1920&q=80",
   "images": [
-    "/images/countries/sweden/img_00.jpg",
-    "/images/countries/sweden/img_01.jpg",
-    "/images/countries/sweden/img_02.png",
-    "/images/countries/sweden/img_03.jpg",
-    "/images/countries/sweden/img_04.jpg",
-    "/images/countries/sweden/img_05.jpg"
+    "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
   ],
   "stats": {
     "unis": "40+",

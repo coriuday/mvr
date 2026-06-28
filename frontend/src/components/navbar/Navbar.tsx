@@ -32,8 +32,10 @@ const NAV_ITEMS: NavItem[] = [
   },
   { label: "Services", href: "/services" },
   { label: "Scholarships", href: "/scholarships" },
+  { label: "Universities", href: "/universities" },
   { label: "Visa", href: "/visa" },
   { label: "Blogs", href: "/blogs" },
+  { label: "SOP Reviewer", href: "/sop-reviewer" },
   { label: "Contact", href: "/contact" },
 ];
 

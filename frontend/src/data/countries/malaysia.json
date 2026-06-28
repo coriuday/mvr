@@ -6,12 +6,12 @@
   "description": "Malaysia is Asia's most accessible study destination, offering quality education at affordable costs. Its multicultural environment and English medium instruction make international students feel at home.",
   "heroImage": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1920&q=80",
   "images": [
-    "/images/countries/malaysia/img_00.jpg",
-    "/images/countries/malaysia/img_01.jpg",
-    "/images/countries/malaysia/img_02.png",
-    "/images/countries/malaysia/img_03.png",
-    "/images/countries/malaysia/img_04.jpg",
-    "/images/countries/malaysia/img_05.jpg"
+    "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
   ],
   "stats": {
     "unis": "70+",

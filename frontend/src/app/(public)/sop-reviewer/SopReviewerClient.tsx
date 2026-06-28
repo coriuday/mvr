@@ -558,9 +558,9 @@ export default function SopReviewerClient() {
               <Sparkles size={18} className="text-[#c9a84c]" />
               AI-Rewritten Opening
             </h2>
-            <p className="text-sm text-gray-400 mb-4">Your opening paragraph scored below 65 — here's a stronger version:</p>
+            <p className="text-sm text-gray-400 mb-4">Your opening paragraph scored below 65 — here&apos;s a stronger version:</p>
             <div className="bg-white/10 rounded-2xl p-4">
-              <p className="text-white/90 text-sm leading-relaxed italic">"{result.revised_intro}"</p>
+              <p className="text-white/90 text-sm leading-relaxed italic">&ldquo;{result.revised_intro}&rdquo;</p>
             </div>
           </motion.div>
         )}

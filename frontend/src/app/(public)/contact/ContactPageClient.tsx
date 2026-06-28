@@ -15,7 +15,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { apiUrl } from "@/lib/api-url";
-import { CONTACT_INFO } from "@/constants/navigation";
+import { CONTACT_INFO, OFFICES } from "@/constants/navigation";
+import OfficeAddresses from "@/components/contact/OfficeAddresses";
 
 const COUNTRIES = [
   "United States", "United Kingdom", "Canada", "Australia",
@@ -36,21 +37,21 @@ const CONTACT_CARDS = [
   {
     icon: Mail,
     title: "Email Us",
-    lines: [CONTACT_INFO.email],
+    lines: [...CONTACT_INFO.emails],
     sub: "Reply within 4 hours",
     color: "text-emerald-600",
     bg: "bg-emerald-50",
     href: `mailto:${CONTACT_INFO.email}`,
   },
-  {
+  ...OFFICES.map((office) => ({
     icon: MapPin,
-    title: "Hyderabad Office",
-    lines: ["KPHB Colony, Hyderabad", "500 072, Telangana"],
-    sub: "H No 15-31-27, Dharma Reddy Colony",
+    title: office.city,
+    lines: office.lines.slice(0, 2),
+    sub: office.region,
     color: "text-amber-600",
     bg: "bg-amber-50",
-    href: "https://maps.google.com/?q=KPHB+Colony+Hyderabad",
-  },
+    href: `https://maps.google.com/?q=${encodeURIComponent(office.mapsQuery)}`,
+  })),
   {
     icon: Clock,
     title: "Office Hours",
@@ -152,21 +153,46 @@ export default function ContactPageClient() {
           <motion.div
             variants={cardVariants} initial="hidden" whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5"
           >
-            {CONTACT_CARDS.map((card) => (
-              <motion.div
-                key={card.title} variants={itemVariants}
-                className="rounded-2xl border border-gray-100 p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-              >
-                <div className={`w-12 h-12 ${card.bg} rounded-xl flex items-center justify-center mx-auto mb-4`}>
-                  <card.icon size={22} className={card.color} />
-                </div>
-                <h3 className="font-bold text-[#1a2f5e] mb-2">{card.title}</h3>
-                {card.lines.map((l) => <p key={l} className="text-gray-600 text-sm">{l}</p>)}
-                <p className="text-gray-400 text-xs mt-2">{card.sub}</p>
-              </motion.div>
-            ))}
+            {CONTACT_CARDS.map((card) => {
+              const isEmailCard = card.title === "Email Us";
+              const inner = (
+                <>
+                  <div className={`w-12 h-12 ${card.bg} rounded-xl flex items-center justify-center mx-auto mb-4`}>
+                    <card.icon size={22} className={card.color} />
+                  </div>
+                  <h3 className="font-bold text-[#1a2f5e] mb-2">{card.title}</h3>
+                  <div className={isEmailCard ? "flex flex-col gap-1 items-center w-full min-w-0" : undefined}>
+                    {card.lines.map((l) => (
+                      <p
+                        key={l}
+                        className={`text-gray-600 text-sm leading-relaxed ${isEmailCard ? "break-all px-1 w-full" : ""}`}
+                      >
+                        {l}
+                      </p>
+                    ))}
+                  </div>
+                  <p className="text-gray-400 text-xs mt-2">{card.sub}</p>
+                </>
+              );
+
+              return (
+                <motion.div
+                  key={card.title}
+                  variants={itemVariants}
+                  className="rounded-2xl border border-gray-100 p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 min-w-0 overflow-hidden"
+                >
+                  {card.href ? (
+                    <a href={card.href} className="block" target={card.href.startsWith("http") ? "_blank" : undefined} rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}>
+                      {inner}
+                    </a>
+                  ) : (
+                    inner
+                  )}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>
@@ -298,39 +324,36 @@ export default function ContactPageClient() {
                 </ul>
               </div>
 
+              <div className="bg-[#1a2f5e] rounded-3xl p-8 text-white">
+                <p className="text-[#c9a84c] text-xs font-semibold uppercase tracking-wider mb-2">
+                  {CONTACT_INFO.mdTitle}
+                </p>
+                <h3
+                  className="text-xl font-bold mb-4"
+                  style={{ fontFamily: "var(--font-playfair)" }}
+                >
+                  {CONTACT_INFO.md}
+                </h3>
+                <div className="space-y-2 text-sm">
+                  {CONTACT_INFO.emails.map((email) => (
+                    <a
+                      key={email}
+                      href={`mailto:${email}`}
+                      className="flex items-center gap-2 text-white/80 hover:text-white transition-colors break-all"
+                    >
+                      <Mail size={14} className="text-[#c9a84c] shrink-0" />
+                      {email}
+                    </a>
+                  ))}
+                </div>
+              </div>
+
               <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden">
                 <div className="bg-gradient-to-br from-[#1a2f5e]/5 to-[#c9a84c]/5 px-6 py-5 border-b border-gray-100">
                   <h4 className="font-bold text-[#1a2f5e] mb-4 flex items-center gap-2">
                     <MapPin size={16} className="text-[#c9a84c]" /> Our Offices
                   </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs font-semibold text-[#c9a84c] uppercase tracking-wider mb-1">🏢 Hyderabad</p>
-                      <p className="text-gray-700 text-sm leading-relaxed">
-                        H No 15-31-27, Dharma Reddy Colony,<br />
-                        Ph 1 MRO Office Lane, KPHB Colony,<br />
-                        Hyderabad – 500 072
-                      </p>
-                      <a href="https://maps.google.com/?q=KPHB+Colony+Hyderabad+500072"
-                        target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[#c9a84c] text-xs font-semibold mt-1.5 hover:underline">
-                        <MapPin size={11} /> Get Directions →
-                      </a>
-                    </div>
-                    <div className="border-t border-gray-100 pt-4">
-                      <p className="text-xs font-semibold text-[#c9a84c] uppercase tracking-wider mb-1">🏢 Guntur</p>
-                      <p className="text-gray-700 text-sm leading-relaxed">
-                        D. No: 3-28-41/5, 1st Floor,<br />
-                        4th Line Brundavan Gardens,<br />
-                        Opp. Yaganti Pearls Apartment, Guntur – 522006
-                      </p>
-                      <a href="https://maps.google.com/?q=Brundavan+Gardens+Guntur+522006"
-                        target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-[#c9a84c] text-xs font-semibold mt-1.5 hover:underline">
-                        <MapPin size={11} /> Get Directions →
-                      </a>
-                    </div>
-                  </div>
+                  <OfficeAddresses variant="card" showDirections />
                 </div>
                 <div className="px-6 py-4">
                   <p className="text-gray-500 text-xs leading-relaxed">

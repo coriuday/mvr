@@ -91,7 +91,7 @@ export default function CountriesPageClient({ cards }: Props) {
               <span className="text-[#c9a84c]">Ambition</span> Take You?
             </h1>
             <p className="text-white/70 text-lg max-w-2xl mx-auto leading-relaxed mb-10">
-              Explore the world's most sought-after study destinations. From Ivy League prestige to
+              Explore the world&apos;s most sought-after study destinations. From Ivy League prestige to
               European innovation — find the perfect country for your career.
             </p>
 
@@ -189,7 +189,7 @@ export default function CountriesPageClient({ cards }: Props) {
               className="text-3xl font-bold text-white mb-4"
               style={{ fontFamily: "var(--font-playfair)" }}
             >
-              Can't Decide Where to Go?
+              Can&apos;t Decide Where to Go?
             </h2>
             <p className="text-white/70 text-sm md:text-base leading-relaxed">
               Our expert counselors evaluate your profile, budget, and career goals to recommend the

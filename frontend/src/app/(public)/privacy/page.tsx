@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import ContactEmails from "@/components/contact/ContactEmails";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | MVR Consultants",
@@ -52,9 +53,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-bold text-[#1a2f5e] mt-8 mb-4">4. Contact Us</h2>
             <p>
               If you have questions or comments about this notice, you may email us at{" "}
-              <a href="mailto:guntur@mvrconsultants.org" className="text-[#c9a84c] hover:underline">
-                guntur@mvrconsultants.org
-              </a>.
+              <ContactEmails variant="text" />.
             </p>
           </div>
         </div>

@@ -41,17 +41,14 @@ fn access_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
 /// Builds a Set-Cookie header value for the refresh token.
 fn refresh_cookie(token: &str, max_age_secs: u64, is_prod: bool) -> String {
     let secure = if is_prod { "; Secure" } else { "" };
-    format!(
-        "mvr_refresh={token}; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age={max_age_secs}"
-    )
+    format!("mvr_refresh={token}; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age={max_age_secs}")
 }
 
 /// Set-Cookie headers that immediately expire both auth cookies (logout).
 fn clear_auth_cookies(is_prod: bool) -> [(header::HeaderName, HeaderValue); 2] {
     let secure = if is_prod { "; Secure" } else { "" };
     let access = format!("mvr_access=; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age=0");
-    let refresh =
-        format!("mvr_refresh=; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age=0");
+    let refresh = format!("mvr_refresh=; HttpOnly; SameSite=Lax{secure}; Path=/; Max-Age=0");
     [
         (header::SET_COOKIE, HeaderValue::from_str(&access).unwrap()),
         (header::SET_COOKIE, HeaderValue::from_str(&refresh).unwrap()),
@@ -139,9 +136,7 @@ pub async fn login(
     Response,
 > {
     let body = parse_json_body(body)?;
-    login_impl(state, body)
-        .await
-        .map_err(|e| e.into_response())
+    login_impl(state, body).await.map_err(|e| e.into_response())
 }
 
 async fn login_impl(

@@ -1,9 +1,14 @@
 use crate::{
     routes::AppState,
     services::sop_service::{SopReviewRequest, SopService},
-    utils::errors::AppResult,
+    utils::json_extractor::parse_json_body,
 };
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{
+    Json,
+    extract::State,
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 
 /// POST /api/sop/review
 ///
@@ -11,8 +16,9 @@ use axum::{Json, extract::State, http::StatusCode};
 /// Rate-limited by IP in the router (3-burst, 1/120s — AI calls cost money).
 pub async fn review_sop(
     State(state): State<AppState>,
-    Json(body): Json<SopReviewRequest>,
-) -> AppResult<(StatusCode, Json<serde_json::Value>)> {
+    body: Result<Json<SopReviewRequest>, axum::extract::rejection::JsonRejection>,
+) -> Result<(StatusCode, Json<serde_json::Value>), Response> {
+    let body = parse_json_body(body)?;
     let service = SopService::new(&state.config.gemini_api_key);
 
     // Fail fast with a clear message if API key not set
@@ -29,7 +35,10 @@ pub async fn review_sop(
         ));
     }
 
-    let result = service.review_sop(&body).await?;
+    let result = service
+        .review_sop(&body)
+        .await
+        .map_err(|e| e.into_response())?;
 
     Ok((
         StatusCode::OK,

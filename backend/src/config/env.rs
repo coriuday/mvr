@@ -27,6 +27,7 @@ pub struct Config {
     pub cloudinary_cloud_name: Option<String>,
     pub cloudinary_api_key: Option<String>,
     pub cloudinary_api_secret: Option<String>,
+    #[allow(dead_code)]
     pub cloudinary_upload_preset: Option<String>,
 
     // Resend Email

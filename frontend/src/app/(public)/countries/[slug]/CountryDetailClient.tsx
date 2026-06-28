@@ -20,6 +20,7 @@ import {
   CheckCircle2,
   Laptop,
   Award,
+  ZoomIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
@@ -28,6 +29,7 @@ import ScholarshipCard from "@/components/sections/ScholarshipCard";
 import VisaSection from "@/components/sections/VisaSection";
 import FAQAccordion from "@/components/sections/FAQAccordion";
 import UniversityCard from "@/components/sections/UniversityCard";
+import CountryImageLightbox from "@/components/countries/CountryImageLightbox";
 
 
 // ── Section Header ─────────────────────────────────────────────────────────
@@ -48,13 +50,14 @@ function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: 
 // ── Main Component ─────────────────────────────────────────────────────────
 
 export default function CountryDetailClient({
-  slug,
   country,
 }: {
   slug: string;
   country: CountryData | null;
 }) {
   const [activeTab, setActiveTab] = useState<"overview" | "visa" | "scholarships" | "faqs">("overview");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   if (!country) {
     notFound();
@@ -275,22 +278,32 @@ export default function CountryDetailClient({
                     <SectionHeader icon={Globe} title={`Life in ${country.name}`} />
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {country.images.slice(0, 6).map((img, i) => (
-                        <motion.div
-                          key={i}
+                        <motion.button
+                          key={img}
+                          type="button"
                           initial={{ opacity: 0, scale: 0.95 }}
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
                           transition={{ delay: i * 0.06 }}
-                          className={`relative overflow-hidden rounded-2xl ${i === 0 ? "col-span-2 sm:col-span-2 row-span-2 h-56 sm:h-72" : "h-36 sm:h-44"}`}
+                          onClick={() => {
+                            setLightboxIndex(i);
+                            setLightboxOpen(true);
+                          }}
+                          className={`group relative overflow-hidden rounded-2xl cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a84c] focus-visible:ring-offset-2 ${i === 0 ? "col-span-2 sm:col-span-2 row-span-2 h-56 sm:h-72" : "h-36 sm:h-44"}`}
+                          aria-label={`View ${country.name} photo ${i + 1}`}
                         >
                           <Image
                             src={img}
-                            alt={`${country.name} campus ${i + 1}`}
+                            alt={`${country.name} — photo ${i + 1}`}
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                            className="object-cover hover:scale-105 transition-transform duration-500"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                           />
-                        </motion.div>
+                          <span className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+                          <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100">
+                            <ZoomIn size={16} />
+                          </span>
+                        </motion.button>
                       ))}
                     </div>
                   </div>
@@ -439,6 +452,16 @@ export default function CountryDetailClient({
           </div>
         </div>
       </section>
+
+      {country.images && country.images.length > 0 && (
+        <CountryImageLightbox
+          images={country.images.slice(0, 6)}
+          countryName={country.name}
+          open={lightboxOpen}
+          initialIndex={lightboxIndex}
+          onOpenChange={setLightboxOpen}
+        />
+      )}
     </div>
   );
 }

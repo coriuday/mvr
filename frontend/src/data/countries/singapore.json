@@ -6,12 +6,12 @@
   "description": "Singapore is Asia's global financial capital with world-class universities like NUS and NTU. Its strategic location, safe environment, and strong economy make it a premium study destination.",
   "heroImage": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1920&q=80",
   "images": [
-    "/images/countries/singapore/img_00.png",
-    "/images/countries/singapore/img_01.jpg",
-    "/images/countries/singapore/img_02.jpg",
-    "/images/countries/singapore/img_03.jpg",
-    "/images/countries/singapore/img_04.jpg",
-    "/images/countries/singapore/img_05.jpg"
+    "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
   ],
   "stats": {
     "unis": "6+",

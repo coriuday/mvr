@@ -6,11 +6,12 @@
   "description": "The US is home to the world's highest number of top-ranked universities, offering unparalleled academic flexibility, research opportunities, and career prospects through OPT and STEM extensions.",
   "heroImage": "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=1920&q=80",
   "images": [
-    "/images/countries/usa/img_00.jpg",
-    "/images/countries/usa/img_01.jpg",
-    "/images/countries/usa/img_02.png",
-    "/images/countries/usa/img_03.jpg",
-    "/images/countries/usa/img_04.png"
+    "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
   ],
   "stats": {
     "unis": "4,000+",

@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { apiUrl } from "@/lib/api-url";
+import { STATIC_SCHOLARSHIPS } from "@/data/scholarships";
 
 interface Scholarship {
   id: string;
@@ -54,9 +55,15 @@ export default function ScholarshipsClient() {
     fetch(apiUrl("/api/scholarships"))
       .then((r) => r.json())
       .then((json) => {
-        if (json?.success && Array.isArray(json.data)) setScholarships(json.data);
+        if (json?.success && Array.isArray(json.data) && json.data.length > 0) {
+          setScholarships(json.data);
+        } else {
+          setScholarships(STATIC_SCHOLARSHIPS);
+        }
       })
-      .catch(() => {})
+      .catch(() => {
+        setScholarships(STATIC_SCHOLARSHIPS);
+      })
       .finally(() => setLoading(false));
   }, []);
 

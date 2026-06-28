@@ -148,7 +148,7 @@ export default function VisaPageClient() {
                 Ready to File Your Visa?
               </h2>
               <p className="text-white/70 text-lg mb-10 max-w-2xl mx-auto">
-                Don't risk your admission with a poor visa application. Let our experts guide you to a successful approval.
+                Don&apos;t risk your admission with a poor visa application. Let our experts guide you to a successful approval.
               </p>
               <Link href="/contact">
                 <Button className="bg-[#c9a84c] hover:bg-[#a07a2e] text-white h-14 px-10 rounded-full font-bold text-lg shadow-lg shadow-[#c9a84c]/20 transition-all hover:scale-105">

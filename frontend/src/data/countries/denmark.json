@@ -6,11 +6,12 @@
   "description": "Denmark is a global leader in design, sustainability, and innovation. Its universities consistently rank among Europe's best, and the country boasts a high quality of life with a strong focus on work-life balance.",
   "heroImage": "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?auto=format&fit=crop&w=1920&q=80",
   "images": [
-    "/images/countries/denmark/img_00.jpg",
-    "/images/countries/denmark/img_01.jpg",
-    "/images/countries/denmark/img_02.jpg",
-    "/images/countries/denmark/img_03.jpg",
-    "/images/countries/denmark/img_04.jpg"
+    "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1491557345352-5929e343eb89?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
   ],
   "stats": {
     "unis": "40+",

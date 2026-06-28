@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::{
     models::newsletter::{NewsletterSubscriber, SubscribeOutcome, SubscribeRequest},
     repositories::newsletter_repository::NewsletterRepository,

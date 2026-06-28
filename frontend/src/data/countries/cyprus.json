@@ -6,12 +6,12 @@
   "description": "A sunny Mediterranean island nation, Cyprus offers affordable, quality education in an English-friendly environment. Its EU membership and strategic location make it an attractive base for students.",
   "heroImage": "https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&w=1920&q=80",
   "images": [
-    "/images/countries/cyprus/img_00.jpg",
-    "/images/countries/cyprus/img_01.jpg",
-    "/images/countries/cyprus/img_02.jpg",
-    "/images/countries/cyprus/img_03.jpg",
-    "/images/countries/cyprus/img_04.jpg",
-    "/images/countries/cyprus/img_05.jpg"
+    "https://images.unsplash.com/photo-1541976590-713941681591?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1543783207-ec64e4d95325?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1565008576549-57569a49371d?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
   ],
   "stats": {
     "unis": "10+",

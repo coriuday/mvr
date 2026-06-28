@@ -243,6 +243,7 @@ pub async fn rate_limit_leads(
 
 /// Rate limiter for POST /api/newsletter/subscribe
 /// Config: 2 attempts burst, then 1 per 60 seconds.
+#[allow(dead_code)]
 pub async fn rate_limit_newsletter(
     State(limiter): State<RateLimiterState>,
     request: Request,
@@ -302,6 +303,7 @@ pub fn leads_limiter(trust_proxy: bool) -> RateLimiterState {
 }
 
 /// Returns a limiter sized for newsletter subscribe: 2-burst, 1 req / 60 s per IP.
+#[allow(dead_code)]
 pub fn newsletter_limiter(trust_proxy: bool) -> RateLimiterState {
     RateLimiterState::new(2, 1.0 / 60.0, trust_proxy)
 }

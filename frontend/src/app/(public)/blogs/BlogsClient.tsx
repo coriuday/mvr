@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BookOpen, Clock, Tag, ArrowRight } from "lucide-react";
 import { apiUrl } from "@/lib/api-url";
+import { getStaticBlogList } from "@/data/blogs";
 
 interface BlogPost {
   id: string;
@@ -43,18 +44,20 @@ export default function BlogsClient() {
         const res = await fetch(apiUrl("/api/blogs"));
         const data = await res.json();
         if (data.success) {
-          // Add default fields if they are missing from backend model
-          const mappedPosts = data.data.map((p: any) => ({
+          type ApiBlog = BlogPost & { read_time?: string };
+          const mappedPosts = (data.data as ApiBlog[]).map((p) => ({
             ...p,
-            // Use API-provided values; fall back only if genuinely absent
             category: p.category || "Country Guide",
-            readTime: p.read_time || "5 min read",
+            readTime: p.read_time || p.readTime || "5 min read",
             tags: p.tags || [],
           }));
-          setPosts(mappedPosts);
+          setPosts(mappedPosts.length > 0 ? mappedPosts : getStaticBlogList());
+        } else {
+          setPosts(getStaticBlogList());
         }
       } catch (error) {
         console.error("Failed to fetch blogs:", error);
+        setPosts(getStaticBlogList());
       } finally {
         setLoading(false);
       }

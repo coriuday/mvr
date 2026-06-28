@@ -25,6 +25,7 @@ pub fn json_rejection_to_response(rejection: JsonRejection) -> Response {
 }
 
 /// Unwraps a JSON extractor result or returns a JSON error response.
+#[allow(clippy::result_large_err)]
 pub fn parse_json_body<T>(result: Result<Json<T>, JsonRejection>) -> Result<T, Response> {
     result
         .map(|Json(value)| value)

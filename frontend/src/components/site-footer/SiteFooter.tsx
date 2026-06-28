@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, ArrowRight } from "lucide-react";
+import { Phone, ArrowRight } from "lucide-react";
 import { SiFacebook, SiInstagram, SiYoutube } from "@icons-pack/react-simple-icons";
 import {
   CONTACT_INFO,
@@ -12,6 +12,8 @@ import {
   FOOTER_STUDY_ABROAD,
   FOOTER_SUPPORT,
 } from "@/constants/navigation";
+import OfficeAddresses from "@/components/contact/OfficeAddresses";
+import ContactEmails from "@/components/contact/ContactEmails";
 
 // LinkedIn not in this simple-icons version — inline SVG matches official shape
 function IconLinkedin() {
@@ -282,21 +284,11 @@ export default function SiteFooter() {
                 </span>
                 {CONTACT_INFO.phone}
               </a>
-              <a
-                href={`mailto:${CONTACT_INFO.email}`}
-                className="flex items-center gap-3 text-white/60 hover:text-white text-sm transition-colors group"
-              >
-                <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#c9a84c] transition-colors">
-                  <Mail size={13} />
-                </span>
-                {CONTACT_INFO.email}
-              </a>
-              <div className="flex items-start gap-3 text-white/60 text-sm">
-                <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <MapPin size={13} />
-                </span>
-                {CONTACT_INFO.address}
-              </div>
+              <ContactEmails variant="inline" />
+              <p className="text-white/50 text-xs pl-11">
+                {CONTACT_INFO.mdTitle}: {CONTACT_INFO.md}
+              </p>
+              <OfficeAddresses variant="footer" />
             </div>
           </div>
 

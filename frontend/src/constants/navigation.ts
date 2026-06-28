@@ -58,13 +58,51 @@ export const FOOTER_SUPPORT = [
   { label: "Sitemap", href: "/sitemap.xml" },
 ];
 
+export const OFFICES = [
+  {
+    id: "address1",
+    region: "Telangana (Head Office)",
+    city: "Hyderabad",
+    lines: [
+      "H.No. 15-31-27,",
+      "Dharma Reddy Colony,",
+      "Ph. 1 MRO Office Lane,",
+      "KPHB Colony,",
+      "Hyderabad – 500072",
+    ],
+    mapsQuery:
+      "H.No. 15-31-27, Dharma Reddy Colony, KPHB Colony, Hyderabad 500072",
+  },
+  {
+    id: "address2",
+    region: "Andhra Pradesh (Head Office)",
+    city: "Guntur",
+    lines: [
+      "D.No. 3-28-41/5, 1st Floor,",
+      "4th Lane, Brundavan Gardens,",
+      "Y5 Mall Beside Road,",
+      "Guntur – 522006",
+    ],
+    mapsQuery:
+      "D.No. 3-28-41/5, 4th Lane Brundavan Gardens, Guntur 522006",
+  },
+] as const;
+
+const officeAddressLine = (lines: readonly string[]) =>
+  lines.join(" ").replace(/\s+/g, " ").trim();
+
 export const CONTACT_INFO = {
   // Primary phones (both numbers from visiting cards)
   phone: "+91 99669 03884",
   phoneAlt: "+91 85999 99331",
 
-  // Official contact email
+  // Official contact emails
   email: "guntur@mvrconsultants.org",
+  emailAlt: "mvroverseasconsultancy@gmail.com",
+  emails: [
+    "guntur@mvrconsultants.org",
+    "mvroverseasconsultancy@gmail.com",
+  ] as const,
 
   // Office hours (displayed on contact page and footers)
   officeHours: {
@@ -74,16 +112,17 @@ export const CONTACT_INFO = {
   },
 
   // Website
-  website: "www.mvrconsultants.com",
+  website: "www.mvrconsultants.org",
 
   // Managing Director
   md: "Mukkapati Veeranjaneyulu",
+  mdTitle: "Managing Director",
 
-  // Hyderabad office
-  address: "H No 15-31-27, Dharma Reddy Colony, Ph 1 MRO Office Lane, KPHB Colony, Hyderabad – 500 072",
+  // Hyderabad office (derived from OFFICES)
+  address: officeAddressLine(OFFICES[0].lines),
 
-  // Guntur office
-  addressGuntur: "D. No: 3-28-41/5, 1st Floor, 4th Line Brundavan Gardens, Y5 Mall Beside Road, Opp. Yaganti Pearls Apartment, Guntur – 522006",
+  // Guntur office (derived from OFFICES)
+  addressGuntur: officeAddressLine(OFFICES[1].lines),
 
   socialMedia: {
     facebook:  "https://facebook.com/mvrconsultants",

@@ -1,0 +1,86 @@
+{
+  "blogs": [
+    {
+      "slug": "how-to-get-uk-student-visa",
+      "title": "How to Get a UK Student Visa in 2025 — Complete Guide",
+      "category": "Visa Guide",
+      "read_time": "8 min read",
+      "excerpt": "Everything you need to know about the UK Student visa application process.",
+      "tags": ["UK", "Visa", "Student Visa"],
+      "content": "## What is the UK Student Visa?\n\nThe UK Student visa (previously Tier 4) allows you to study at a licensed UK institution for courses longer than 6 months.\n\n## Key Requirements\n\n1. Confirmation of Acceptance for Studies (CAS)\n2. English language proficiency — IELTS Academic 6.0+\n3. Financial evidence for tuition and living costs\n4. Genuine Student requirement\n\n## How MVR Helps\n\nOur visa specialists have achieved a 98% UK Student visa success rate. [Book a free consultation](/contact)."
+    },
+    {
+      "slug": "top-scholarships-indian-students",
+      "title": "Top 10 Scholarships for Indian Students Studying Abroad in 2025",
+      "category": "Scholarships",
+      "read_time": "6 min read",
+      "excerpt": "A curated list of the best fully-funded scholarships for Indian students.",
+      "tags": ["Scholarships", "Funding", "India"],
+      "content": "## Why Scholarships Matter\n\nScholarships can significantly reduce the cost of studying abroad.\n\n## Top Opportunities\n\n1. Chevening Scholarship (UK) — full funding\n2. Fulbright-Nehru Fellowship (USA) — full funding\n3. DAAD Scholarship (Germany) — monthly stipend\n4. Australia Awards — full tuition + living costs\n5. Commonwealth Scholarship (UK) — Masters funding\n\n[Contact our scholarship team](/contact) for personalised guidance."
+    }
+  ],
+  "scholarships": [
+    {
+      "name": "Chevening Scholarship",
+      "scholarship_type": "GOVERNMENT",
+      "country": "United Kingdom",
+      "amount": "Full tuition + living allowance",
+      "deadline": "2025-11-15",
+      "description": "UK government's global scholarship programme for future leaders.",
+      "eligibility": "2+ years work experience; undergraduate degree",
+      "apply_url": "https://www.chevening.org",
+      "is_featured": true
+    },
+    {
+      "name": "Fulbright-Nehru Fellowship",
+      "scholarship_type": "GOVERNMENT",
+      "country": "United States",
+      "amount": "Full funding",
+      "deadline": "2025-07-15",
+      "description": "Premier US-India exchange programme for Master's and PhD study.",
+      "eligibility": "Indian citizens; strong academic record",
+      "apply_url": "https://www.usief.org.in",
+      "is_featured": true
+    },
+    {
+      "name": "DAAD Scholarship",
+      "scholarship_type": "GOVERNMENT",
+      "country": "Germany",
+      "amount": "€850–1,200/month",
+      "deadline": "2025-10-01",
+      "description": "German Academic Exchange Service funding.",
+      "eligibility": "Bachelor's degree; relevant field of study",
+      "apply_url": "https://www.daad.de",
+      "is_featured": true
+    }
+  ],
+  "testimonials": [
+    {
+      "student_name": "Priya Sharma",
+      "review": "MVR Consultants made my dream of studying in the US a reality. From shortlisting universities to visa approval — seamless experience!",
+      "rating": 5,
+      "country": "USA",
+      "university": "University of Southern California",
+      "course": "MS Computer Science",
+      "is_featured": true
+    },
+    {
+      "student_name": "Rahul Verma",
+      "review": "The scholarship guidance from MVR saved me over $15,000. I can't recommend them enough for Canadian study abroad planning.",
+      "rating": 5,
+      "country": "Canada",
+      "university": "University of Toronto",
+      "course": "MBA Finance",
+      "is_featured": true
+    },
+    {
+      "student_name": "Ananya Pillai",
+      "review": "Exceptional visa support — 98% success rate is no joke. My student visa was approved in just 3 weeks with their help.",
+      "rating": 5,
+      "country": "UK",
+      "university": "University of Edinburgh",
+      "course": "MSc Data Science",
+      "is_featured": true
+    }
+  ]
+}

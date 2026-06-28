@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { GraduationCap, ArrowRight, ShieldCheck, Star, Sparkles, HeartPulse, Scale, Lightbulb, Compass, Award, ExternalLink } from "lucide-react";
+import { GraduationCap, ArrowRight, ShieldCheck, Star, Sparkles, HeartPulse, Scale, Lightbulb, Compass, Award, ExternalLink, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UNIVERSITIES, type University } from "@/data/universities";
@@ -11,7 +11,7 @@ type Props = { params: Promise<{ slug: string }> };
 interface DisciplineGuide {
   title: string;
   disciplineId: string; // matches program code
-  icon: any;
+  icon: LucideIcon;
   overview: string;
   averageSalary: string;
   roles: string[];

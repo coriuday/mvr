@@ -6,12 +6,12 @@
   "description": "Hungary is a top destination for medical education in Europe, with WHO-recognized programs and affordable fees. Its vibrant capital Budapest offers a rich student life.",
   "heroImage": "https://images.unsplash.com/photo-1551867633-194f125bddfa?auto=format&fit=crop&w=1920&q=80",
   "images": [
-    "/images/countries/hungary/img_00.jpg",
-    "/images/countries/hungary/img_01.jpg",
-    "/images/countries/hungary/img_02.jpg",
-    "/images/countries/hungary/img_03.png",
-    "/images/countries/hungary/img_04.png",
-    "/images/countries/hungary/img_05.png"
+    "https://images.unsplash.com/photo-1551867633-194f125bddfa?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1491557345352-5929e343eb89?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80"
   ],
   "stats": {
     "unis": "65+",

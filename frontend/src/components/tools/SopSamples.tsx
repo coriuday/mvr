@@ -172,7 +172,7 @@ export default function SopSamples() {
             <h3 className="font-bold text-[#1a2f5e] mb-0.5">{sample.program}</h3>
             <p className="text-gray-400 text-xs mb-3">{sample.university}</p>
             <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 italic">
-              "{sample.preview}…"
+              &ldquo;{sample.preview}&hellip;&rdquo;
             </p>
             <div className="flex items-center gap-3 mt-4">
               <button

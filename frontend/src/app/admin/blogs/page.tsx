@@ -61,8 +61,6 @@ export default function AdminBlogsPage() {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => { fetchBlogs(); }, []);
-
   const fetchBlogs = async () => {
     setLoading(true);
     try {
@@ -74,6 +72,8 @@ export default function AdminBlogsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => { fetchBlogs(); }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
