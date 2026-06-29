@@ -112,40 +112,6 @@ pub async fn require_counselor_or_admin(
     Ok(next.run(request).await)
 }
 
-/// Requires the user to be ADMIN or EDITOR (content management).
-pub async fn require_editor_or_admin(
-    State(state): State<crate::routes::AppState>,
-    mut request: Request,
-    next: Next,
-) -> Result<Response, AppError> {
-    let token = extract_token(request.headers())?;
-    let claims = verify_access_token(&token, &state.config)?;
-
-    if state.blocklist.is_blocked(&claims.jti).await {
-        return Err(AppError::Unauthorized(
-            "Session has been invalidated. Please log in again.".to_string(),
-        ));
-    }
-
-    if claims.role != "ADMIN" && claims.role != "EDITOR" {
-        return Err(AppError::Forbidden(
-            "Editor or Administrator access required".to_string(),
-        ));
-    }
-
-    let user_id = Uuid::parse_str(&claims.sub)
-        .map_err(|_| AppError::Unauthorized("Invalid token".to_string()))?;
-    let repo = AuthRepository::new(state.db.clone());
-    if !repo.is_user_active(user_id).await? {
-        return Err(AppError::Unauthorized(
-            "Account is deactivated. Contact admin.".to_string(),
-        ));
-    }
-
-    request.extensions_mut().insert(claims);
-    Ok(next.run(request).await)
-}
-
 /// Requires a valid pending TOTP cookie from the password login step.
 pub async fn require_pending_totp(
     State(state): State<crate::routes::AppState>,

@@ -82,7 +82,7 @@ sqlx migrate info
 - ✅ Argon2id password hashing
 - ✅ JWT with separate access/refresh secrets
 - ✅ ADMIN-only Google Authenticator (TOTP) 2FA
-- ✅ Role-based access control (ADMIN, EDITOR, COUNSELOR)
+- ✅ Role-based access control (ADMIN, COUNSELOR)
 - ✅ Staff deactivate takes effect on next API call
 - ✅ CORS configured per environment
 - ✅ Rate limiting (Nginx layer)
@@ -116,9 +116,8 @@ If **Set up Google Authenticator** fails with a 503 message, the key is missing 
 
 | Role | Panel access |
 |------|----------------|
-| ADMIN | Full panel + user management + security |
+| ADMIN | Full panel (management, content, security) |
 | COUNSELOR | Leads only |
-| EDITOR | Content (blogs, universities, scholarships, testimonials, countries) |
 
 Create staff on **Staff Users**, assign role, deactivate to revoke access immediately.
 

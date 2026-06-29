@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   UserPlus, Shield, Mail, Key, ChevronDown,
-  RefreshCw, Loader2, Users, AlertCircle, Trash2,
+  RefreshCw, Loader2, Users, AlertCircle, Trash2, Eye, EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 import api from "@/services/api";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
@@ -30,14 +31,38 @@ interface StaffUser {
 
 const ROLE_COLORS: Record<StaffRole, string> = {
   ADMIN:    "bg-[#1a2f5e] text-white",
-  EDITOR:   "bg-purple-100 text-purple-700",
   COUNSELOR:"bg-amber-100 text-[#c9a84c]",
 };
 
-const ROLES: StaffRole[] = ["ADMIN", "EDITOR", "COUNSELOR"];
+const ROLES: StaffRole[] = ["ADMIN", "COUNSELOR"];
 
 function userStaffRole(user: StaffUser): StaffRole {
   return normalizeRole(user.role) ?? "COUNSELOR";
+}
+
+function deleteErrorMessage(err: unknown): string {
+  if (isAxiosError(err)) {
+    const msg = err.response?.data?.error?.message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+    const status = err.response?.status;
+    if (status === 404 || status === 405) {
+      return "Remove user is not available — redeploy the backend on Render";
+    }
+    if (status) return `Failed to remove user (${status})`;
+  }
+  return "Failed to remove user";
+}
+
+async function removeStaffUser(userId: string): Promise<void> {
+  try {
+    await api.delete(`/admin/users/${userId}`);
+  } catch (err) {
+    if (isAxiosError(err) && (err.response?.status === 404 || err.response?.status === 405)) {
+      await api.post(`/admin/users/${userId}/delete`);
+      return;
+    }
+    throw err;
+  }
 }
 
 // ── Active status toggle ──────────────────────────────────────────────────────
@@ -120,7 +145,7 @@ function RoleDropdown({ user, onChanged }: { user: StaffUser; onChanged: () => v
                 onClick={() => applyRole(r)}
                 className={`w-full text-left px-3 py-2 text-xs font-semibold transition-colors hover:bg-gray-50 ${r === currentRole ? "text-[#1a2f5e]" : "text-gray-600"}`}
               >
-                <span className={`inline-block w-2 h-2 rounded-full mr-2 ${r === "ADMIN" ? "bg-[#1a2f5e]" : r === "EDITOR" ? "bg-purple-400" : "bg-[#c9a84c]"}`} />
+                <span className={`inline-block w-2 h-2 rounded-full mr-2 ${r === "ADMIN" ? "bg-[#1a2f5e]" : "bg-[#c9a84c]"}`} />
                 {formatRoleLabel(r)}
               </button>
             ))}
@@ -148,13 +173,12 @@ function DeleteUserButton({
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await api.delete(`/admin/users/${user.id}`);
+      await removeStaffUser(user.id);
       toast.success(`${user.name} removed`);
       setConfirmOpen(false);
       onDeleted();
     } catch (err: unknown) {
-      const ae = err as { response?: { data?: { error?: { message?: string } } } };
-      toast.error(ae.response?.data?.error?.message || "Failed to remove user");
+      toast.error(deleteErrorMessage(err));
     } finally {
       setDeleting(false);
     }
@@ -206,6 +230,7 @@ function DeleteUserButton({
 function RegisterModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "COUNSELOR" });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,6 +240,7 @@ function RegisterModal({ open, onClose, onSuccess }: { open: boolean; onClose: (
       await api.post("/auth/register", { name: form.name, email: form.email, password: form.password });
       toast.success(`Account created for ${form.name}. They start as Counselor — upgrade role below.`);
       setForm({ name: "", email: "", password: "", role: "COUNSELOR" });
+      setShowPassword(false);
       onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -226,7 +252,7 @@ function RegisterModal({ open, onClose, onSuccess }: { open: boolean; onClose: (
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!loading) { if (!o) onClose(); } }}>
+    <Dialog open={open} onOpenChange={(o) => { if (!loading) { if (!o) { setShowPassword(false); onClose(); } } }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-[#1a2f5e] flex items-center gap-2">
@@ -259,8 +285,24 @@ function RegisterModal({ open, onClose, onSuccess }: { open: boolean; onClose: (
           <div className="space-y-1.5">
             <Label>Password *</Label>
             <div className="relative">
-              <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Min 8 characters" required className="pl-9" />
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder="Min 8 characters"
+                required
+                className="pl-9 pr-12"
+              />
               <Key size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <button
+                type="button"
+                onClick={() => setShowPassword((p) => !p)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-1.5 top-1/2 z-10 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
             <p className="text-xs text-gray-400">Provide a temporary strong password. Ask the user to change it after first login.</p>
           </div>
@@ -313,9 +355,35 @@ function UserSkeleton() {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function AdminUsersPage() {
   const { user: currentUser } = useAdminAuth();
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(currentUser?.id);
   const [users, setUsers] = useState<StaffUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [registerOpen, setRegisterOpen] = useState(false);
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      setCurrentUserId(currentUser.id);
+      return;
+    }
+    api.get("/auth/me")
+      .then((res) => {
+        const data = res.data?.data ?? res.data;
+        if (data?.id) {
+          setCurrentUserId(data.id as string);
+          try {
+            const cached = localStorage.getItem("mvr_user");
+            if (cached) {
+              const parsed = JSON.parse(cached) as Record<string, unknown>;
+              parsed.id = data.id;
+              localStorage.setItem("mvr_user", JSON.stringify(parsed));
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+      })
+      .catch(() => {});
+  }, [currentUser?.id]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -333,7 +401,6 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#1a2f5e]">Staff Users</h1>
@@ -355,14 +422,13 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {ROLES.map((role) => {
           const count = users.filter((u) => normalizeRole(u.role) === role).length;
           return (
             <div key={role} className="bg-white rounded-xl border border-gray-100 p-5 flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${role === "ADMIN" ? "bg-[#1a2f5e]/10" : role === "EDITOR" ? "bg-purple-50" : "bg-amber-50"}`}>
-                <Users size={18} className={role === "ADMIN" ? "text-[#1a2f5e]" : role === "EDITOR" ? "text-purple-500" : "text-[#c9a84c]"} />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${role === "ADMIN" ? "bg-[#1a2f5e]/10" : "bg-amber-50"}`}>
+                <Users size={18} className={role === "ADMIN" ? "text-[#1a2f5e]" : "text-[#c9a84c]"} />
               </div>
               <div>
                 <p className="text-2xl font-bold text-[#1a2f5e]">{count}</p>
@@ -373,7 +439,6 @@ export default function AdminUsersPage() {
         })}
       </div>
 
-      {/* Users Table */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
           <h2 className="font-bold text-[#1a2f5e] text-sm">Team Members ({users.length})</h2>
@@ -426,7 +491,7 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4">
                       <DeleteUserButton
                         user={user}
-                        currentUserId={currentUser?.id}
+                        currentUserId={currentUserId}
                         onDeleted={fetchUsers}
                       />
                     </td>

@@ -7,7 +7,6 @@ use uuid::Uuid;
 #[sqlx(type_name = "user_role", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum UserRole {
     Admin,
-    Editor,
     Counselor,
 }
 

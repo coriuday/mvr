@@ -224,7 +224,7 @@ fn counselor_admin_routes(state: AppState) -> Router<AppState> {
         ))
 }
 
-/// Content management — ADMIN or EDITOR
+/// Content management — ADMIN only
 fn editor_admin_routes(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/api/admin/blogs", get(blogs::admin_get_all_blogs))
@@ -272,7 +272,7 @@ fn editor_admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/admin/cloudinary/sign", post(cloudinary::sign_upload))
         .layer(middleware::from_fn_with_state(
             state,
-            auth_middleware::require_editor_or_admin,
+            auth_middleware::require_admin,
         ))
 }
 
@@ -285,6 +285,7 @@ fn strict_admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/admin/users/:id/role", put(users::update_role))
         .route("/api/admin/users/:id/active", patch(users::update_active))
         .route("/api/admin/users/:id", delete(users::delete_user))
+        .route("/api/admin/users/:id/delete", post(users::delete_user))
         .route("/api/auth/totp/setup", post(auth::totp_setup))
         .route("/api/auth/totp/confirm", post(auth::totp_confirm))
         .route("/api/auth/totp/disable", post(auth::totp_disable))

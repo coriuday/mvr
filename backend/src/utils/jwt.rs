@@ -9,7 +9,7 @@ use uuid::Uuid;
 pub struct Claims {
     pub sub: String,        // User ID (UUID as string)
     pub email: String,      // User email
-    pub role: String,       // User role: ADMIN, EDITOR, COUNSELOR
+    pub role: String,       // User role: ADMIN, COUNSELOR
     pub exp: i64,           // Expiry timestamp (Unix)
     pub iat: i64,           // Issued at (Unix)
     pub jti: String,        // JWT ID (for revocation)
