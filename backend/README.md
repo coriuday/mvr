@@ -104,9 +104,13 @@ Upserts `guntur@mvrconsultants.org` as `ADMIN`.
 ### Admin 2FA setup
 
 1. Set `TOTP_ENCRYPTION_KEY` on Render (generate once: `openssl rand -base64 32`)
-2. Deploy backend so migration `20250619000001_add_totp_to_users` runs
-3. Log in at `/admin/login` → open **Security** → scan QR in Google Authenticator → confirm code
-4. Future ADMIN logins require password + 6-digit code
+2. **Save and manually redeploy** the backend service — Render does not always reload new env vars until redeploy
+3. Deploy backend so migration `20250619000001_add_totp_to_users` runs (check logs for `Migrations applied`)
+4. Deploy frontend (Vercel) so `/admin/security` and the 2FA login step are live
+5. Log in at `/admin/login` → open **Security** → scan QR in Google Authenticator → confirm code
+6. Future ADMIN logins require password + 6-digit code
+
+If **Set up Google Authenticator** fails with a 503 message, the key is missing or invalid on the running backend instance — fix env and redeploy again.
 
 ### Staff access
 

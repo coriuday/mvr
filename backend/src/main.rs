@@ -92,10 +92,10 @@ async fn main() -> anyhow::Result<()> {
         .parse()
         .expect("Invalid host/port configuration");
 
+    let listener = tokio::net::TcpListener::bind(addr).await?;
     tracing::info!("🌐 Server listening on http://{}", addr);
     tracing::info!("📋 Health check: http://{}/health", addr);
 
-    let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),

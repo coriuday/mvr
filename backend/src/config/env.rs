@@ -159,7 +159,8 @@ impl Config {
 
             totp_encryption_key: std::env::var("TOTP_ENCRYPTION_KEY")
                 .ok()
-                .filter(|s| !s.trim().is_empty()),
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty()),
         })
     }
 

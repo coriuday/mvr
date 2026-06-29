@@ -15,7 +15,10 @@ const TOTP_STEP: u64 = 30;
 
 /// Generates a new base32 TOTP secret suitable for Google Authenticator.
 pub fn generate_secret() -> String {
-    Secret::generate_secret().to_string()
+    match Secret::generate_secret().to_encoded() {
+        Secret::Encoded(s) => s,
+        Secret::Raw(_) => unreachable!("to_encoded always returns Encoded"),
+    }
 }
 
 /// Builds an otpauth:// URL for QR code scanning.
@@ -87,16 +90,20 @@ pub fn decrypt_secret(encrypted: &str, config: &Config) -> AppResult<String> {
 
 fn decode_encryption_key(config: &Config) -> AppResult<[u8; 32]> {
     let key_b64 = config.totp_encryption_key.as_ref().ok_or_else(|| {
-        AppError::InternalServerError(
-            "TOTP_ENCRYPTION_KEY is not configured on the server".to_string(),
+        AppError::ServiceUnavailable(
+            "Two-factor setup is not available: TOTP_ENCRYPTION_KEY is not configured on the server"
+                .to_string(),
         )
     })?;
-    let bytes = B64
-        .decode(key_b64)
-        .map_err(|e| AppError::InternalServerError(format!("TOTP key decode failed: {e}")))?;
+    let bytes = B64.decode(key_b64).map_err(|e| {
+        AppError::ServiceUnavailable(format!(
+            "Two-factor setup is not available: TOTP_ENCRYPTION_KEY is invalid base64 ({e})"
+        ))
+    })?;
     if bytes.len() != 32 {
-        return Err(AppError::InternalServerError(
-            "TOTP_ENCRYPTION_KEY must decode to exactly 32 bytes".to_string(),
+        return Err(AppError::ServiceUnavailable(
+            "Two-factor setup is not available: TOTP_ENCRYPTION_KEY must decode to exactly 32 bytes"
+                .to_string(),
         ));
     }
     let mut key = [0u8; 32];
