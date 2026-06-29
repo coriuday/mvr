@@ -30,7 +30,7 @@ const SERVICES: Record<string, {
     icon: <Users size={28} className="text-[#c9a84c]" />,
     badge: "Career Guidance",
     stats: [
-      { value: "10K+", label: "Students Counselled" },
+      { value: "4K+", label: "Students Counselled" },
       { value: "95%", label: "Goal-Match Rate" },
       { value: "50+", label: "Career Paths Mapped" },
     ],
@@ -128,7 +128,7 @@ const SERVICES: Record<string, {
     icon: <FileText size={28} className="text-[#c9a84c]" />,
     badge: "Application Management",
     stats: [
-      { value: "50K+", label: "Applications Processed" },
+      { value: "5K+", label: "Applications Processed" },
       { value: "94%", label: "Offer Success Rate" },
       { value: "3+", label: "Offers Per Student Avg" },
     ],
@@ -375,7 +375,7 @@ const SERVICES: Record<string, {
     icon: <Home size={28} className="text-[#c9a84c]" />,
     badge: "Student Housing",
     stats: [
-      { value: "10K+", label: "Placements Made" },
+      { value: "4K+", label: "Placements Made" },
       { value: "50+", label: "Cities Covered" },
       { value: "98%", label: "Satisfaction Rate" },
     ],

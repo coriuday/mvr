@@ -84,7 +84,7 @@ export default function VisaPageClient() {
               className="rounded-3xl shadow-2xl border border-white/10 w-full h-auto object-cover"
             />
             <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-6 shadow-xl border border-gray-100">
-              <p className="text-[#1a2f5e] font-bold text-3xl mb-1">50K+</p>
+              <p className="text-[#1a2f5e] font-bold text-3xl mb-1">5K+</p>
               <p className="text-gray-500 text-sm font-medium">Visas Approved</p>
             </div>
           </motion.div>

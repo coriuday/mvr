@@ -25,7 +25,7 @@ const STATS = [
         <path d="M34 30c0-5.523-3.582-10-8-10"/>
       </svg>
     ),
-    value: "50K+",
+    value: "5K+",
     label: "Students Placed",
   },
   {

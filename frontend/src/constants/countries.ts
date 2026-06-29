@@ -84,9 +84,9 @@ export const ALL_COUNTRIES = [
 
 export const STATS = [
   { value: "10",  label: "Years of Excellence",   icon: "Award" },
-  { value: "50K+", label: "Students Guided",        icon: "Users" },
+  { value: "5K+", label: "Students Guided",        icon: "Users" },
   { value: "98%",  label: "Visa Success Rate",      icon: "CheckCircle" },
   { value: "100+", label: "Partner Universities",   icon: "Building" },
   { value: "26+",  label: "Countries",              icon: "Globe" },
-  { value: "4.9/5",label: "Google Rating",          icon: "Star" },
+  { value: "4.7/5",label: "Google Rating",          icon: "Star" },
 ] as const;

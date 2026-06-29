@@ -146,7 +146,7 @@ export default function ContactPageClient() {
             className="flex flex-wrap justify-center gap-8 mt-12"
           >
             {[
-              { icon: GraduationCap, label: "50K+ Students Guided" },
+              { icon: GraduationCap, label: "5K+ Students Guided" },
               { icon: Globe, label: "25+ Countries" },
               { icon: Award, label: "98% Visa Success" },
             ].map(({ icon: Icon, label }) => (
