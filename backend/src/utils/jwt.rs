@@ -26,6 +26,18 @@ pub struct RefreshClaims {
     pub token_type: String,
 }
 
+/// Short-lived JWT issued after password login when ADMIN 2FA is required.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PendingTotpClaims {
+    pub sub: String,
+    pub jti: String,
+    pub exp: i64,
+    pub iat: i64,
+    pub token_type: String,
+}
+
+const PENDING_TOTP_MINUTES: i64 = 10;
+
 /// Generates a JWT access token for the given user
 pub fn generate_access_token(
     user_id: &Uuid,
@@ -121,6 +133,54 @@ pub fn verify_refresh_token(token: &str, config: &Config) -> Result<RefreshClaim
 
     // M-3: Prevent access tokens from being used as refresh tokens
     if claims.token_type != "refresh" {
+        return Err(AppError::Unauthorized("Invalid token type".to_string()));
+    }
+
+    Ok(claims)
+}
+
+/// Generates a short-lived pending TOTP token (cookie-only, not usable as access token).
+pub fn generate_pending_totp_token(user_id: &Uuid, config: &Config) -> Result<String, AppError> {
+    let now = Utc::now();
+    let expiry = now + Duration::minutes(PENDING_TOTP_MINUTES);
+
+    let claims = PendingTotpClaims {
+        sub: user_id.to_string(),
+        jti: Uuid::new_v4().to_string(),
+        exp: expiry.timestamp(),
+        iat: now.timestamp(),
+        token_type: "pending_totp".to_string(),
+    };
+
+    encode(
+        &Header::default(),
+        &claims,
+        &EncodingKey::from_secret(config.jwt_secret.as_bytes()),
+    )
+    .map_err(|e| AppError::InternalServerError(format!("Pending token generation failed: {e}")))
+}
+
+/// Validates a pending TOTP JWT from the login step.
+pub fn verify_pending_totp_token(
+    token: &str,
+    config: &Config,
+) -> Result<PendingTotpClaims, AppError> {
+    let validation = Validation::new(Algorithm::HS256);
+
+    let claims = decode::<PendingTotpClaims>(
+        token,
+        &DecodingKey::from_secret(config.jwt_secret.as_bytes()),
+        &validation,
+    )
+    .map(|data| data.claims)
+    .map_err(|e| match e.kind() {
+        jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
+            AppError::Unauthorized("2FA session expired. Please log in again.".to_string())
+        }
+        _ => AppError::Unauthorized("Invalid 2FA session".to_string()),
+    })?;
+
+    if claims.token_type != "pending_totp" {
         return Err(AppError::Unauthorized("Invalid token type".to_string()));
     }
 

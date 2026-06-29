@@ -95,11 +95,20 @@ pub async fn create_router(db: PgPool, config: Config) -> Router {
             ),
         )
         // Public API routes (no auth)
-        .merge(public_routes(login_lim, contact_lim, leads_lim, sop_lim))
+        .merge(public_routes(
+            login_lim.clone(),
+            contact_lim,
+            leads_lim,
+            sop_lim,
+        ))
+        .merge(pending_totp_routes(state.clone(), login_lim))
         // Protected routes (JWT required)
         .merge(protected_routes(state.clone()))
-        // Admin routes (ADMIN role required)
-        .merge(admin_routes(state.clone()))
+        // Role-based staff routes
+        .merge(counselor_admin_routes(state.clone()))
+        .merge(editor_admin_routes(state.clone()))
+        // Strict ADMIN routes
+        .merge(strict_admin_routes(state.clone()))
         // Global middleware
         .layer(TraceLayer::new_for_http())
         .layer(cors)
@@ -172,34 +181,56 @@ fn public_routes(
         )
 }
 
+/// POST /api/auth/totp/verify — pending cookie + rate limit (no full JWT yet).
+fn pending_totp_routes(
+    state: AppState,
+    login_lim: rate_limit_middleware::RateLimiterState,
+) -> Router<AppState> {
+    Router::new()
+        .route("/api/auth/totp/verify", post(auth::totp_verify))
+        .route_layer(middleware::from_fn_with_state(
+            state,
+            auth_middleware::require_pending_totp,
+        ))
+        .route_layer(middleware::from_fn_with_state(
+            login_lim,
+            rate_limit_middleware::rate_limit_login,
+        ))
+}
+
 /// Protected routes — require valid JWT (any role)
 fn protected_routes(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/api/auth/logout", post(auth::logout))
         .route("/api/auth/me", get(auth::get_me))
+        .route("/api/auth/totp/status", get(auth::totp_status))
         .layer(middleware::from_fn_with_state(
             state,
             auth_middleware::require_auth,
         ))
 }
 
-/// Admin routes — require ADMIN role
-fn admin_routes(state: AppState) -> Router<AppState> {
+/// Leads access — ADMIN or COUNSELOR
+fn counselor_admin_routes(state: AppState) -> Router<AppState> {
     Router::new()
-        // Admin stats
-        .route("/api/admin/stats", get(admin::get_stats))
         .route("/api/admin/recent-leads", get(admin::get_recent_leads))
-        // Lead management
         .route("/api/leads", get(leads::get_all_leads))
         .route("/api/leads/:id", get(leads::get_lead))
         .route("/api/leads/:id", put(leads::update_lead))
         .route("/api/leads/:id", delete(leads::delete_lead))
-        // Blog management (admin uses UUID; public GET uses slug — separate routes)
+        .layer(middleware::from_fn_with_state(
+            state,
+            auth_middleware::require_counselor_or_admin,
+        ))
+}
+
+/// Content management — ADMIN or EDITOR
+fn editor_admin_routes(state: AppState) -> Router<AppState> {
+    Router::new()
         .route("/api/admin/blogs", get(blogs::admin_get_all_blogs))
         .route("/api/blogs", post(blogs::create_blog))
         .route("/api/blogs/:id", put(blogs::update_blog))
         .route("/api/blogs/:id", delete(blogs::delete_blog))
-        // University management
         .route(
             "/api/admin/universities",
             get(universities::admin_list_universities),
@@ -213,7 +244,6 @@ fn admin_routes(state: AppState) -> Router<AppState> {
             "/api/universities/:id",
             delete(universities::delete_university),
         )
-        // Scholarship management
         .route("/api/scholarships", post(scholarships::create_scholarship))
         .route(
             "/api/scholarships/:id",
@@ -223,7 +253,6 @@ fn admin_routes(state: AppState) -> Router<AppState> {
             "/api/scholarships/:id",
             delete(scholarships::delete_scholarship),
         )
-        // Testimonial management
         .route("/api/testimonials", post(testimonials::create_testimonial))
         .route(
             "/api/testimonials/:id",
@@ -233,7 +262,6 @@ fn admin_routes(state: AppState) -> Router<AppState> {
             "/api/testimonials/:id",
             delete(testimonials::delete_testimonial),
         )
-        // Country management (admin)
         .route("/api/admin/countries", get(countries::admin_list_countries))
         .route("/api/admin/countries", post(countries::create_country))
         .route("/api/admin/countries/:id", put(countries::update_country))
@@ -241,13 +269,24 @@ fn admin_routes(state: AppState) -> Router<AppState> {
             "/api/admin/countries/:id",
             delete(countries::delete_country),
         )
-        // User registration (admin creates accounts) + role management (C-2 fix)
+        .route("/api/admin/cloudinary/sign", post(cloudinary::sign_upload))
+        .layer(middleware::from_fn_with_state(
+            state,
+            auth_middleware::require_editor_or_admin,
+        ))
+}
+
+/// Strict ADMIN-only routes (dashboard stats, user management, 2FA setup)
+fn strict_admin_routes(state: AppState) -> Router<AppState> {
+    Router::new()
+        .route("/api/admin/stats", get(admin::get_stats))
         .route("/api/auth/register", post(auth::register))
         .route("/api/admin/users", get(users::list_users))
         .route("/api/admin/users/:id/role", put(users::update_role))
         .route("/api/admin/users/:id/active", patch(users::update_active))
-        // Cloudinary signed upload (H-2 fix: no more unsigned preset abuse)
-        .route("/api/admin/cloudinary/sign", post(cloudinary::sign_upload))
+        .route("/api/auth/totp/setup", post(auth::totp_setup))
+        .route("/api/auth/totp/confirm", post(auth::totp_confirm))
+        .route("/api/auth/totp/disable", post(auth::totp_disable))
         .layer(middleware::from_fn_with_state(
             state,
             auth_middleware::require_admin,

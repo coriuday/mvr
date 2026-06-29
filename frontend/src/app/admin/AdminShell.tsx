@@ -5,12 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, FileText,
   Award, LogOut, Menu, X, LayoutGrid, Globe,
-  MessageSquare, BookOpen, PanelLeftClose, PanelLeft,
+  MessageSquare, BookOpen, PanelLeftClose, PanelLeft, Shield,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { AdminErrorBoundary } from "@/components/admin/AdminErrorBoundary";
+import { canAccessPath } from "@/lib/admin-permissions";
 
 const SIDEBAR_COLLAPSED_KEY = "mvr_admin_sidebar_collapsed";
 
@@ -18,6 +19,7 @@ const NAV = [
   { href: "/admin",              icon: LayoutDashboard, label: "Dashboard",    group: "main"    },
   { href: "/admin/leads",        icon: LayoutGrid,      label: "Leads",        group: "main"    },
   { href: "/admin/users",        icon: Users,           label: "Staff Users",  group: "main"    },
+  { href: "/admin/security",     icon: Shield,          label: "Security",     group: "main"    },
   { href: "/admin/blogs",        icon: FileText,        label: "Blog Posts",   group: "content" },
   { href: "/admin/unis",         icon: GraduationCap,   label: "Universities", group: "content" },
   { href: "/admin/scholarships", icon: Award,           label: "Scholarships", group: "content" },
@@ -37,6 +39,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+
+  const visibleNav = useMemo(
+    () => (user ? NAV.filter((item) => canAccessPath(user.role, item.href)) : []),
+    [user]
+  );
 
   useEffect(() => {
     try {
@@ -150,7 +157,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           collapsed ? "lg:px-2 px-3" : "px-3"
         )}>
           {GROUPS.map((group) => {
-            const items = NAV.filter((n) => n.group === group.key);
+            const items = visibleNav.filter((n) => n.group === group.key);
+            if (items.length === 0) return null;
             return (
               <div key={group.key}>
                 <p className={cn(

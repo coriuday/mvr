@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 import {
   ArrowLeft,
@@ -100,7 +101,7 @@ export default function CountryDetailClient({
             </Link>
 
             <div className="flex items-center gap-3 mb-3">
-              <span className="text-5xl">{country.flag}</span>
+              <CountryFlag slug={country.slug} size="lg" className="rounded-sm" />
               <span className="bg-[#c9a84c]/20 text-[#c9a84c] text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
                 {country.tagline}
               </span>

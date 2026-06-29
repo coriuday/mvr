@@ -17,11 +17,13 @@
     "axios": "^1.16.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "flag-icons": "^7.5.0",
     "framer-motion": "^12.38.0",
     "isomorphic-dompurify": "^3.17.0",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",
     "next-themes": "^0.4.6",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.75.0",
@@ -33,16 +35,17 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "postcss": "^8.5.14",
-    "sharp": "^0.34.5",
     "shadcn": "^4.7.0",
-    "to-ico": "^1.1.5",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
+    "to-ico": "^1.1.5",
     "typescript": "^5"
   }
 }

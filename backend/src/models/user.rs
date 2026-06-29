@@ -20,12 +20,16 @@ pub struct User {
     pub password_hash: String,
     pub role: UserRole,
     pub is_active: bool,
+    pub totp_secret_encrypted: Option<String>,
+    pub totp_enabled: bool,
+    #[allow(dead_code)]
+    pub totp_verified_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     #[allow(dead_code)]
     pub updated_at: DateTime<Utc>,
 }
 
-/// Safe user response (no password)
+/// Safe user response (no password, no TOTP secret)
 #[derive(Debug, Clone, Serialize, FromRow)]
 pub struct UserResponse {
     pub id: Uuid,
@@ -33,6 +37,7 @@ pub struct UserResponse {
     pub email: String,
     pub role: UserRole,
     pub is_active: bool,
+    pub totp_enabled: bool,
     pub created_at: DateTime<Utc>,
 }
 
@@ -44,6 +49,7 @@ impl From<User> for UserResponse {
             email: user.email,
             role: user.role,
             is_active: user.is_active,
+            totp_enabled: user.totp_enabled,
             created_at: user.created_at,
         }
     }
@@ -80,6 +86,22 @@ pub struct UpdateUserRoleRequest {
 #[derive(Debug, Deserialize)]
 pub struct UpdateUserActiveRequest {
     pub is_active: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TotpVerifyRequest {
+    pub code: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TotpConfirmRequest {
+    pub code: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TotpDisableRequest {
+    pub password: String,
+    pub code: String,
 }
 
 // AuthTokenResponse has been intentionally removed (security fix C-2).

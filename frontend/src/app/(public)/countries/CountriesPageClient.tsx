@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import type { CountryCard } from "./page";
 import { resolveHeroImage } from "@/lib/country-images";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -112,7 +113,7 @@ export default function CountriesPageClient({ cards }: Props) {
                             {country.tagline}
                           </p>
                           <div className="flex items-center gap-2">
-                            <span className="text-xl">{country.flag}</span>
+                            <CountryFlag slug={country.slug} size="md" className="rounded-sm" />
                             <h3
                               className="text-white text-lg font-bold"
                               style={{ fontFamily: "var(--font-playfair)" }}

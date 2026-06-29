@@ -48,6 +48,9 @@ pub struct Config {
     /// When true, trust X-Forwarded-For / X-Real-IP from the reverse proxy (Render, nginx).
     /// Defaults to true in production where the app is only reachable via the platform LB.
     pub trust_proxy_headers: bool,
+
+    /// AES-256 key (base64, 32 bytes) for encrypting TOTP secrets at rest.
+    pub totp_encryption_key: Option<String>,
 }
 
 impl Config {
@@ -153,6 +156,10 @@ impl Config {
                         .map(|e| e == "production")
                         .unwrap_or(false)
                 }),
+
+            totp_encryption_key: std::env::var("TOTP_ENCRYPTION_KEY")
+                .ok()
+                .filter(|s| !s.trim().is_empty()),
         })
     }
 

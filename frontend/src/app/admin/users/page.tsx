@@ -253,7 +253,9 @@ export default function AdminUsersPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#1a2f5e]">Staff Users</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Manage team members, roles, and access.</p>
+          <p className="text-gray-500 text-sm mt-0.5">
+            Manage team members, roles, and access. Deactivate a user to revoke access immediately.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button

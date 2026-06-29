@@ -60,6 +60,7 @@ See [`.env.example`](.env.example) for the full list.
 | `DATABASE_URL` | ✅ | Supabase PostgreSQL URL |
 | `JWT_SECRET` | ✅ | JWT signing secret |
 | `JWT_REFRESH_SECRET` | ✅ | Refresh token secret |
+| `TOTP_ENCRYPTION_KEY` | ⚠️ | Base64 32-byte key for encrypting admin 2FA secrets (`openssl rand -base64 32`) |
 | `RESEND_API_KEY` | ⚠️ | Email sending |
 | `CLOUDINARY_*` | ⚠️ | Image uploads |
 
@@ -80,11 +81,42 @@ sqlx migrate info
 
 - ✅ Argon2id password hashing
 - ✅ JWT with separate access/refresh secrets
+- ✅ ADMIN-only Google Authenticator (TOTP) 2FA
 - ✅ Role-based access control (ADMIN, EDITOR, COUNSELOR)
+- ✅ Staff deactivate takes effect on next API call
 - ✅ CORS configured per environment
 - ✅ Rate limiting (Nginx layer)
 - ✅ Input validation on all endpoints
 - ✅ Non-root Docker user
+
+### Admin password reset
+
+Never commit passwords. Reset the primary admin via CLI:
+
+```bash
+cd backend
+# DATABASE_URL must target the correct database (local or production)
+cargo run --example seed_admin -- "YourNewPassword"
+```
+
+Upserts `guntur@mvrconsultants.org` as `ADMIN`.
+
+### Admin 2FA setup
+
+1. Set `TOTP_ENCRYPTION_KEY` on Render (generate once: `openssl rand -base64 32`)
+2. Deploy backend so migration `20250619000001_add_totp_to_users` runs
+3. Log in at `/admin/login` → open **Security** → scan QR in Google Authenticator → confirm code
+4. Future ADMIN logins require password + 6-digit code
+
+### Staff access
+
+| Role | Panel access |
+|------|----------------|
+| ADMIN | Full panel + user management + security |
+| COUNSELOR | Leads only |
+| EDITOR | Content (blogs, universities, scholarships, testimonials, countries) |
+
+Create staff on **Staff Users**, assign role, deactivate to revoke access immediately.
 
 ## Production deploy (Render)
 

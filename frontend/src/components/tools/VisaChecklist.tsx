@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Printer, CheckCircle2, Circle, ChevronDown } from "lucide-react";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 type Country =
   | "UK" | "USA" | "Canada" | "Australia" | "Germany" | "France"
@@ -437,8 +438,6 @@ export default function VisaChecklist() {
   const done = items.filter((i) => checked.has(i.id)).length;
   const pct = Math.round((done / total) * 100);
 
-  const currentEntry = COUNTRY_LIST.find((c) => c.key === country)!;
-
   const toggle = (id: string) => {
     setChecked((prev) => {
       const next = new Set(prev);
@@ -474,8 +473,9 @@ export default function VisaChecklist() {
           onClick={() => setDropdownOpen((o) => !o)}
           className="w-full flex items-center justify-between px-5 py-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-[#c9a84c] transition-colors text-left"
         >
-          <span className="font-semibold text-[#1a2f5e] text-sm">
-            {currentEntry.flag} {country} — Visa Checklist
+          <span className="font-semibold text-[#1a2f5e] text-sm flex items-center gap-2">
+            <CountryFlag label={country} size="sm" />
+            {country} — Visa Checklist
           </span>
           <ChevronDown
             size={16}
@@ -495,7 +495,7 @@ export default function VisaChecklist() {
                       : "text-gray-600 hover:bg-[#fef9f0] hover:text-[#1a2f5e]"
                   }`}
                 >
-                  <span>{c.flag}</span>
+                  <CountryFlag label={c.key} size="sm" />
                   <span className="truncate">{c.key}</span>
                 </button>
               ))}
@@ -508,7 +508,10 @@ export default function VisaChecklist() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h3 className="font-bold text-[#1a2f5e]">{currentEntry.flag} {country} Student Visa Checklist</h3>
+            <h3 className="font-bold text-[#1a2f5e] flex items-center gap-2">
+              <CountryFlag label={country} size="sm" />
+              {country} Student Visa Checklist
+            </h3>
             <p className="text-gray-400 text-sm">{done} of {total} documents ready</p>
           </div>
           <div className="flex items-center gap-3">

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { GraduationCap, Star, ArrowRight, ShieldCheck, BadgeEuro, Clock, CalendarRange, Award, Info, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchUniversityBySlug, fetchUniversitySlugs } from "@/lib/universities-api";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { COUNTRY_LABEL_TO_SLUG } from "@/constants/country-iso";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -42,7 +44,9 @@ export default async function UniversityDetailPage({ params }: Props) {
     notFound();
   }
 
-  const countrySlug = uni.country.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const countrySlug =
+    COUNTRY_LABEL_TO_SLUG[uni.country.trim().toLowerCase()] ??
+    uni.country.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24">
@@ -79,7 +83,12 @@ export default async function UniversityDetailPage({ params }: Props) {
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shrink-0 lg:w-72 text-center backdrop-blur-sm">
-              <span className="text-5xl mb-2 block">{uni.flag}</span>
+              <CountryFlag
+                label={uni.country}
+                fallback={uni.flag}
+                size="lg"
+                className="mb-2 mx-auto rounded-sm"
+              />
               <p className="text-sm text-white/50 uppercase tracking-widest font-semibold">Destination</p>
               <p className="text-xl font-bold text-white mt-1">{uni.country}</p>
               <div className="mt-4 pt-4 border-t border-white/10">

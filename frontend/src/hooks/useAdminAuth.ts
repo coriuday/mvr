@@ -3,11 +3,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { apiUrl } from "@/lib/api-url";
+import {
+  canAccessPath,
+  getDefaultAdminPath,
+  isStaffRole,
+  shouldForceSecuritySetup,
+} from "@/lib/admin-permissions";
 
 interface AuthUser {
   name: string;
   email: string;
   role: string;
+  totp_enabled?: boolean;
 }
 
 interface AuthState {
@@ -33,11 +40,6 @@ function readCachedUser(): AuthUser | null {
   } catch {
     return null;
   }
-}
-
-function isAdminRole(role: unknown): boolean {
-  const normalized = String(role ?? "").toUpperCase();
-  return normalized === "ADMIN";
 }
 
 function isTransientError(err: unknown): boolean {
@@ -97,6 +99,24 @@ async function clearSession(): Promise<void> {
   }
 }
 
+function applyStaffRouteGuards(
+  router: ReturnType<typeof useRouter>,
+  pathname: string,
+  serverUser: AuthUser
+): void {
+  if (
+    shouldForceSecuritySetup(serverUser.role, serverUser.totp_enabled) &&
+    pathname !== "/admin/security"
+  ) {
+    router.replace("/admin/security");
+    return;
+  }
+
+  if (!canAccessPath(serverUser.role, pathname)) {
+    router.replace(getDefaultAdminPath(serverUser.role));
+  }
+}
+
 export function useAdminAuth(): AuthState & {
   logout: () => void;
   retryVerify: () => void;
@@ -144,7 +164,7 @@ export function useAdminAuth(): AuthState & {
           const data = await res.json();
           const serverUser: AuthUser = data?.data ?? data?.user ?? data;
 
-          if (!serverUser?.role || !isAdminRole(serverUser.role)) {
+          if (!serverUser?.role || !isStaffRole(serverUser.role)) {
             localStorage.removeItem("mvr_user");
             await clearSession();
             setAuth({
@@ -166,6 +186,7 @@ export function useAdminAuth(): AuthState & {
             isVerifying: false,
             verifyError: false,
           });
+          applyStaffRouteGuards(router, pathname, serverUser);
           return;
         }
 
@@ -184,7 +205,7 @@ export function useAdminAuth(): AuthState & {
             if (retryRes.ok) {
               const data = await retryRes.json();
               const serverUser: AuthUser = data?.data ?? data?.user ?? data;
-              if (serverUser?.role && isAdminRole(serverUser.role)) {
+              if (serverUser?.role && isStaffRole(serverUser.role)) {
                 localStorage.setItem("mvr_user", JSON.stringify(serverUser));
                 setAuth({
                   token: null,
@@ -193,6 +214,7 @@ export function useAdminAuth(): AuthState & {
                   isVerifying: false,
                   verifyError: false,
                 });
+                applyStaffRouteGuards(router, pathname, serverUser);
                 return;
               }
             }
@@ -211,7 +233,7 @@ export function useAdminAuth(): AuthState & {
       } catch {
         if (cancelled) return;
 
-        if (cached && isAdminRole(cached.role)) {
+        if (cached && isStaffRole(cached.role)) {
           setAuth({
             token: null,
             user: cached,
@@ -238,7 +260,7 @@ export function useAdminAuth(): AuthState & {
     return () => {
       cancelled = true;
     };
-  }, [router, onLoginPage, verifyTick]);
+  }, [router, onLoginPage, verifyTick, pathname]);
 
   const logout = async () => {
     try {

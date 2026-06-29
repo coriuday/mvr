@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ALL_COUNTRIES } from "@/constants/countries";
 import { CONTACT_FORM_HREF } from "@/constants/navigation";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type NavChild = { label: string; href: string };
+type NavChild = { label: string; href: string; countrySlug?: string };
 type NavItem = {
   label: string;
   href: string;
@@ -19,7 +20,7 @@ type NavItem = {
 
 // ─── Build nav items (Study Abroad children derived from ALL_COUNTRIES) ────────
 const STUDY_ABROAD_CHILDREN: NavChild[] = [
-  ...ALL_COUNTRIES.map((c) => ({ label: `${c.flag} ${c.name}`, href: c.href })),
+  ...ALL_COUNTRIES.map((c) => ({ label: c.name, href: c.href, countrySlug: c.id })),
   { label: "🌍 All Destinations", href: "/countries" },
 ];
 
@@ -59,9 +60,16 @@ function NavDropdown({
             key={child.href}
             href={child.href}
             onClick={onClose}
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-[#fdf8ef] hover:text-[#1a2f5e] font-medium transition-colors duration-150 border-b border-gray-50 last:border-0"
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-[#fdf8ef] hover:text-[#1a2f5e] font-medium transition-colors duration-150 border-b border-gray-50 last:border-0"
           >
-            {child.label}
+            {child.countrySlug ? (
+              <>
+                <CountryFlag slug={child.countrySlug} size="sm" />
+                <span>{child.label}</span>
+              </>
+            ) : (
+              child.label
+            )}
           </Link>
         ))}
       </div>
@@ -242,10 +250,17 @@ export default function Navbar() {
                                   key={child.href}
                                   href={child.href}
                                   onClick={() => setMobileOpen(false)}
-                                  className="block py-2 text-sm font-medium hover:text-[#c9a84c]"
+                                  className="flex items-center gap-2 py-2 text-sm font-medium hover:text-[#c9a84c]"
                                   style={{ color: "#4b5563" }}
                                 >
-                                  {child.label}
+                                  {child.countrySlug ? (
+                                    <>
+                                      <CountryFlag slug={child.countrySlug} size="sm" />
+                                      <span>{child.label}</span>
+                                    </>
+                                  ) : (
+                                    child.label
+                                  )}
                                 </Link>
                               ))}
                             </div>

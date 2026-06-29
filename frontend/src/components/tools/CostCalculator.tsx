@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 type Level = "ug" | "pg";
 
@@ -135,13 +136,14 @@ export default function CostCalculator() {
               <button
                 key={key}
                 onClick={() => setCountry(key)}
-                className={`py-2.5 px-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
+                className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
                   country === key
                     ? "border-[#c9a84c] bg-[#fef9f0] text-[#1a2f5e]"
                     : "border-gray-200 bg-white text-gray-500 hover:border-[#c9a84c]/50"
                 }`}
               >
-                {val.flag} {key}
+                <CountryFlag label={key} size="sm" className="mr-1" />
+                {key}
               </button>
             ))}
           </div>
