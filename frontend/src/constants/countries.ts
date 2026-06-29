@@ -88,5 +88,5 @@ export const STATS = [
   { value: "98%",  label: "Visa Success Rate",      icon: "CheckCircle" },
   { value: "100+", label: "Partner Universities",   icon: "Building" },
   { value: "26+",  label: "Countries",              icon: "Globe" },
-  { value: "4.7/5",label: "Google Rating",          icon: "Star" },
+  { value: "4.7/5.0", label: "Google Rating",          icon: "Star" },
 ] as const;

@@ -65,7 +65,7 @@ const STATS = [
         <path d="M20 4l4.5 9 9.5 1.4-6.9 6.7 1.6 9.5L20 26l-8.7 4.6 1.6-9.5L6 14.4l9.5-1.4L20 4z"/>
       </svg>
     ),
-    value: "4.9/5",
+    value: "4.7/5.0",
     label: "Google Rating",
   },
 ];
@@ -77,13 +77,18 @@ function Counter({ target }: { target: string }) {
 
   useEffect(() => {
     if (!inView) return;
-    
+
     let isMounted = true;
-    const num = parseFloat(target.replace(/[^0-9.]/g, ""));
-    const suffix = target.replace(/[0-9.]/g, "");
+    const ratingMatch = target.match(/^([\d.]+)\/([\d.]+)$/);
+    const num = ratingMatch
+      ? parseFloat(ratingMatch[1])
+      : parseFloat(target.replace(/[^0-9.]/g, ""));
+    const suffix = ratingMatch
+      ? `/${ratingMatch[2]}`
+      : target.replace(/[0-9.]/g, "");
     let start = 0;
     const step = num / 50;
-    
+
     const timer = setInterval(() => {
       if (!isMounted) return;
       start = Math.min(start + step, num);
@@ -94,7 +99,7 @@ function Counter({ target }: { target: string }) {
         clearInterval(timer);
       }
     }, 30);
-    
+
     return () => {
       isMounted = false;
       clearInterval(timer);
