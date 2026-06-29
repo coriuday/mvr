@@ -326,7 +326,7 @@ const SERVICES: Record<string, {
     icon: <Plane size={28} className="text-[#c9a84c]" />,
     badge: "Pre-Departure",
     stats: [
-      { value: "1K+", label: "Students Supported" },
+      { value: "5K+", label: "Students Supported" },
       { value: "48hr", label: "Support Response Time" },
       { value: "26", label: "Destination Countries" },
     ],
