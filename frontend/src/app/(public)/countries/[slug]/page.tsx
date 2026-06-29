@@ -4,6 +4,7 @@ import CountryDetailClient from "./CountryDetailClient";
 import type { CountryData } from "@/types/country";
 import { ALL_COUNTRIES } from "@/constants/countries";
 import { apiUrl } from "@/lib/api-url";
+import { normalizeCountryImages } from "@/lib/country-images";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -36,8 +37,9 @@ async function fetchCountryFromStatic(slug: string): Promise<CountryData | null>
 
 async function getCountryData(slug: string): Promise<CountryData | null> {
   const fromApi = await fetchCountryFromApi(slug);
-  if (fromApi) return fromApi;
-  return fetchCountryFromStatic(slug);
+  const country = fromApi ?? (await fetchCountryFromStatic(slug));
+  if (!country) return null;
+  return normalizeCountryImages(slug, country);
 }
 
 async function fetchCountrySlugs(): Promise<string[]> {

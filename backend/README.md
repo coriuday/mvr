@@ -99,3 +99,17 @@ If the **Deploy Backend → Render** job fails with **HTTP 401**, the deploy hoo
 3. Re-run the failed workflow or push to `master` and confirm the deploy step prints **HTTP 200**
 
 Until the hook works, deploy manually from the Render dashboard. CI is configured so a bad hook warns on the deploy job but does not fail the whole pipeline after build checks pass.
+
+## Country data seeding
+
+Country pages load image URLs from Postgres. If gallery images 404 on production (paths like `/images/countries/...`), the DB was seeded from an older snapshot. Re-seed from the frontend JSON files (Unsplash URLs):
+
+```bash
+# Set DATABASE_URL to production Postgres, then:
+cd backend
+cargo run --example seed_countries
+```
+
+This reads `frontend/src/data/countries/*.json` and upserts `image_url`, `hero_image_url`, and `content.images`. After gallery updates locally, run `node frontend/scripts/sync-gallery-images.mjs` first, then re-seed.
+
+Startup auto-seed (`seed_if_empty` in `src/db/seed.rs`) uses the same frontend JSON path when the countries table has fewer than 20 rows.

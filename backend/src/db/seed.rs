@@ -1,7 +1,8 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::Deserialize;
 use serde_json::Value;
 use sqlx::PgPool;
+use std::path::PathBuf;
 
 /// Seed universities and countries when tables are sparse (partial production DB).
 pub async fn seed_if_empty(pool: &PgPool) -> Result<()> {
@@ -124,17 +125,39 @@ async fn seed_universities(pool: &PgPool) -> Result<usize> {
 }
 
 async fn seed_countries(pool: &PgPool) -> Result<usize> {
-    let json = include_str!("../../examples/countries_seed.json");
-    let entries: Vec<Value> = serde_json::from_str(json)?;
-    let mut count = 0usize;
+    let data_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../frontend/src/data/countries");
+    if !data_dir.exists() {
+        anyhow::bail!(
+            "Country data directory not found: {}. Run from monorepo with frontend JSON present.",
+            data_dir.display()
+        );
+    }
 
-    for (i, entry) in entries.iter().enumerate() {
-        let slug = entry["slug"].as_str().unwrap_or_default();
-        let name = entry["name"].as_str().unwrap_or_default();
-        let flag = entry["flag"].as_str().unwrap_or("🌍");
-        let tagline = entry["tagline"].as_str().unwrap_or("");
-        let hero_image = entry["heroImage"].as_str().map(String::from);
-        let image_url = entry["images"]
+    let mut entries: Vec<_> = std::fs::read_dir(&data_dir)?
+        .filter_map(|e| e.ok())
+        .collect();
+    entries.sort_by_key(|e| e.file_name());
+
+    let mut count = 0usize;
+    let mut order = 0i32;
+
+    for entry in entries {
+        let path = entry.path();
+        if path.extension().and_then(|s| s.to_str()) != Some("json") {
+            continue;
+        }
+
+        let raw = std::fs::read_to_string(&path)
+            .with_context(|| format!("read country JSON {}", path.display()))?;
+        let json: Value = serde_json::from_str(&raw)
+            .with_context(|| format!("parse country JSON {}", path.display()))?;
+
+        let slug = json["slug"].as_str().unwrap_or_default();
+        let name = json["name"].as_str().unwrap_or_default();
+        let flag = json["flag"].as_str().unwrap_or("🌍");
+        let tagline = json["tagline"].as_str().unwrap_or("");
+        let hero_image = json["heroImage"].as_str().map(String::from);
+        let image_url = json["images"]
             .as_array()
             .and_then(|arr| arr.first())
             .and_then(|v| v.as_str())
@@ -142,20 +165,20 @@ async fn seed_countries(pool: &PgPool) -> Result<usize> {
             .or_else(|| hero_image.clone());
 
         let content = serde_json::json!({
-            "description": entry.get("description").cloned().unwrap_or(Value::String(String::new())),
-            "images": entry.get("images").cloned().unwrap_or(Value::Array(vec![])),
-            "stats": entry.get("stats").cloned().unwrap_or(Value::Object(Default::default())),
-            "tuitionFees": entry.get("tuitionFees").cloned().unwrap_or(Value::Object(Default::default())),
-            "scholarships": entry.get("scholarships").cloned().unwrap_or(Value::Array(vec![])),
-            "visaRequirements": entry.get("visaRequirements").cloned().unwrap_or(Value::Object(Default::default())),
-            "workPermit": entry.get("workPermit").cloned().unwrap_or(Value::Object(Default::default())),
-            "popularPrograms": entry.get("popularPrograms").cloned().unwrap_or(Value::Array(vec![])),
-            "languageRequirements": entry.get("languageRequirements").cloned().unwrap_or(Value::Object(Default::default())),
-            "topUniversities": entry.get("topUniversities").cloned().unwrap_or(Value::Array(vec![])),
-            "faqs": entry.get("faqs").cloned().unwrap_or(Value::Array(vec![])),
+            "description": json.get("description").cloned().unwrap_or(Value::String(String::new())),
+            "images": json.get("images").cloned().unwrap_or(Value::Array(vec![])),
+            "stats": json.get("stats").cloned().unwrap_or(Value::Object(Default::default())),
+            "tuitionFees": json.get("tuitionFees").cloned().unwrap_or(Value::Object(Default::default())),
+            "scholarships": json.get("scholarships").cloned().unwrap_or(Value::Array(vec![])),
+            "visaRequirements": json.get("visaRequirements").cloned().unwrap_or(Value::Object(Default::default())),
+            "workPermit": json.get("workPermit").cloned().unwrap_or(Value::Object(Default::default())),
+            "popularPrograms": json.get("popularPrograms").cloned().unwrap_or(Value::Array(vec![])),
+            "languageRequirements": json.get("languageRequirements").cloned().unwrap_or(Value::Object(Default::default())),
+            "topUniversities": json.get("topUniversities").cloned().unwrap_or(Value::Array(vec![])),
+            "faqs": json.get("faqs").cloned().unwrap_or(Value::Array(vec![])),
         });
 
-        let sort_order = (i + 1) as i32;
+        order += 1;
 
         sqlx::query(
             r#"
@@ -181,7 +204,7 @@ async fn seed_countries(pool: &PgPool) -> Result<usize> {
         .bind(&image_url)
         .bind(&hero_image)
         .bind(sqlx::types::Json(content))
-        .bind(sort_order)
+        .bind(order)
         .execute(pool)
         .await?;
 
