@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{Connection, PgConnection, postgres::PgConnectOptions};
+use sqlx::{PgConnection, PgPool};
 
 /// Runs all pending SQLx migrations from the `migrations/` directory.
 ///
@@ -11,12 +11,12 @@ use sqlx::{Connection, PgConnection, postgres::PgConnectOptions};
 ///
 /// Rows that have not yet been applied are left untouched and will be inserted
 /// by SQLx with the correct checksum when the migration actually runs.
-pub async fn run_migrations(_pool: &sqlx::PgPool, database_url: &str) -> Result<()> {
-    let connect_opts: PgConnectOptions = database_url
-        .parse()
-        .map_err(|e| anyhow::anyhow!("Invalid DATABASE_URL: {}", e))?;
-
-    let mut direct = PgConnection::connect_with(&connect_opts)
+///
+/// Uses a connection from the existing pool (no extra DB client) to stay within
+/// Supabase Session pooler limits on Render.
+pub async fn run_migrations(pool: &PgPool) -> Result<()> {
+    let mut conn = pool
+        .acquire()
         .await
         .map_err(|e| anyhow::anyhow!("Migration connection failed: {}", e))?;
 
@@ -33,16 +33,19 @@ pub async fn run_migrations(_pool: &sqlx::PgPool, database_url: &str) -> Result<
         )
         .bind(m.checksum.as_ref())
         .bind(m.version)
-        .execute(&mut direct)
+        .execute(&mut *conn)
         .await;
     }
 
     MIGRATOR
-        .run(&mut direct)
+        .run(&mut *conn)
         .await
         .map_err(|e| anyhow::anyhow!("Migration failed: {}", e))?;
 
-    ensure_critical_tables(&mut direct).await?;
+    #[allow(clippy::explicit_auto_deref)]
+    {
+        ensure_critical_tables(&mut *conn).await?;
+    }
 
     Ok(())
 }

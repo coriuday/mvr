@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
     // ---------------------------------------------------------------------------
     // Run migrations
     // ---------------------------------------------------------------------------
-    db::migrations::run_migrations(&db_pool, &config.database_url).await?;
+    db::migrations::run_migrations(&db_pool).await?;
     tracing::info!("✅ Migrations applied");
 
     db::seed::seed_if_empty(&db_pool).await?;

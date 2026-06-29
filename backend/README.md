@@ -57,12 +57,21 @@ See [`.env.example`](.env.example) for the full list.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | ✅ | Supabase PostgreSQL URL |
+| `DATABASE_URL` | ✅ | Supabase pooler URL (Session `:5432` or Transaction `:6543`) |
+| `DATABASE_POOL_SIZE` | — | Max SQLx pool connections (production default: **5** for Supabase Session mode) |
 | `JWT_SECRET` | ✅ | JWT signing secret |
 | `JWT_REFRESH_SECRET` | ✅ | Refresh token secret |
 | `TOTP_ENCRYPTION_KEY` | ⚠️ | Base64 32-byte key for encrypting admin 2FA secrets (`openssl rand -base64 32`) |
 | `RESEND_API_KEY` | ⚠️ | Email sending |
 | `CLOUDINARY_*` | ⚠️ | Image uploads |
+
+## Database connection pool (Render / Supabase)
+
+Supabase **Session** pooler allows about **15** simultaneous clients. Production sets `max_connections=5` and `min_connections=0` automatically when `ENVIRONMENT=production`. Migrations reuse the pool (no extra connection at startup).
+
+- Use the **pooler** URL from Supabase (not the direct `db.*.supabase.co` host unless you know you need it).
+- If you still hit `max clients reached`, switch to the **Transaction** pooler URL (port `6543`) or lower `DATABASE_POOL_SIZE`.
+- **Do not** run a local backend against the production `DATABASE_URL` while deploying to Render — it consumes pool slots and can block migrations.
 
 ## Database Migrations
 
