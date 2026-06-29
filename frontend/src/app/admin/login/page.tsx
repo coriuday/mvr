@@ -8,11 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { apiUrl } from "@/lib/api-url";
-import {
-  getDefaultAdminPath,
-  isStaffRole,
-  shouldForceSecuritySetup,
-} from "@/lib/admin-permissions";
+import { getDefaultAdminPath, isStaffRole } from "@/lib/admin-permissions";
 
 const LOGIN_TIMEOUT_MS = 25_000;
 const NETWORK_RETRY_DELAY_MS = 2_000;
@@ -86,10 +82,6 @@ async function confirmSessionAndStoreUser(): Promise<LoginUser> {
 }
 
 function redirectAfterLogin(user: LoginUser): void {
-  if (shouldForceSecuritySetup(user.role, user.totp_enabled)) {
-    window.location.assign("/admin/security");
-    return;
-  }
   window.location.assign(getDefaultAdminPath(user.role));
 }
 

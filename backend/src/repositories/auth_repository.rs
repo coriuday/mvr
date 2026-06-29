@@ -207,4 +207,17 @@ impl AuthRepository {
             .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
         Ok(())
     }
+
+    /// Permanently remove a staff user (leads/blogs FKs null on delete).
+    pub async fn delete_by_id(&self, id: Uuid) -> AppResult<()> {
+        let result = sqlx::query("DELETE FROM users WHERE id = $1")
+            .bind(id)
+            .execute(&self.db)
+            .await
+            .map_err(|e| AppError::InternalServerError(format!("DB error: {e}")))?;
+        if result.rows_affected() == 0 {
+            return Err(AppError::NotFound(format!("User {id} not found")));
+        }
+        Ok(())
+    }
 }

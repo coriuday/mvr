@@ -2,7 +2,7 @@ use crate::{
     models::user::{UpdateUserActiveRequest, UpdateUserRoleRequest},
     repositories::auth_repository::AuthRepository,
     routes::AppState,
-    utils::errors::AppResult,
+    utils::errors::{AppError, AppResult},
 };
 use axum::{
     Json,
@@ -57,5 +57,28 @@ pub async fn update_active(
         "success": true,
         "message": if body.is_active { "User activated" } else { "User deactivated" },
         "data": user,
+    })))
+}
+
+// ─── DELETE /api/admin/users/:id ─────────────────────────────────────────────
+/// Permanently remove a staff user. Admins cannot delete their own account.
+pub async fn delete_user(
+    State(state): State<AppState>,
+    axum::Extension(claims): axum::Extension<crate::utils::jwt::Claims>,
+    Path(id): Path<Uuid>,
+) -> AppResult<Json<serde_json::Value>> {
+    let current_id = Uuid::parse_str(&claims.sub)
+        .map_err(|_| AppError::Unauthorized("Invalid token".to_string()))?;
+    if id == current_id {
+        return Err(AppError::Forbidden(
+            "You cannot delete your own account".to_string(),
+        ));
+    }
+
+    let repo = AuthRepository::new(state.db);
+    repo.delete_by_id(id).await?;
+    Ok(Json(serde_json::json!({
+        "success": true,
+        "message": "User removed",
     })))
 }

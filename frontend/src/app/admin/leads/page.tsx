@@ -5,6 +5,7 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import api from "@/services/api";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/useDebounce";
+import { normalizeRole } from "@/lib/admin-permissions";
 import {
   Search, RefreshCw, AlertCircle, LayoutGrid, List,
   GripVertical, X, Phone, Mail, Globe, Clock,
@@ -521,7 +522,7 @@ export default function LeadsPage() {
   useEffect(() => {
     api.get("/admin/users").then((r) => {
       const all: Counselor[] = r.data.data ?? [];
-      setCounselors(all.filter((u) => u.role !== "ADMIN"));
+      setCounselors(all.filter((u) => normalizeRole(u.role) !== "ADMIN"));
     }).catch(() => {});
   }, []);
 

@@ -7,11 +7,10 @@ import {
   canAccessPath,
   getDefaultAdminPath,
   isStaffRole,
-  isTotpSetupBlocked,
-  shouldForceSecuritySetup,
 } from "@/lib/admin-permissions";
 
 interface AuthUser {
+  id?: string;
   name: string;
   email: string;
   role: string;
@@ -105,16 +104,6 @@ function applyStaffRouteGuards(
   pathname: string,
   serverUser: AuthUser
 ): void {
-  if (
-    shouldForceSecuritySetup(serverUser.role, serverUser.totp_enabled, {
-      bypassLock: isTotpSetupBlocked(),
-    }) &&
-    pathname !== "/admin/security"
-  ) {
-    router.replace("/admin/security");
-    return;
-  }
-
   if (!canAccessPath(serverUser.role, pathname)) {
     router.replace(getDefaultAdminPath(serverUser.role));
   }

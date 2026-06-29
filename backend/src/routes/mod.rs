@@ -284,6 +284,7 @@ fn strict_admin_routes(state: AppState) -> Router<AppState> {
         .route("/api/admin/users", get(users::list_users))
         .route("/api/admin/users/:id/role", put(users::update_role))
         .route("/api/admin/users/:id/active", patch(users::update_active))
+        .route("/api/admin/users/:id", delete(users::delete_user))
         .route("/api/auth/totp/setup", post(auth::totp_setup))
         .route("/api/auth/totp/confirm", post(auth::totp_confirm))
         .route("/api/auth/totp/disable", post(auth::totp_disable))

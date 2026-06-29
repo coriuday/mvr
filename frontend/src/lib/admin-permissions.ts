@@ -60,38 +60,19 @@ export function getDefaultAdminPath(role: unknown): string {
   }
 }
 
-export function shouldForceSecuritySetup(
-  role: unknown,
-  totpEnabled: boolean | undefined,
-  options?: { bypassLock?: boolean }
-): boolean {
-  if (options?.bypassLock) return false;
-  return normalizeRole(role) === "ADMIN" && totpEnabled === false;
+/** PascalCase role for Rust API request bodies (Admin, Editor, Counselor). */
+export function toApiRole(role: StaffRole): string {
+  const labels: Record<StaffRole, string> = {
+    ADMIN: "Admin",
+    EDITOR: "Editor",
+    COUNSELOR: "Counselor",
+  };
+  return labels[role];
 }
 
-/** Set when server 2FA setup is misconfigured — allows admin to use panel until fixed. */
-export const TOTP_SETUP_BLOCKED_KEY = "mvr_2fa_setup_blocked";
-
-export function isTotpSetupBlocked(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return sessionStorage.getItem(TOTP_SETUP_BLOCKED_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function setTotpSetupBlocked(blocked: boolean): void {
-  if (typeof window === "undefined") return;
-  try {
-    if (blocked) {
-      sessionStorage.setItem(TOTP_SETUP_BLOCKED_KEY, "1");
-    } else {
-      sessionStorage.removeItem(TOTP_SETUP_BLOCKED_KEY);
-    }
-  } catch {
-    /* ignore */
-  }
+/** Display label for role badges (Admin, Editor, Counselor). */
+export function formatRoleLabel(role: StaffRole): string {
+  return toApiRole(role);
 }
 
 export const ADMIN_NAV_PATHS = ROLE_PATHS;
